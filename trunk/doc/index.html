@@ -1,0 +1,1150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-JP">
+<title>CaboCha: Yet Another Japanese Dependency Structure
+Analyzer</title>
+<link type="text/css" rel="stylesheet" href="cabocha.css">
+</head>
+<body>
+<h1>CaboCha/南瓜: Yet Another Japanese Dependency Structure
+Analyzer</h1>
+
+<p>$Id: index.html 1501 2005-12-24 17:02:06Z taku $;</p>
+<div class="main">
+<h2>CaboCha/南瓜とは</h2>
+
+<p><b>CaboCha</b> は, Support Vector Machines
+に基づく日本語係り受け解析器です. 2001年6月現在,
+統計的な日本語係り受け解析器として最も精度が高い(89.29%)システムとなって
+います. また,
+バックトラックを行なわない決定的な解析アルゴリズム (Cascaded
+Chunking Model) を採用しており,
+比較的効率の良い解析が行なえます.</p>
+
+<h2>目次</h2>
+
+<ul>
+<li><a href="#practice">実践 CaboCha</a></li>
+<li><a href="#feature">特徴</a></li>
+<li><a href="#news">新着情報</a></li>
+<li><a href="#performance">学習データと解析精度</a></li>
+<li><a href="#download">ダウンロード</a></li>
+<li><a href="#install-unix">インストール</a> 
+<ul>
+<li><a href="#install-unix">UNIX</a></li>
+<li><a href="#install-windows">Windows</a></li>
+</ul>
+</li>
+<li><a href="#usage-tools">使い方</a></li>
+<ul>
+<li><a href="#parsing">とりあえず動かしてみる </a>
+<li><a href="#layer">解析レイヤ </a>
+<li><a href="#format">各レイヤのフォーマット </a>
+<li><a href="#type">係りタイプについて </a>
+<li><a href="#a+p">同格, 並列 情報の出力</a> 
+<li><a href="#option">コマンドラインオプション </a>
+<li><a href="#cabocharc">リソースファイル</a> 
+<li><a href="#partial-parsing">部分的に係り関係が与えられた状態からの解析
+    </a>
+<li><a href="#partial-chunking">文節切りの指定 </a>
+</ul>
+<li><a href="training.html">係り受け/文節切り/固有表現解析の学習方法</a></li>
+<li><a href="libcabocha.html">C/C++/Perl/Ruby/Python
+ライブラリ</a></li>
+<li><a href="#paper">CaboCha に関する発表</a></li>
+<li><a href="#TODO">TODO</a></li>
+<li><a href="#ack">謝辞</a></li>
+</ul>
+
+<h2><a name="practice">実践 CaboCha</a></h2>
+<p>適当な文を入力してください. 解析します<br>
+学習に新聞を使用しているので,
+会話文のようなドメインが異なる文はエラーが多くなるでしょう.</p>
+
+<form action="./cgi/cabocha.cgi" method="get">出力:
+<select name="model">
+<option value="chasen-large">係り受けのみ
+ </option>
+<option value="chasen-large-A+P">係り受け + 同格/並列 解析</option>
+</select> 
+&nbsp;&nbsp; 入力文:
+<select name="input">
+<option value="manual">手動で入力 (以下)</option>
+       <option value="asahi">asahi.com のトップ記事</option>
+        <option value="yomiuri">yomiuri.co.jp のトップ記事</option>
+        <option value="nikkei">nikkei.co.jp のトップ記事</option>
+</select>
+
+<p>入力文: <input type="text" name="sentence" size="90"></p>
+<input type="submit" value=" 解析 "> <input type="reset" value=
+" Clear "></form>
+
+<h2><a name="feature">特徴</a></h2>
+
+<ul>
+<li>Support Vector Machines (SVMs) に基づく,
+高性能な係り受け解析器</li>
+
+<li>SVM の分類アルゴリズムの高速化手法である PKE (ACL 2003 にて<a href="http://cl.aist-nara.ac.jp/~taku-ku/publications/acl2003.pdf">発表</a>)を適用.<br>
+
+<li>決定的な解析アルゴリズム <b>(Cascaded Chunking Model)</b>
+を採用. 高効率な解析</li>
+
+<li>
+係り関係そのものを素性として考慮する<b>「動的素性」</b>を採用,
+精度向上に大きく貢献</li>
+
+<li>文節の区切にも SVMs を採用 (実際には <a href="http://cl.aist-nara.ac.jp/~taku-ku/software/yamcha">YamCha</a>を使用)</li>
+<li>単純な並列/同格構造解析が可能</li>
+<li>IREX の定義による固有表現解析が可能</li>
+<li>柔軟な入力形式. 生文はもちろん,
+形態素解析済みデータ, 文節区切り済み データ,
+部分的に係り関係が付与されたデータからの解析が可能</li>
+<li>係り受けの同定に使用する素性をユーザ側で再定義可能</li>
+<li>データを用意すれば, ユーザ側で学習を行うことが可能</li>
+<li>内部の辞書に, 高速な Trie 構造である <a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/software/darts">Double-Array</a>
+を採用</li>
+
+<li>1文/秒程度の現実的な解析速度</li>
+<li>C/C++/Perl/Ruby ライブラリの提供</li>
+</ul>
+
+<h2><a name="news">新着情報</a></h2>
+
+<ul>
+<li><strong>2005-12-24</strong>: <a href="#download">cabocha    0.53</a></li>
+  <ul>
+    <li>極端に長い文を解析すると segmentation falt になる問題を修正
+  </ul>
+
+<li><strong>2004-10-07</strong>: cabocha    0.52</li>
+  <ul>
+    <li><a href="http://chasen.org/~taku/software/mecab">MeCab</a>をサポート.<br>
+        % cabocha --morphological-analyzer=mecab とすれば mecab が起動される
+  </ul>
+
+<li><strong>2004-08-05</strong>: cabocha    0.51</li>
+  <ul>
+    <li>cabocha_new, cabocha_new2 に失敗した時にメモリリークが起きる問
+	題を修正
+    <li>Windows版 インストール時に administrator 権限でインストールすると, 
+	全ユーザが使用可能にできるようにした. (インストール時のオプションで変更可能)
+  </ul>
+<li><strong>2004-03-28</strong>: cabocha 0.50</li>
+   <ul>
+     <li>解析速度を大幅に高速化. (7-8倍高速)<br>
+	 SVM の分類アルゴリズムの高速化手法である PKE (ACL 2003 にて<a href="http://cl.aist-nara.ac.jp/~taku-ku/publications/acl2003.pdf">発表</a>)を適用した.<br>
+	 (非力な計算機では動作が遅くなるかもしれません. メモリは
+	 512MB 以上, CPU は 1.0GHz 以上の計算機をお使い下さい.)
+     <li><a href="http://cl.aist-nara.ac.jp/~taku-ku/software/yamcha">YamCha</a> 0.30 対応. <br>
+	 <a href="http://cl.aist-nara.ac.jp/~taku-ku/software/yamcha">YamCha</a> 0.27以下のバージョンでは動きません.
+	 アップグレードを行ってください.
+     <li>文節切りに用いる学習データの量を増やした.
+     <li>係り受け学習時のパラメータを変更し, 若干精度が向上した.
+     <li>小規模モデルを削除した. (分類の高速化に伴い, 小規模のモデルを使
+	 う必要がなくなっため.)
+   </ul>
+<li><strong>2004-03-08</strong>: cabocha 0.44</li>
+   <ul>
+     <li>ライセンスを LGPL に変更<br>
+     <li>数値 (DATE, MONEY) の固有表現抽出の精度向上のために, 数字の連結
+	 品詞相当を実装し, 再学習した
+     <li>文節区切りの誤り事例を追加し, 再学習した
+     <li>Windows版に附属の ChaSen を ChaSen 2.1 から ChaSen 2.3.3 に変更
+   </ul>
+
+<li><strong>2003-09-14</strong>: cabocha 0.43</li>
+   <ul>
+     <li>C の API を使うと, 特定の環境で (RedHat 9) 解析結果が変になる (素性選択に失敗する)
+	 バグを修正.<br>
+	 <b>(RetHat9 上で C API, perl/ruby/python モジュールを使ってる方は, 早急
+	 にアップグレードしてください)</b>
+     <li>ruby の正規表現ライブラリを使っていたが, 使うのをやめた<br>
+   </ul>
+<li><strong>2003-08-15</strong>: cabocha 0.42</a></li>
+   <ul>
+     <li>不正な NE タグ列を出力する可能性があるバグを修正.
+         (例: 文頭に I タグが付いたり, I-LOCATION, I-PERSION といった不正なタグ列)
+     <li>getenv が configure スクリプトで正しく読めない問題を修正<br>
+         (~/.cabocharc の読みこみができなかった)
+   </ul>
+<li><strong>2003-07-04</strong>: cabocha 0.41</li>
+   <ul>
+     <li>C の stdio と非同期に動作させていたのをやめた. (perl/ruby の
+	 open2, open3 経由で使えるようになった)
+     <li>yamcha 0.26 以降を使うことで, sparc 環境で正常に動作するように
+	 なった.
+   </ul>
+<li><strong>2003-05-12</strong>: </li>
+    <ul>
+     <li>固有表現抽出機能を付与した. <a href="http://nlp.cs.nyu.edu/irex/index-j.html">IREX</a> で定義される固有表現タグ
+	 を出力する. 精度はF値で 85前後. 詳細は<a href="#ne">こちら</a>
+     <li>固有表現抽出機能の整合性の都合上 JUMAN のサポートを停止した. 
+     <li>C++ レベルの API の変更. C 用 API への関数追加,
+	 スクリプトバインディング(perl/ruby/python) のインタフェイスの変更
+    </ul>
+<li><strong>2003-03-31</strong>: cabocha 0.36</li>
+    <ul>
+     <li>まっさらの環境にインストールする際, make check がうまく動かない
+	 バグを修正した.
+     <li>$HOME/.cabocharc および 環境変数 CABOCHARC による cabocharc の
+	 指定が正常に行われないバグを修正した.
+    </ul>
+<li><strong>2003-03-29</strong>: cabocha 0.35</li>
+    <ul>
+     <li>IPA のモデルを再学習,再構築した. 従来は, IPA品詞体系と京大コーパス
+	 の「文節切り」の整合性を ad-hoc に解決していたが, 厳密に解決し
+	 た.  IPA品詞体系の連語 (として, について) の解析が正しく行え
+	 るようになった.  個々の文節長が長くなるため 「みかけ」の
+	 精度は下がるが, 実用上の精度は向上している.</li>
+     <li>並列 + 同格 の情報を付与するモデルを添付した. 詳細は<a href="#a+p">こちら</a></li>
+     <li>ChaSen の連結品詞の機能を使う必要がなくなった.
+	(連結品詞の機能を off にした ChaSen で文節切りの学習データを作成した.)
+     <li>chasen を呼ぶ class を singleton にした.
+	 複数回呼びだされても, 1回の呼びだしとなる.
+	 -c オプションによる chasenrc の指定は, 最初の1回のみに限定される.
+	 (chasen が再入不可能なライブラリのため仕方がない)</li>
+     <li>JUMAN のモデルファイルを<a href="juman-model/">別配布</a>にした</li>
+     <li>Windows 版を自己解凍形式に変更, インストールが容易になった</li>
+    </ul>
+<li><strong>2003-01-31</strong>: cabocha 0.34</li>
+    <ul>
+     <li>chasen を呼ぶときに, -F オプション付きで呼ぶのをやめた. それに
+	 より「未知語品詞」を使うことができるようになった. 
+	 未知語の多くが名詞の場合は, 精度が向上すると思われる.
+	 詳しくは <a href="#unknown-pos">こちら</a>
+     <li>cabocha_sparse_tostr ()の戻り値にゴミが入るバグを修正
+     <li>メモリーリークのバグの修正
+     <li>Windows Version の開発を mingw から Visual Studio .NET C++ に変更
+    </ul>
+<li><strong>2003-01-06</strong>: cabocha 0.33</li>
+    <ul>
+     <li>param.cpp (コマンドライン解析ルーチン) の変更</li>
+    </ul>
+<li><strong>2002-11-21</strong>: cabocha 0.32 Released<br>
+    <ul>
+     <li>-o オプションが動作しないバグを修正</li>
+    </ul>
+<li><strong>2002-11-13</strong>: cabocha 0.31<br>
+    <ul>
+     <li>-r オプションが動作しないバグを修正</li>
+     <li>chasen のリンクが cygwin, FreeBSD
+	 でうまくいかない問題を修正</li>
+     <li>0.3 は,
+	 オプションの指定ができないバグが含まれているので, 0.31
+	 をお 使いください.</li>
+    </ul>
+<li><strong>2002-11-11</strong>:</li>
+<ul>
+ <li>2文節しかない文を入力したときに,
+     係り受けタイプが出力されないバグを修正</li>
+ <li>部分解析ができていないバグを修正</li>
+ <li>O タグに関する解説を追加</li>
+ <li>係り受けの学習に関するドキュメントの修正
+     (一部誤りがあった)</li>
+ <li>ソースコードをきれいにした.</li>
+ <li>gcc 3.2, Borland C++, Visual Studio .NET に対応</li>
+</ul>
+
+<li><strong>2001-10-22</strong>: cabocha 0.21<br>
+<ul>
+<li>JUMAN 用 chunker モデルに欠陥があり, 解析中に
+core dump するバグを修正</li>
+<li>IPA 用 chunker モデル中のバグを修正</li>
+<li>ChaSen 用 handler
+が入力フォーマットを上書きしてしまうバグを修正</li>
+</ul>
+
+<li><strong>2001-10-19</strong>: cabocha 0.2
+<ul>
+<li>データ構造とメモリ管理の工夫により, 20-30%の高速化</li>
+<li>C++/Perl/Ruby/Python interface の充実</li>
+<li>文節切りの位置をユーザが指定できるようになった.
+(必ず切る/絶対切らない/任意の位置の指定)</li>
+<li>XML 出力の暫定対応</li>
+</ul>
+<li><strong>2001-7-7</strong>: cabocha 0.1
+<ul>
+<li>Initial Release!</li>
+</ul>
+</ul>
+
+<h2><a name="performance">学習データと解析精度</a></h2>
+
+<div style="margin-left: 2em">
+<table border>
+<tr>
+<td align="center">名前</td>
+<td align="center">内容</td>
+<td align="center">
+精度(後ろから2番目の文節の評価を含める)</td>
+</tr>
+
+<tr>
+<td align="left">chasen-large</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+3.0 を chasenで解析した結果を学習</td>
+<td align="center">約 91%</td>
+</tr>
+
+<tr>
+<td align="left">chaen-med</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+3.0 (奇数日,社説は奇数月) を chasen
+で解析した結果を学習</td>
+<td align="center">90.20%</td>
+</tr>
+
+<tr>
+<td align="left">chasen-small</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+2.0 (950101-950108) を chasen で解析した結果を学習</td>
+<td align="center">88.37%</td>
+</tr>
+
+<!---
+<tr>
+<td align="left">juman-large</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+3.0 をすべて学習</td>
+<td align="center">約 91%</td>
+</tr>
+
+<tr>
+<td align="left">juman-med</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+3.0 (奇数日,社説は奇数月) を学習</td>
+<td align="center">90.51%</td>
+</tr>
+
+<tr>
+<td align="left">juman-small</td>
+<td align="left"><a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+2.0 (950101-950108) を学習</td>
+<td align="center">89.29%</td>
+</tr> --->
+</table>
+</div>
+
+<ul>
+<li>配布パッケージには, chasen-large が含まれます
+</ul>
+
+<h2><a name="download">ダウンロード</a></h2>
+
+<ul>
+<li>CaboCha は <a href="http://www.gnu.org/copyleft/lesser.ja.html">GNU
+    Lesser General Public License (LGPL)</a>に従ったフリーソフトウェアです.</li>
+
+<li>付属のモデルファイル(model 以下のファイル)には, LGPL
+は<b>適用されません</b>. LGPL は, 付属のプログラムや学習ツールのソース・コード,
+ドキュメントのみに適用されます.</li>
+
+<li>付属のモデルファイルは,
+株式会社毎日新聞社の御厚意により
+配布されている毎日新聞記事CD-ROM版を基に学習,
+作成されたものです. 付属のモデルファイルは, <a href=
+"http://www.nichigai.co.jp/sales/mai_data/contract.pdf">毎日新聞データ使用許諾に関する覚書</a>に記載の利用条件内で
+その使用及び, 複製，改変，頒布が認められます.
+そのため配布しているモデルをそのままの形で使うことは, 研究目的, 個人利用に限られます.
+誤解ないように言っておくと, これは, CaboCha
+の利用が研究目的に限定されていることを意味しません.
+ご自身で用意なさったコーパスを基に, 独自にモデルを<a href="training.html">学習,
+作成した場合</a>は, 研究目的以外の利用が可能です.</li>
+
+<li>奈良先端科学技術大学院大学大学ならびに工藤 拓は,
+CaboCha のプログラム 及び付属のモデルファイルの保証,
+および特定目的の適合性の保証を含め
+いかなる保証をも行うものではなく， CaboCha のプログラム
+及び付属のモデルを使用，複製，改変，頒布により生じた損害や賠償等については，
+法律上の根拠を問わず一切責任を負いません.
+ご注意ください.</li>
+
+<li>将来的には, 著作権やライセンス上の問題から,
+モデルファイルとプログラムを分割
+して配布する予定です.</li>
+
+<li>CaboCha を参照する場合は,
+以下の文献を参照していただけると幸いです. 
+
+<pre>
+# 国内
+@article{cabocha,
+   title = {チャンキングの段階適用による日本語係り受け解析},
+   author = {工藤 拓、松本 裕治},
+   jorunal = {情報処理学会論文誌},
+   volume = 43,
+   number = 6,
+   pages = {1834-1842},
+   year = {2002}
+}
+
+# 海外
+@inproceedings{cabocha,
+   title = {Japanese Dependency Analysis using Cascaded Chunking},
+   author = {Taku Kudo, Yuji Matsumoto},
+   booktitle = {CoNLL 2002: Proceedings of the 6th Conference on Natural Language Learning 2002 (COLING 2002 Post-Conference Workshops)},
+   pages = {63-69},
+   year = {2002}
+}
+</pre>
+</li>
+</ul>
+
+<div style="margin-left: 2em">
+<h3><a name="source">Source</a></h3>
+
+<ul>
+<li>cabocha-0.53.tar.gz: <a href=
+"./src/cabocha-0.53.tar.gz">HTTP</a></li>
+</ul>
+
+<!--- <h3><a name="rpm">Binary/Source package for RedHat Linux</a></h3>
+
+<ul>
+<li>RedHat 9.0 i386: <a href=
+"./redhat-9.x/RPMS/i386/">HTTP</a></li>
+
+<li>RedHat 9.0 SRPMS: <a href="./redhat-9.x/SRPMS/">HTTP</a> 
+
+<p>バイナリパッケージは, RedHat 9.0 で作成しています.
+もし異る version をお使いの方は, SRPM から
+rebuild してください.</p>
+</li>
+</ul> --->
+
+<h3><a name="rpm">Binary package for MS-Windows</a></h3>
+
+<ul>
+<li><a href="./win/">HTTP</a><br>
+Windows 版には, 学習機能は含まれていません.</li>
+</ul>
+</div>
+
+<h2><a name="install">インストール</a></h2>
+
+<div style="margin-left: 2em">
+<h3><a name="install-unix">UNIX</a></h3>
+
+<ul>
+<li>あらかじめインストールすべきプログラム 
+
+<ul>
+<li><a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/software/yamcha/">YamCha
+0.30</a>以上 (必須)</li>
+
+<li><a href="http://chasen.aist-nara.ac.jp/">ChaSen</a>
+(必須)</li>
+
+<li><a href="http://chasen.org/~taku/software/mecab/">MeCab</a>
+ChaSen の代用, ChaSen を用いない時は必要</li>
+
+<li><a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/software/TinySVM/">TinySVM</a>
+(学習を行う場合は必須)</li>
+
+<li>C++ コンパイラ (g++ 2.95.1 以上
+で動作確認済み)</li>
+</ul>
+</li>
+
+<li>インストール手順 
+
+<pre>
+ % ./configure 
+ % make
+ % make check
+ % su
+ # make install
+</pre>
+
+<a name="unknown-pos">
+必要ならば, 以下の項目を chasenrc に追加し(コメントをはずし)
+未知語品詞を使うように設定します. 通常, 未知語には 「未知語」という品詞
+が付与されますが, 以下の設定により, 未知語品詞 (デフォルトは, 名詞-サ変)
+が付与されます. 解析したい文の未知語の多くが
+名詞である場合は設定したほうがよいでしょう. (NTT の磯崎さんに教えていただきました)</a>
+<pre>
+(出力フォーマット "%m\t%y\t%M\t%P-\t%T \t%F \n")        ; 品詞名出力
+</pre>
+
+</li>
+<li>configure option
+
+<ul>
+<li> --prefix=/home/taku-ku/nltools のように<br>
+ インストールパスを変更することが可能です.<br>
+ この場合, インストールにSuper User
+の権限は必要ではありません.</li>
+
+<li> --disable-shared を指定すると, shared library
+を作成せず, 高速な binary が作成できます.</li>
+
+<li> --with-chasen-config=/usr/bin/chasen-config のように,<br>
+ chasen-config のパスを直接指定することが可能です.</li>
+
+<li> --with-mecab-config=/usr/bin/mecab-config のように,<br>
+ mecab-config のパスを直接指定することが可能です.</li>
+
+<li>
+ --with-chasen-config=/usr/bin/yamcha-config のように,<br>
+ yamcha-config のパスを直接指定することが可能です.</li>
+
+<li>
+--with-morphological-analyzer=mecab のように,<br>
+デフォルトの形態素解析器を選択できます. chasen,mecab からお選び下さい</li>
+
+<li>
+--disable-pke とすることで, PKE の機能を停止できます. <br>
+ただし,解析速度は遅くなります. 非力な計算機の場合はこのオプションをお使
+い下さい.</li>
+
+<li>--enable-chasen-static, --enable-mecab-static とすることで, chasen/mecab
+への動的リンクをやめて静的リンクに変更します. 動的リンクがうまくいかない
+アーキテクチャでは (Cygwin等) こちらをお使いください. </li>
+</ul>
+</li>
+</ul>
+
+<h3><a name="install-windows">Windows</a></h3>
+
+<ul>
+<li>インストール手順 
+<ul>
+自己解凍インストーラ cabocha-X.XX.exe を実行します.
+インストールウイザードに従ってインストールしてください.<br>
+<!-- JUMAN を使う場合は, <a href="http://pine.kuee.kyoto-u.ac.jp/nl-resource/juman.html">
+JUMAN for Windows</a> が必要です. <br>
+詳細は, <a href= "#juman">こちら</a>を参照してください. -->
+</ul>
+</li>
+
+<li>その他 
+<ul>
+<li>Windows 版には, 学習機能は含まれません.</li>
+<li>Windows 版は, SJIS コードを用いています.</li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2><a name="usage-tools">使い方</a></h2>
+
+<ul>
+<li><a name="parsing">とりあえず動かしてみる </a>
+
+<p>cabocha を起動して,
+生文を標準入力から入力してみてください.<br>
+デフォルトで, 簡易 Tree
+表示により結果を出力します.</p>
+
+<p><img src="./1st.png" alt="解析例"></p>
+
+<p>-f1 というオプションで,
+計算機に処理しやすいフォーマット (<a href=
+"http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京都大学コーパス</a>
+フォーマット)で出力します.</p>
+
+<pre>
+zinnia:~% cabocha -f1
+* 0 5D 0/1 4.52155167
+太郎    タロウ  太郎    名詞-固有名詞-人名-名                   B-PERSON
+は      ハ      は      助詞-係助詞                     O
+* 1 2D 0/1 1.88996940
+次郎    ジロウ  次郎    名詞-固有名詞-人名-名                   B-PERSON
+が      ガ      が      助詞-格助詞-一般                        O
+* 2 3D 0/2 1.05423213
+持っ    モッ    持つ    動詞-自立       五段・タ行      連用タ接続      O
+て      テ      て      助詞-接続助詞                   O
+いる    イル    いる    動詞-非自立     一段    基本形  O
+* 3 5D 0/1 4.99698811
+本      ホン    本      名詞-一般                       O
+を      ヲ      を      助詞-格助詞-一般                        O
+* 4 5D 1/2 0.00000000
+花      ハナ    花      名詞-一般                       O
+子      コ      子      名詞-一般                       O
+に      ニ      に      助詞-格助詞-一般                        O
+* 5 -1O 0/1 0.00000000
+渡し    ワタシ  渡す    動詞-自立       五段・サ行      連用形  O
+た      タ      た      助動詞  特殊・タ        基本形  O
+。      。      。      記号-句点                       O
+</pre>
+<br>
+<br>
+</li>
+
+<li><a name="layer">解析レイヤ </a>
+
+<p><b>CaboCha</b>には, 解析レイヤという概念があります.
+解析レイヤは, 以下に示 す
+4つの解析単位の事を指します. <b>CaboCha</b>は,
+これらのレイヤを UNIX pipe のように取り扱います.
+つまり,
+個々の解析レイヤは<b>完全に独立した空間</b>
+で動作し, ユーザは, 任意のレイヤを入力として与え,
+任意のレイヤの出力を得ることができます.</p>
+
+<p>
+さらに, これらのレイヤとは独立に, 
+<a href="http://nlp.cs.nyu.edu/irex/index-j.html">IREX</a>定義に基づく 固有表現解析機能があります.
+詳細は<a href="#ne">こちら</a>をごらんください.</p>
+
+<p><img src="./layer.png" alt="レイヤ"></p>
+
+<p>解析レイヤは, -I, -O オプションにて変更します.<br>
+-I は 入力のレイヤ, -O は出力のレイヤです.</p>
+
+<pre>
+  -I, --input-layer=LAYER   set input layer
+             0 - raw sentence layer
+             1 - POS tagged layer
+             2 - POS tagged and Chunked layer
+             3 - POS tagged, Chunked and Feature selected layer
+
+  -O, --output-layer=LAYER  set ouput layer
+             1 - POS tagged layer
+             2 - Chunked layer
+             3 - Chunked and Feature selected layer
+             4 - Parsed layer (default)
+</pre>
+
+<p>* 形態素解析のみ</p>
+
+<pre>
+% cabocha -I0 -O1
+</pre>
+
+* 文節切りのみ 
+
+<pre>
+% cabocha -I0 -O2 
+</pre>
+
+* 係り受け解析まで行う 
+
+<pre>
+% cabocha -I0 -O4
+</pre>
+
+* RWCP コーパス (形態素解析済みのデータ) から入力
+
+
+<pre>
+% cat rwcp.3000.ipa | cabocha -I1 -O4 
+</pre>
+
+* cabocha 自身を組みあわせる 
+
+<pre>
+% chasen | cabocha -I1 -O2 | cabocha -I2 -O3 | cabocha -I3 -O4
+</pre>
+
+* 素性選択は 自分で作成した perl プログラム 
+
+<pre>
+% cabocha -I0 -O2 | perl myscript.pl | cabocha -I3 -O4
+</pre>
+
+<br>
+<br>
+</li>
+
+<li><a name="format">各レイヤのフォーマット </a>
+
+<p>各レイヤの入出力のフォーマットを以下にまとめました</p>
+
+<table border>
+<tr>
+<td align="center">レイヤ名</td>
+<td align="center">入力フォーマット</td>
+<td align="center">出力フォーマット</td>
+</tr>
+
+<tr>
+<td align="center">形態素解析</td>
+<td align="center">一行一文で記述された生文 <a href=
+"1-in.txt">(例)</a></td>
+<td align="center">形態素解析結果<br>
+ChaSen と同じ出力 (MeCab -Ochasen の出力)<a href=
+"1-out-2-in.txt">(例)</a></td>
+</tr>
+
+<tr>
+<td align="center">文節区切り</td>
+<td align="center">形態素解析済みデータ<br>
+ ChaSen の出力 (MeCab -Ochasen の出力)<br>
+<td align="center">京都大学コーパスフォーマット<br>
+ただし係り先はすべて -1 (*1) <a href=
+"2-out-3-in.txt">(例)</a></td>
+</tr>
+
+<tr>
+<td align="center">素性選択</td>
+<td align="center">京都大学コーパスフォーマット,<br>
+ (*1) のフォーマット <a href=
+"2-out-3-in.txt">(例)</a></td>
+<td align="center">拡張した<br>
+独自フォーマット (*2) <a href="3-out-4-in.txt">(例)</a>
+<br>
+</td>
+</tr>
+
+<tr>
+<td align="center">係り受け解析</td>
+<td align="center">京都大学コーパスを拡張した<br>
+独自フォーマット,<br>
+ (*2) のフォーマット <a href=
+"3-out-4-in.txt">(例)</a></td>
+<td align="center">京都大学コーパスを拡張した<br>
+独自フォーマット (*3) <a href="4-out.txt">(例)</a></td>
+</tr>
+</table>
+
+<p>簡単な解説</p>
+
+<ul>
+<li>文節区切りレイヤの出力フォーマット (*1) <a href=
+"2-out-3-in.txt">(例)</a><br>
+ 
+
+<p>形態素解析済みデータに対し,
+文節の区切り情報が付与されます.<br>
+ 具体的には, <b>*</b>
+で始まる文節の開始位置を意味する行が追加されます.<br>
+ <b>*</b> の後には, <b>文節番号</b>
+(0から始まる整数),<br>
+ <b>係り先番号</b> (係り先は同定されていないので常に
+-1)<br>
+ さらに
+<b>係りタイプ</b>(同定されていないので常にO)
+が続きます.</p>
+</li>
+
+<li>素性選択レイヤの出力フォーマット (*2) <a href=
+"3-out-4-in.txt">(例)</a><br>
+ 
+
+<p>(*1)のフォーマットの他に,
+<b>主辞/機能語</b>の位置と,<br>
+ 任意の個数の<b>素性列</b>が付与されます.
+素性についての詳細は<a href=
+"#rdf">こちら</a>をご覧ください<br>
+</p>
+
+<p><a href="3-out-4-in.txt">例</a>の最初の文節には,
+"0/1" という情報が 付与されてますが,<br>
+これは主辞が 0 番目の形態素 (= 太郎),<br>
+ 機能語が 一番目の形態素 (= は)
+という意味になります.<br>
+</p>
+
+<p><b>主辞/機能語</b>フィールドは,
+素性選択レイヤのコメントに相当し, <b>CaboCha</b>は,
+このフィルードを解析に使用していません.
+このフィールドは今後廃止されるかもしれません.</p>
+</li>
+
+<li>係り受け解析レイヤの出力フォーマット (*3) <a href=
+"4-out.txt">(例)</a><br>
+ 
+
+<p>(*1) では, 係り先が常に -1, タイプが常に O
+でしたが, これらが同定されます.<br>
+ また, (*1)のフォーマットの他に, さきほど説明した
+<b>主辞/機能語</b>の位置と<br>
+ <b>係り関係のスコア</b>が追加されます.</p>
+
+<p>係り関係のスコアは, 係りやすさの度合を示します.
+一般に大きな値ほど係りやすいことを表します. しかし,
+各スコアと, 実際の解析精度の関係は調査中です.
+このスコアの意味づけに関しては調査する必要があると考えています.</p>
+</li>
+</ul>
+
+<li><a name="type">係りタイプについて </a>
+
+<p>デフォルトでは, D と O がありますが, それぞれ以下の意味を持ちます.</p>
+
+<ul>
+<li>D: SVM の判定によると係る.</li>
+
+<li>O: SVM の判定によると係らない.</li>
+</ul>
+
+O の解釈ですが, 係り受けの制約から,
+そこに係けるざるを得ない場合 たとえ SVM が D
+と判定しても, 係けます. たとえば,
+文末の文節まで SVM がすべて係らないと判定した場合は,
+システムは, 仕方なく文末に O で係けます.
+アプリケーションとして使う場合は, 現状では, O と
+D を区別する必要はないと思います. <br>
+モデルを変更することで, A(同格),P(並列)の情報を付与することが可能になり
+ます. 詳細は<a href="#a+p">こちら</a>
+<br>
+<br>
+</li>
+</li>
+
+<li><a name="a+p">同格, 並列 情報の出力</a> 
+<p>
+    <a href="http://pine.kuee.kyoto-u.ac.jp/nl-resource/corpus.html">京
+    都大学コーパス</a>に付与されている, 同格(A) 及び, 並列 (P) の
+    情報を出力することができます. これらは, 単純に複数クラスの問題と
+    みなして学習しただけなので, KNP に比べれば, 精度は低いです.
+    しかし, 単純な名詞句の並列や同格は, それなりに解析できます.
+    連用終止などは, 局所的な情報のみを用いていることと,
+    並列構造の定義自身が困難であるため, 現状の
+    素性だけでは, 学習が困難なようです.
+</p>
+
+    <p>同格/並列情報を出力するには, 
+    以下の要領で解析モデルを変更してください.</p>
+
+<p>cabocharc をローカルにコピー</p>
+<pre>
+% cp /usr/local/etc/cabocharc .
+</pre>
+
+
+<p>編集 (もちろん, /usr/local/etc/cabocharc を直接編集してもらっても
+かまいません. その場合は, デフォルトの動作が 並列/同格モデル
+となります.)</p>
+
+<pre>
+# Parser model file name
+parser-model  = /usr/local/lib/cabocha/model/IPA-dep-A+P.model
+</pre>
+
+<p>このモデルを使用して解析</p>
+<pre>
+% cabochar -r cabocharc
+中学校の運動部と、地域の小学生のクラブチームが統合したサッカークラブが奈良市内に誕生した。
+        中学校の-D              
+        運動部と、-----P        
+              地域の-D |        
+              小学生の-D        
+          クラブチームが-D      
+                  統合した-D    
+            サッカークラブが---D
+                    奈良市内に-D
+                      誕生した。
+EOS
+ラーメンなど麺類が好きだ。
+ラーメンなど-A  
+        麺類が-D
+        好きだ。
+EOS
+</pre>
+P が並列, A が同格関係を示します.
+<br>
+<br>
+
+<li><a name="ne">固有表現解析</a>
+<p>-n オプションで, <a href="http://nlp.cs.nyu.edu/irex/index-j.html">IREX</a>(Information Retrieval and Extraction Exercis)の
+定義に基づく固有表現タグを出力します. 解析精度は F値で 85 ポイント前後だ
+と思います.固有表現解析には, 以下の 3 つのモードが存在します. 適宜使いわけてください.
+</p>
+
+<pre>
+-n 0:  固有表現解析を行わない
+-n 1:  固有表現解析を行う. ただし, 文節の整合性を保つ. (デフォルト)
+         文節の整合性とは, 「1固有表現が, 複数の文節で構成されない」 という制約です.
+-n 2:  固有表現解析を行う. ただし文節の整合性を保たない.
+</pre>
+
+-f1 オプションを用いた場合,  固有表現は, IOB2形式で出力されます.
+
+<pre>
+B-X:  Xという固有表現の開始
+I-X:  Xという固有表現の開始以外
+O:    固有表現以外
+</pre>
+
+以下が, 具体例です. 活用型, 活用形の後に 固有表現タグが付与されます.
+
+<pre>
+% cabocha -f1 -n1
+太郎と花子は２００３年、奈良先端大を卒業した。
+* 0 1D 0/1 1.41407035
+太郎    タロウ  太郎    名詞-固有名詞-人名-名                   B-PERSON
+と      ト      と      助詞-並立助詞                   O
+* 1 4D 0/1 4.60512988
+花子    ハナコ  花子    名詞-固有名詞-人名-名                   B-PERSON
+は      ハ      は      助詞-係助詞                     O
+* 2 4D 4/4 3.53855121
+２      ニ      ２      名詞-数                 B-DATE
+０      ゼロ    ０      名詞-数                 I-DATE
+０      ゼロ    ０      名詞-数                 I-DATE
+３      サン    ３      名詞-数                 I-DATE
+年      ネン    年      名詞-接尾-助数詞                        I-DATE
+、      、      、      記号-読点                       O
+* 3 4D 0/1 0.00000000
+奈良先端大      ナラセンタンダイ        奈良先端大      名詞-固有名詞-組織                      B-ORGANIZATION
+を      ヲ      を      助詞-格助詞-一般                        O
+* 4 -1O 1/2 0.00000000
+卒業    ソツギョウ      卒業    名詞-サ変接続                   O
+し      シ      する    動詞-自立       サ変・スル      連用形  O
+た      タ      た      助動詞  特殊・タ        基本形  O
+。      。      。      記号-句点                       O
+EOS
+</pre>
+
+<li><a name="option">コマンドラインオプション </a>
+
+<p>頻繁に使用するコマンドラインには以下のものがあります.</p>
+
+<pre>
+  -f, --output-format=TYPE  出力フォーマットの指定
+  -I, --input-layer=LAYER   入力レイヤの指定
+  -O, --output-layer=LAYER  出力レイヤの指定
+  -m, --parser-model=FILE   係り受け解析用モデルの指定
+  -M, --chunker-model=FILE  文節区切り用モデルの指定
+  -N, --ne-model=FILE       固有表現解析のモデルの指定
+  -r, --rcfile=FILE         リソースファイルの指定  (詳細は<a
+ href="#cabocharc">ここ</a>)
+  -c, --chasenrc=FILE       chasenrc の指定
+  -b, --mecabrc=FILE        mecabrc の指定
+  -o, --output=FILE         出力ファイルの指定 (指定されないと標準出力)
+  -a, --morphological-analyzer=[mecab|chasen] 形態素解析器の指定, chasen|mecab から選択
+</pre>
+<br>
+<p>その他のオプションについては, <a href=
+"cabocha.html">ここ</a>をご覧ください.</p>
+</li>
+
+<li><a name="cabocharc">リソースファイル</a> 
+
+<p>コマンドラインオプションを使う代わりに<br>
+パラメータをファイルに記述し, -r
+オプションで指定することができます.<br>
+ここにリソースファイルの<a href=
+"cabocharc.txt">例</a>があります.</p>
+
+<p>リソースファイルは, 以下の順番で読みこまれます.</p>
+
+<ul>
+<li>-r で指定されたファイル</li>
+
+<li>ホームディレクトリの .cabocharc</li>
+<li>環境変数 CABOCHARC の値</li>
+<li>コンパイル時に決定されるシステムデフォルト<br>
+ (UNIX: /usr/local/etc/cabocharc, Windows:
+C:\Program Files\cabocha\etc\cabocharc)</li>
+</ul>
+
+<br>
+<br>
+</li>
+
+<li><a name="partial-parsing">部分的に係り関係が与えられた状態からの解析 </a>
+
+<p><b>CaboCha</b>は,
+部分的に解析済みのデータから解析を行う事が可能です.</p>
+
+<p>まず, レイヤ2まで解析済みのデータを作成します.
+この時点では, 係り受け関係は同定されておらず,
+係り先はすべて -1, となっ ています. この時,
+-1 の代わりに 関係が決定できるものに限り,
+係り先番号を指定 しておきます.
+関係がきまらない場合はそのまま -1
+として残しておきます.</p>
+
+<p>以下は, 「次郎が」の係り先を,
+直後の「持っている」に指定している 例です.
+これ以外の文節は, システムが係り先を決定します.</p>
+
+<pre>
+0 -1D
+太郎    タロウ  太郎    名詞-固有名詞-人名-名           
+は      ハ      は      助詞-係助詞             
+* 1 2D
+次郎    ジロウ  次郎    名詞-固有名詞-人名-名           
+が      ガ      が      助詞-格助詞-一般                
+* 2 -1D
+持っ    モッ    持つ    動詞-自立       五段・タ行      連用タ接続
+て      テ      て      助詞-接続助詞           
+いる    イル    いる    動詞-非自立     一段    基本形
+</pre>
+<br>
+<br>
+ 
+<p>あとは, このデータをレイヤ2の入力として与え,
+コマンドラインオプション -C
+を使用し解析を行ないます.<br>
+部分的に与えた係り関係の制約の元で最適な係り関係を出力します.</p>
+
+<pre>
+% cabocha -I2 -O4 -C &lt; Input 
+</pre>
+<br>
+</li>
+
+<li><a name="partial-chunking">文節切りの指定 </a>
+
+<p>あらかじめ, 文節切りの位置を指定することができます.
+また逆に, 絶対に切っ
+て欲しくない位置をあらかじめ指定することも可能です.</p>
+
+<p>具体的には, まず, レイヤ1
+(形態素解析済み)のデータを作成します.
+この時点では, 文節切りは行なわれていません. もし,
+ある形態素境界で文節切りを行ないたい場合は, そこに <b>*
+1 -1O</b> とい う行を挿入します. 逆に,
+絶対に文節切りを行なわい場合は, 境界に <b>* -1
+-1O</b>という行を挿入します.</p>
+
+<p>以下の例は, 「太郎」と「は」の間は,
+絶対に文節切りを行なわない, 「は」と 「次郎」
+の間は, 必ず文節切りを行なう と解釈されます.<br>
+その他の位置では システムが文節切りを行います.</p>
+
+<pre>
+太郎    タロウ  太郎    名詞-固有名詞-人名-名       
+* -1 -1O
+は  ハ  は  助詞-係助詞     
+* 1 -1O
+次郎    ジロウ  次郎    名詞-固有名詞-人名-名       
+が  ガ  が  助詞-格助詞-一般    
+</pre>
+
+<p>あとは, このデータをレイヤ 1 の入力として与え,
+コマンドラインオプション -C
+を使用し解析を行ないます.<br>
+</p>
+
+<pre>
+% cabocha -I1 -O4 -C &lt; Input 
+</pre>
+</li>
+</ul>
+
+<h2><a name="paper">CaboCha に関する発表</a></h2>
+
+<ul>
+<li>Taku Kudo, Yuji Matsumoto (2003)<br>
+Fast Methods for Kernel-Based Text Analysis, ACL 2003 in Sapporo, Japan
+[<a href="http://cl.aist-nara.ac.jp/~taku-ku/publications/acl2003.pdf">PDF</a>]
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/acl2003-slide.ppt">
+PPT (slide)</a>]</li>
+<li>Taku Kudo, Yuji Matsumoto (2002)<br>
+ Japanese Dependency Analyisis using Cascaded Chunking, CONLL 2002
+in TAIPEI [<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/conll2002.pdf">PDF</a>]
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/conll2002-slide.ppt">
+PPT (slide)</a>]</li>
+
+<li>工藤 拓, 松本 裕治 (2002)<br>
+ チャンキングの段階適用による係り受け解析, 情報処理学会
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/ipsj2001j.pdf">PDF
+(draft)</a>]</li>
+
+<li>工藤 拓, 松本 裕治 (2001)<br>
+ チャンキングの段階適用による係り受け解析, SIG-NL-142 [<a
+href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/nl142.pdf">PDF</a>]
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/nl142-slide.pdf">PDF
+(OHP)</a>]</li>
+
+<li>工藤 拓, 松本 裕治 (2000)<br>
+ Support Vector Machine による日本語係り受け解析 SIG-NL-138
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/nl138.pdf">PDF</a>]</li>
+
+<li>工藤 拓, 松本 裕治 (2001)<br>
+ Cascaded Chunking Model における部分解析済み情報の利用
+情報処理学会全国大会 2001 [<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/ipsj2001t.pdf">PDF</a>]
+[<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/ipsj2001t-slide.pdf">
+PDF (OHP)</a>]</li>
+
+<li>Taku Kudoh, Yuji Matsumoto (2000)<br>
+ Japanese Dependency Analysis Based on Support Vector
+Machines,EMNLP/VLC 2000 [<a href=
+"http://cl.aist-nara.ac.jp/~taku-ku/publications/vlc2000.pdf">PDF</a>]</li>
+</ul>
+
+<h2><a name="TODO">TODO</a></h2>
+
+<ul>
+<li>冗長解析 (西瓜プロジェクト)</li>
+
+<li>並列構造解析 (糸瓜 プロジェクト)</li>
+
+<li>リアルタイム解析 (苦瓜(ごーや)
+プロジェクト)</li>
+
+<li>トップダウン解析との融合</li>
+
+<li>文字コードの動的な変更</li>
+
+<li>Selector の定義を外に出す</li>
+
+<li>タグ付与ツールの作成</li>
+
+<li>エラーフィードバックシステムの構築</li>
+
+<li>英語の係り受け</li>
+
+<li>内部表現の洗練 (XML/DOM の利用)</li>
+</ul>
+
+<h2><a name="ack">謝辞</a></h2>
+
+<ul>
+<li>
+株式会社毎日新聞社の御厚意により，毎日新聞記事CD-ROM版に関して，
+研究目的での使用承諾をいただきました.
+ここに感謝いたします.</li>
+
+<li>京都大学コーパスを作成し, 無償で公開なさっている
+京都大学<a href=
+"http://pine.kuee.kyoto-u.ac.jp">言語メディア研究室</a>
+の皆さまに感謝いたします.<br>
+ 特に,
+同コーパス作成の中心的役割を果たしていらっしゃる黒橋禎夫
+助教授に感謝いたします.</li>
+
+<li><a href="http://nlp.cs.nyu.edu/irex/index-j.html">IREX</a>実行委員会のみなさまに感謝いたします.
+
+<li>京大コーパスの JUMAN 体系を IPA
+体系に変換するスクリプトを提供していた だいた北村
+美穂子氏に感謝いたします.</li>
+
+<li>IPA
+品詞体系における主辞,機能語ルールを作成していただたいた
+松本 裕治 教授に感謝いたします.</li>p
+
+<li>JUMAN 並びに ChaSen
+の開発者の方々に感謝いたします.</li>
+
+<li>CaboCha
+の開発段階において多くのコメントをいただいた松本研究室の皆さまに感謝します.</li>
+</ul>
+
+<hr>
+<p>$Id: index.html 1501 2005-12-24 17:02:06Z taku $;</p>
+<address>taku@chasen.org</address>
+</div>
+
+<div class="sidebar">
+<script type="text/javascript" src="../../sidebar-ja.js"></script>
+</div>
+
+</body>
+</html>
+
