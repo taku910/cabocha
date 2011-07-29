@@ -1,0 +1,29 @@
+// CaboCha -- Yet Another Japanese Dependency Parser
+//
+//  $Id: selector_pat.h 41 2008-01-20 09:31:34Z taku-ku $;
+//
+//  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
+#ifndef CABOCHA_SELECTOR_PAT_H
+#define CABOCHA_SELECTOR_PAT_H
+namespace {
+  //  static const char KUTOUTEN_PAT[] = "(。|、)";
+  //  static const char OPEN_BRACKET_PAT [] = "((|（|‘|“|《|「|『|［|〈|｛)";
+  //  static const char CLOSE_BRACKET_PAT[] = "()|）|’|”|》|」|』|］|〉|｝)";
+  //  static const char DYN_A_PAT[] = "(助詞|副詞|連体詞|接続詞)";
+  //  static const char CASE_PAT [] = "助詞";
+  //  static const char IPA_FUNC_PAT[] = "(助詞|助動詞|動詞,非自立|動詞,接尾|形容詞,非自立|形容詞,接尾)";
+  //  static const char IPA_HEAD_PAT[] = "記号";
+  //  static const char JUMAN_FUNC_PAT[] = "特殊";
+  //  static const char JUMAN_HEAD_PAT[] = "(特殊|助詞|接尾辞)";
+
+  static const char KUTOUTEN_PAT[] = "(\xE3\x80\x82|\xE3\x80\x81)";
+  static const char OPEN_BRACKET_PAT [] = "((|\xEF\xBC\x88|\xE2\x80\x98|\xE2\x80\x9C|\xE3\x80\x8A|\xE3\x80\x8C|\xE3\x80\x8E|\xEF\xBC\xBB|\xE3\x80\x88|\xEF\xBD\x9B)";
+  static const char CLOSE_BRACKET_PAT[] = "()|\xEF\xBC\x89|\xE2\x80\x99|\xE2\x80\x9D|\xE3\x80\x8B|\xE3\x80\x8D|\xE3\x80\x8F|\xEF\xBC\xBD|\xE3\x80\x89|\xEF\xBD\x9D)";
+  static const char DYN_A_PAT[] = "(\xE5\x8A\xA9\xE8\xA9\x9E|\xE5\x89\xAF\xE8\xA9\x9E|\xE9\x80\xA3\xE4\xBD\x93\xE8\xA9\x9E|\xE6\x8E\xA5\xE7\xB6\x9A\xE8\xA9\x9E)";
+  static const char CASE_PAT [] = "\xE5\x8A\xA9\xE8\xA9\x9E";
+  static const char IPA_FUNC_PAT[] = "(\xE5\x8A\xA9\xE8\xA9\x9E|\xE5\x8A\xA9\xE5\x8B\x95\xE8\xA9\x9E|\xE5\x8B\x95\xE8\xA9\x9E,\xE9\x9D\x9E\xE8\x87\xAA\xE7\xAB\x8B|\xE5\x8B\x95\xE8\xA9\x9E,\xE6\x8E\xA5\xE5\xB0\xBE|\xE5\xBD\xA2\xE5\xAE\xB9\xE8\xA9\x9E,\xE9\x9D\x9E\xE8\x87\xAA\xE7\xAB\x8B|\xE5\xBD\xA2\xE5\xAE\xB9\xE8\xA9\x9E,\xE6\x8E\xA5\xE5\xB0\xBE)";
+  static const char IPA_HEAD_PAT[] = "\xE8\xA8\x98\xE5\x8F\xB7";
+  static const char JUMAN_FUNC_PAT[] = "\xE7\x89\xB9\xE6\xAE\x8A";
+  static const char JUMAN_HEAD_PAT[] = "(\xE7\x89\xB9\xE6\xAE\x8A|\xE5\x8A\xA9\xE8\xA9\x9E|\xE6\x8E\xA5\xE5\xB0\xBE\xE8\xBE\x9E)";
+}
+#endif

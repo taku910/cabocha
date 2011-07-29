@@ -1,0 +1,48 @@
+#
+# default cabocharc file
+#
+
+# Output Format
+#  0 - tree
+#  1 - lattice
+output-format = 0
+
+# Input Layer
+#  0 - RAW sentence layer (ChaSen only)
+#  1 - POS tagged layer (default)
+#  2 - POS tagged and Chunked layer
+#  3 - POS tagged, Chunked and Feature selected layer
+input-layer = 0
+
+# Output Layer
+#  1 - POS tagged layer (ChaSen only)
+#  2 - Chunked layer
+#  3 - Chunked and Feature selected layer
+#  4 - Parsed layer (default)
+output-layer = 4
+
+# Output NE
+# 0 - no output
+# 1 - output NE with    Chunk Constraint
+# 2 - output NE without Chunk Constraint
+ne = 1
+
+# Parser model file name
+parser-model  = /usr/local/lib/cabocha/model/IPA-dep.model
+# parser-model  = /usr/local/lib/cabocha/model/IPA-dep-A+P.model
+
+# Chunker model file name
+chunker-model = /usr/local/lib/cabocha/model/IPA-chunker.model
+
+# NE model file name
+ne-model = /usr/local/lib/cabocha/model/CRL-IREX-ne.model
+
+# chasen or mecab
+morphological-analyzer = chasen
+
+# chasenrc (libchasen must be enabled.)
+# chasenrc = somewhere/chasenrc
+
+# mecabrc
+# mecabrc = somwhere/mecabrc
+
