@@ -9,18 +9,18 @@
 #include <string>
 
 namespace CaboCha {
-  class Normalizer {
-  public:
-    static void normalize(int chartype,
-                          const std::string &input,
-                          std::string *output);
+class Normalizer {
+ public:
+  static void normalize(int chartype,
+                        const std::string &input,
+                        std::string *output);
 
-    static void normalize(int chartype,
-                          const char *str, size_t len,
-                          std::string *output);
+  static void normalize(int chartype,
+                        const char *str, size_t len,
+                        std::string *output);
 
-    static void compile(const char *filename,
-                        const char *header_filename);
-  };
+  static void compile(const char *filename,
+                      const char *header_filename);
+};
 }
 #endif

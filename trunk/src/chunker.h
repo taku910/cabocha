@@ -12,19 +12,18 @@ struct crfpp_t;
 
 namespace CaboCha {
 
-  class Chunker: public Analyzer {
-  public:
-    bool open(const Param &param);
-    void close();
-    bool parse(Tree *tree);
+class Chunker: public Analyzer {
+ public:
+  bool open(const Param &param);
+  void close();
+  bool parse(Tree *tree);
 
-    explicit Chunker();
-    virtual ~Chunker();
+  explicit Chunker();
+  virtual ~Chunker();
 
-  private:
-    crfpp_t *tagger_;
-    std::vector<const char*> feature_;
-  };
+ private:
+  crfpp_t *tagger_;
+  std::vector<const char*> feature_;
+};
 }
-
 #endif

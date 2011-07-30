@@ -23,11 +23,11 @@ namespace CaboCha {
 
 inline double kernel(const std::vector<int> &x1,
                      const std::vector<int> &x2,
-                     double degree) {
+                     unsigned int degree) {
   size_t i1 = 0;
   size_t i2 = 0;
   int n = 0;
-  while (i1 < x1.size() || i2 < x2.size()) {
+  while (i1 < x1.size() && i2 < x2.size()) {
     if (x1[i1] == x2[i2]) {
       ++n;
       ++i1;
@@ -38,7 +38,10 @@ inline double kernel(const std::vector<int> &x1,
       ++i1;
     }
   }
-  return std::pow(static_cast<double>(n + 1), degree);
+  for (unsigned int i = 1; i < degree; ++i) {
+    n *= n;
+  }
+  return n;
 }
 
 int progress_bar_dic(size_t current, size_t total) {
@@ -127,7 +130,7 @@ class PKEMine {
     size_t pos_num = 0;
     size_t neg_num = 0;
     for (size_t i = 0; i < transaction_->size(); i++) {
-      root.push_back(std::make_pair<size_t, int>(i, -1));
+      root.push_back(std::make_pair(i, -1));
       if (w[i] > 0) {
         ++pos_num;
       } else {
@@ -207,7 +210,7 @@ class PKEMine {
       const size_t size = (*transaction_)[id].size();
       for (size_t j = pos + 1; j < size; ++j)
         counter[(*transaction_)[id][j]].push_back
-            (std::make_pair<size_t, int>(id, j));
+            (std::make_pair(id, j));
     }
 
     const size_t root_size = counter.size();
@@ -546,7 +549,7 @@ bool SVM::compile(const char *filename, const char *output,
   return true;
 }
 
-SVMTest::SVMTest(): degree_(2.0), bias_(0.0) {}
+SVMTest::SVMTest(): degree_(2), bias_(0.0) {}
 SVMTest::~SVMTest() {}
 
 double SVMTest::classify(const std::vector<int> &ary) const {
@@ -581,19 +584,18 @@ bool SVMTest::open(const char *filename) {
 
   this->close();
   std::ifstream ifs(filename);
-  CHECK_DIE(ifs) << "no such file or directory: " << filename;
+  CHECK_DIE(ifs) << "no such file or directory: [" << filename << "]";
 
   while (ifs.getline(buf, BUF_SIZE)) {
     if (std::strlen(buf) == 0)
       break;
     const size_t size = tokenize(buf, "\t ", column, 2);
     CHECK_DIE(size >= 2);
-    dic_.insert(std::make_pair<std::string, int>
-                (std::string(column[1]), std::atoi(column[0])));
+    dic_.insert(std::make_pair(std::string(column[1]), std::atoi(column[0])));
   }
 
   CHECK_DIE(ifs.getline(buf, BUF_SIZE));
-  degree_ = std::atof(buf);
+  degree_ = std::atoi(buf);
 
   CHECK_DIE(ifs.getline(buf, BUF_SIZE));
   bias_ = std::atof(buf);

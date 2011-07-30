@@ -1,5 +1,5 @@
 AC_INIT(src/cabocha.cpp)
-AM_INIT_AUTOMAKE(cabocha, 0.60pre4)
+AM_INIT_AUTOMAKE(cabocha, 0.60pre5)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY

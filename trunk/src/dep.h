@@ -13,38 +13,43 @@
 
 namespace CaboCha {
 
-  class SVMBase;
+class SVMInterface;
 
-  class cmpstr {
-  public:bool operator() (const char *s1, const char *s2) {
-    return (strcmp (s1, s2) < 0);}
+class cmpstr {
+ public:bool operator() (const char *s1, const char *s2) {
+   return (strcmp (s1, s2) < 0);}
+};
+
+class DependencyParser: public Analyzer {
+ public:
+  bool open(const Param &param);
+  void close();
+  bool parse(Tree *tree);
+  explicit DependencyParser();
+  virtual ~DependencyParser();
+
+ private:
+  struct Result {
+    double score;
+    int link;
   };
 
-  class DependencyParser: public Analyzer {
-  public:
-    bool open(const Param &param);
-    void close();
-    bool parse(Tree *tree);
-    explicit DependencyParser();
-    virtual ~DependencyParser();
+  scoped_ptr<SVMInterface> svm_;
+  std::vector<std::vector <char *> > static_feature_;
+  std::vector<std::vector <char *> > dyn_b_feature_;
+  std::vector<std::vector <char *> > dyn_b_;
+  std::vector<std::vector <char *> > dyn_a_feature_;
+  std::vector<std::vector <char *> > dyn_a_;
+  std::vector<std::vector <char *> > gap_;
+  std::vector<std::vector <char *> > gap_list_;
+  std::vector<Result> results_;
+  const char *fp_[1024];
+  std::set<const char *, cmpstr> fpset_;
 
-  private:
-    scoped_ptr<SVMBase> svm_;
-    std::vector<std::vector <char *> > static_feature_;
-    std::vector<std::vector <char *> > dyn_b_feature_;
-    std::vector<std::vector <char *> > dyn_b_;
-    std::vector<std::vector <char *> > dyn_a_feature_;
-    std::vector<std::vector <char *> > dyn_a_;
-    std::vector<std::vector <char *> > gap_;
-    std::vector<std::vector <char *> > gap_list_;
-    const char *fp_[1024];
-    std::set<const char *, cmpstr> fpset_;
-
-    size_t build(Tree *tree);
-    bool estimate(const Tree *tree,
-                  int src, int dst,
-                  double *score);
-  };
+  void build(Tree *tree);
+  bool estimate(const Tree *tree,
+                int src, int dst,
+                double *score);
+};
 }
-
 #endif

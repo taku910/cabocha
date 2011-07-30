@@ -18,9 +18,12 @@
 #include "common.h"
 
 namespace CaboCha {
-static const size_t MAX_GAP_SIZE = 7;
 
-DependencyParser::DependencyParser():  svm_(0) {}
+namespace {
+const size_t kMaxGapSize = 7;
+}
+
+DependencyParser::DependencyParser() : svm_(0) {}
 DependencyParser::~DependencyParser() {}
 
 bool DependencyParser::open(const Param &param) {
@@ -42,7 +45,7 @@ void DependencyParser::close() {
   svm_.reset(0);
 }
 
-size_t DependencyParser::build(Tree *tree) {
+void DependencyParser::build(Tree *tree) {
   const size_t size  = tree->chunk_size();
 
   static_feature_.clear();
@@ -78,24 +81,29 @@ size_t DependencyParser::build(Tree *tree) {
   }
 
   // make gap features
-  gap_.resize(size*(size+3)/2+1);
+  gap_.resize(size * (size + 3) / 2 + 1);
 
-  for (size_t k = 0; k < size; k++)
-    for (size_t i = 0; i < k; i++)
-      for (size_t j = k + 1; j < size; j++)
+  for (size_t k = 0; k < size; k++) {
+    for (size_t i = 0; i < k; i++) {
+      for (size_t j = k + 1; j < size; j++) {
         std::copy(gap_list_[k].begin(), gap_list_[k].end(),
-                  std::back_inserter(gap_[j*(j+1)/2+i]));
+                  std::back_inserter(gap_[j * (j + 1) / 2 + i]));
+      }
+    }
+  }
 
-  return size;
+  results_.resize(size);
+  for (size_t i = 0; i < results_.size(); ++i) {
+    results_[i].score = 0.0;
+    results_[i].link = -1;
+  }
 }
 
 bool DependencyParser::estimate(const Tree *tree,
                                 int src, int dst,
                                 double *score) {
-  const bool is_end = ((static_cast<int>(tree->chunk_size()) - 1) == dst);
-  if (action_mode() == PARSING_MODE && is_end) {
-    *score = 0.0;
-    return true;
+  if (action_mode() == PARSING_MODE && results_[src].link != -1) {
+    return tree->chunk(src)->link == dst;
   }
 
   fpset_.clear();
@@ -105,12 +113,12 @@ bool DependencyParser::estimate(const Tree *tree,
   else                             fpset_.insert("DIST:6-");
 
   // static feature
-  for (size_t i = 0; i < static_feature_[src].size(); i++) {
+  for (size_t i = 0; i < static_feature_[src].size(); ++i) {
     static_feature_[src][i][0] = 'f';
     fpset_.insert(static_feature_[src][i]);
   }
 
-  for (size_t i = 0; i < static_feature_[dst].size(); i++) {
+  for (size_t i = 0; i < static_feature_[dst].size(); ++i) {
     static_feature_[dst][i][0] = 'F';
     fpset_.insert(static_feature_[dst][i]);
   }
@@ -118,25 +126,26 @@ bool DependencyParser::estimate(const Tree *tree,
   size_t max_gap = 0;
 
   // gap feature
-  int k = dst * (dst + 1) / 2 + src;
-  max_gap = _min(gap_[k].size(), MAX_GAP_SIZE);
-  for (size_t i = 0; i < max_gap; ++i)
+  const int k = dst * (dst + 1) / 2 + src;
+  max_gap = _min(gap_[k].size(), kMaxGapSize);
+  for (size_t i = 0; i < max_gap; ++i) {
     fpset_.insert(gap_[k][i]);
+  }
 
   // dynamic features
-  max_gap = _min(dyn_a_[dst].size(), MAX_GAP_SIZE);
+  max_gap = _min(dyn_a_[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_a_[dst][i][0] = 'A';
     fpset_.insert(dyn_a_[dst][i]);
   }
 
-  max_gap = _min(dyn_a_[src].size(), MAX_GAP_SIZE);
+  max_gap = _min(dyn_a_[src].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_a_[src][i][0] = 'a';
     fpset_.insert(dyn_a_[src][i]);
   }
 
-  max_gap = _min(dyn_b_[dst].size(), MAX_GAP_SIZE);
+  max_gap = _min(dyn_b_[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_b_[dst][i][0] = 'B';
     fpset_.insert(dyn_b_[dst][i]);
@@ -147,16 +156,19 @@ bool DependencyParser::estimate(const Tree *tree,
 
   if (action_mode() == PARSING_MODE) {
     *score = svm_->classify(fsize, const_cast<char **>(fp_));
-#if 0
-    for (size_t i = 0; i < fsize; ++i) {
-      std::cout << "[" << fp_[i] << "]" << std::endl;
+    /*
+    double score2 = g_svm_base->classify(fsize, const_cast<char **>(fp_));
+    if (*score * score2 < 0) {
+      for (size_t i = 0; i < fsize; ++i) {
+        std::cout << "[" << fp_[i] << "]" << std::endl;
+      }
+      std::cout << "score=" << *score << " " << score2 << std::endl;
+      exit(-1);
     }
-    std::cout << "SRC=" << src << " DST="
-              << dst << " score=" << *score << std::endl;
-#endif
-    return (*score > 0);
+    */
+    return *score > 0;
   } else {
-    const bool isdep = (is_end || tree->chunk(src)->link == dst);
+    const bool isdep = (tree->chunk(src)->link == dst);
     *stream() << (isdep ? "+1" : "-1");
     for (size_t i = 0; i < fsize; ++i) {
       *stream() << ' ' << fp_[i];
@@ -168,6 +180,92 @@ bool DependencyParser::estimate(const Tree *tree,
   return false;
 }
 
+bool DependencyParser::parse(Tree *tree) {
+  const int size = static_cast<int>(tree->chunk_size());
+  if (size == 0) {
+    return true;
+  }
+
+  build(tree);
+  std::vector<int> dead(size);
+  std::vector<int> alive(size);
+
+  std::fill(dead.begin(), dead.end(), 0);
+
+  // main loop
+  while (true) {
+    alive.clear();
+    for (size_t i = 0; i < dead.size(); ++i) {
+      if (!dead[i]) {
+        alive.push_back(i);
+      }
+    }
+
+    if (alive.size() <= 1) {
+      break;
+    }
+
+    // if previous chunk does NOT depend on the next true;
+    bool prev = false;
+
+    // if current seeking does NOT change the status, true
+    bool change = false;
+
+    // size of alive, ignore the last chunk
+    const int lsize  = static_cast<int>(alive.size() - 1);
+
+    // last index of alive, ignore tha last chunk
+    const int lindex = static_cast<int>(alive.size() - 2);
+
+    for (int i = 0; i < lsize; ++i) {
+      const int src   = alive[i];
+      const int dst   = alive[i + 1];
+      bool      isdep = true;
+      double    score = 0.0;
+
+      if (src != size - 2 && results_[src].link != dst) {
+        isdep = estimate(tree, src, dst, &score);
+      }
+
+      // force to change TRUE
+      if (i == lindex && !change) {
+        isdep = true;
+      }
+
+      // OK depend
+      if (isdep) {
+        std::copy(dyn_b_feature_[dst].begin(),
+                  dyn_b_feature_[dst].end(),
+                  std::back_inserter(dyn_b_[src]));
+        std::copy(dyn_a_feature_[src].begin(),
+                  dyn_a_feature_[src].end(),
+                  std::back_inserter(dyn_a_[dst]));
+        results_[src].link = dst;
+        results_[src].score = score;
+        if (!dead[src]) {
+          change = true;
+        }
+        if (!prev) {
+          dead[src] = true;
+        }
+      }
+
+      prev = isdep;
+    }
+  }
+
+  for (size_t i = 0; i < results_.size(); ++i) {
+    Chunk *chunk = tree->mutable_chunk(i);
+    chunk->link = results_[i].link;
+    chunk->score = results_[i].score;
+  }
+
+  tree->set_output_layer(OUTPUT_DEP);
+
+  return true;
+}
+
+#if 0
 bool DependencyParser::parse(Tree *tree) {
 #define MYPOP(agenda, n) do {                   \
     if (agenda.empty()) {                       \
@@ -210,4 +308,5 @@ bool DependencyParser::parse(Tree *tree) {
   return true;
 #undef MYPOP
 }
+#endif
 }

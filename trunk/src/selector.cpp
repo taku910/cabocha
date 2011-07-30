@@ -120,7 +120,7 @@ bool Selector::parse(Tree *tree) {
       }
     }
 
-    if (hid > fid) {
+    if (tree->posset() == IPA && hid > fid) {
       fid = hid;
     }
 
@@ -128,12 +128,13 @@ bool Selector::parse(Tree *tree) {
     const Token *ftoken = tree->token(fid);
     const char *hsurface = htoken->normalized_surface;
     const char *fsurface = ftoken->normalized_surface;
-    const char *hcform   = get_token(htoken, pos_size);
-    const char *hctype   = get_token(htoken, pos_size + 1);
-    const char *fcform   = get_token(ftoken, pos_size);
-    const char *fctype   = get_token(ftoken, pos_size + 1);
+    const char *hctype   = get_token(htoken, pos_size);
+    const char *hcform   = get_token(htoken, pos_size + 1);
+    const char *fctype   = get_token(ftoken, pos_size);
+    const char *fcform   = get_token(ftoken, pos_size + 1);
 
     ostrs << " F_H0:" << hsurface;
+
     const size_t hsize = _min(pos_size,
                               static_cast<size_t>(htoken->feature_list_size));
     for (size_t k = 0; k < hsize; ++k) {

@@ -15,19 +15,19 @@ struct crfpp_t;
 
 namespace CaboCha {
 
-  class NE: public Analyzer {
-  public:
-    bool open(const Param &param);
-    bool parse(Tree *tree);
-    void close();
+class NE : public Analyzer {
+ public:
+  bool open(const Param &param);
+  bool parse(Tree *tree);
+  void close();
 
-    explicit NE();
-    virtual ~NE();
+  explicit NE();
+  virtual ~NE();
 
-  private:
-    crfpp_t *tagger_;
-    std::vector<const char*> feature_;
-    std::string ne_composite_;
-  };
+ private:
+  crfpp_t *tagger_;
+  std::vector<const char*> feature_;
+  std::string ne_composite_;
+};
 }
 #endif

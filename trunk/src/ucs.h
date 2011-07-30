@@ -3,8 +3,8 @@
 //  $Id: ucs.h 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#ifndef CABOCHA_UCS_H__
-#define CABOCHA_UCS_H__
+#ifndef CABOCHA_UCS_H_
+#define CABOCHA_UCS_H_
 
 #if defined HAVE_ICONV
 #include <iconv.h>

@@ -13,19 +13,19 @@ struct mecab_t;
 
 namespace CaboCha {
 
-  class MorphAnalyzer: public Analyzer {
-  public:
-    bool open(const Param &) ;
-    void close();
-    bool parse(Tree *);
+class MorphAnalyzer: public Analyzer {
+ public:
+  bool open(const Param &) ;
+  void close();
+  bool parse(Tree *);
 
-    explicit MorphAnalyzer();
-    virtual ~MorphAnalyzer();
+  explicit MorphAnalyzer();
+  virtual ~MorphAnalyzer();
 
-  private:
-    mecab_t *mecab_;
-    std::string sentence_;
-  };
+ private:
+  mecab_t *mecab_;
+  std::string sentence_;
+};
 }
 
 #endif
