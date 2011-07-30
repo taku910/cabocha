@@ -13,62 +13,62 @@
 
 namespace CaboCha {
 
-  class SVMBase {
-  public:
-    explicit SVMBase() {}
-    virtual ~SVMBase() {}
-    const char *what() { return what_.str(); }
-    virtual bool open(const char *filename) = 0;
-    virtual void close() = 0;
-    virtual double classify(size_t argc, char **argv) = 0;
+class SVMInterface {
+ public:
+  explicit SVMInterface() {}
+  virtual ~SVMInterface() {}
+  const char *what() { return what_.str(); }
+  virtual bool open(const char *filename) = 0;
+  virtual void close() = 0;
+  virtual double classify(size_t argc, char **argv) = 0;
 
-  protected:
-    whatlog what_;
-  };
+ protected:
+  whatlog what_;
+};
 
-  class SVM: public SVMBase {
-  public:
-    explicit SVM();
-    virtual ~SVM();
-    virtual bool open(const char *filename);
-    virtual void close();
-    virtual double classify(size_t argc, char **argv);
+class SVM : public SVMInterface {
+ public:
+  explicit SVM();
+  virtual ~SVM();
+  virtual bool open(const char *filename);
+  virtual void close();
+  virtual double classify(size_t argc, char **argv);
 
-    bool static compile(const char *filename,
-                        const char *output,
-                        float sigma,
-                        size_t minsup);
+  bool static compile(const char *filename,
+                      const char *output,
+                      float sigma,
+                      size_t minsup);
 
-  private:
-    double classify(const std::vector<int> &ary);
+ private:
+  double classify(const std::vector<int> &ary);
 
-    unsigned int degree_;
-    int bias_;
-    double normalzie_factor_;
-    std::vector<int> dot_buf_;
-    Mmap<char> mmap_;
-    Darts::DoubleArray da_;   // str -> id double array
-    Darts::DoubleArray eda_;   // trie -> cost double array
-  };
+  unsigned int degree_;
+  int bias_;
+  double normalzie_factor_;
+  std::vector<int> dot_buf_;
+  Mmap<char> mmap_;
+  Darts::DoubleArray da_;   // str -> id double array
+  Darts::DoubleArray eda_;   // trie -> cost double array
+};
 
-  // non-PKE:
-  // used only for debugging
-  class SVMTest: public SVMBase {
-  public:
-    explicit SVMTest();
-    virtual ~SVMTest();
-    virtual bool open(const char *filename);
-    virtual void close();
-    virtual double classify(size_t argc, char **argv);
+// non-PKE:
+// used only for debugging
+class SVMTest: public SVMInterface {
+ public:
+  explicit SVMTest();
+  virtual ~SVMTest();
+  virtual bool open(const char *filename);
+  virtual void close();
+  virtual double classify(size_t argc, char **argv);
 
-  private:
-    double classify(const std::vector<int> &ary) const;
+ private:
+  double classify(const std::vector<int> &ary) const;
 
-    double degree_;
-    double bias_;
-    std::map<std::string, int> dic_;
-    std::vector<double> w_;
-    std::vector<std::vector<int> > x_;
-  };
+  unsigned int degree_;
+  double bias_;
+  std::map<std::string, int> dic_;
+  std::vector<double> w_;
+  std::vector<std::vector<int> > x_;
+};
 }
 #endif

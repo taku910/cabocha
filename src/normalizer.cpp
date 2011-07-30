@@ -186,9 +186,7 @@ void Normalizer::compile(const char *filename,
       std::string value = col[1];
       iconv.convert(&key);
       iconv.convert(&value);
-      dic.push_back(std::make_pair<std::string, int>
-                    (key,
-                     static_cast<int>(output.size())));
+      dic.push_back(std::make_pair(key, static_cast<int>(output.size())));
       output += value;
       output += '\0';
     }

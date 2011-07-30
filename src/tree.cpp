@@ -205,7 +205,7 @@ void write_tree(const Tree &tree, StringBuffer *os,
 
     max_len = _max(static_cast<size_t>(max_len),
                    get_string_length(surface, charset));
-    chunks.back() = std::make_pair<size_t, std::string>(cid, surface);
+    chunks.back() = std::make_pair(cid, surface);
   }
 
   std::vector<int> e(chunks.size(), 0);
@@ -469,7 +469,6 @@ bool Tree::read(const char *input, size_t length,
             std::copy(cols, cols + s, feature);
             token->feature_list = const_cast<const char **> (feature);
             token->feature_list_size = s;
-
             chunk = 0;
             if (old_chunk) old_chunk->token_size++;
           } else {

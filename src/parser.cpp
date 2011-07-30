@@ -352,6 +352,10 @@ const Tree *ParserImpl::parse(Tree *tree) {
 
 const Tree* ParserImpl::parse(const char *str, size_t len) {
   CHECK_0(str) << "NULL pointer is given";
+  // Set charset/posset, bacause Tree::read() may depend on
+  // these parameters.
+  tree_->set_charset(charset_);
+  tree_->set_posset(posset_);
   CHECK_0(tree_->read(str, len, input_layer_))
       << "format error: [" << str << "] ";
   return parse(tree_.get());
