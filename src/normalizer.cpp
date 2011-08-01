@@ -28,7 +28,7 @@ void escape(const std::string &input, std::string *output) {
   output->clear();
   for (size_t i = 0; i < input.size(); ++i) {
     const int hi = ((static_cast<int>(input[i]) & 0xF0) >> 4);
-    const int lo = (static_cast<int>(input[i]) & 0x0F) ;
+    const int lo = (static_cast<int>(input[i]) & 0x0F);
     *output += "\\x";
     *output += hi >= 10 ? hi - 10 + 'A' : hi + '0';
     *output += lo >= 10 ? lo - 10 + 'A' : lo + '0';

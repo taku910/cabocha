@@ -84,14 +84,14 @@ void inline encodeBERArray(unsigned int *begin,
 
 static const unsigned int DictionaryMagicID = 0xef522177u;
 
-static const int WEIGHT[4][5] = {
+static const int kWeight[4][5] = {
   {0, 0, 0, 0, 0},   // 0
   {1, 1, 0, 0, 0},   // 1
   {1, 3, 2, 0, 0},   // 2
   {1, 7, 12, 6, 0}   // 3
 };
 
-static const int MAX_WEIGHT[5] = { 0, 1, 3, 12 };
+static const int kMaxWeight[5] = { 0, 1, 3, 12 };
 
 static const int kPKEBase = 0xfffff;  // 1048575
 
@@ -179,11 +179,11 @@ class PKEMine {
     float mu_neg = 0.0;
     float w = 0.0;
     for (size_t i = 0; i < projected.size(); ++i) {
-      w += WEIGHT[degree_][pattern_.size()] * (*w_)[projected[i].first];
+      w += kWeight[degree_][pattern_.size()] * (*w_)[projected[i].first];
       if ((*w_)[projected[i].first] > 0)
-        mu_pos += MAX_WEIGHT[degree_] * (*w_)[projected[i].first];
+        mu_pos += kMaxWeight[degree_] * (*w_)[projected[i].first];
       else
-        mu_neg += MAX_WEIGHT[degree_] * (*w_)[projected[i].first];
+        mu_neg += kMaxWeight[degree_] * (*w_)[projected[i].first];
     }
 
     // output vector
@@ -477,7 +477,7 @@ bool SVM::compile(const char *filename, const char *output,
       const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
       const float alpha = std::atof(column[0]);
       w.push_back(alpha);
-      fbias -= WEIGHT[degree][0] * alpha;
+      fbias -= kWeight[degree][0] * alpha;
       transaction.resize(transaction.size() + 1);
       for (size_t i = 1; i < size; ++i) {
         const unsigned int id = std::atoi(column[i]);
