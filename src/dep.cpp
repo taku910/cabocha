@@ -30,13 +30,15 @@ bool DependencyParser::open(const Param &param) {
   close();
   if (action_mode() == PARSING_MODE) {
     const std::string filename = param.get<std::string>("parser-model");
-    if (param.get<bool>("nonpke")) {
+    bool failed = false;
+    svm_.reset(new SVM);
+    if (!svm_->open(filename.c_str())) {
       svm_.reset(new SVMTest);
-    } else {
-      svm_.reset(new SVM);
+      if (!svm_->open(filename.c_str())) {
+        failed = true;
+      }
     }
-    CHECK_FALSE(svm_->open(filename.c_str()))
-        << "no such file or directory: " << filename;
+    CHECK_FALSE(!failed) << "no such file or directory: " << filename;
   }
   return true;
 }
@@ -154,22 +156,18 @@ bool DependencyParser::estimate(const Tree *tree,
   const size_t fsize = fpset_.size();
   std::copy(fpset_.begin(), fpset_.end(), fp_);
 
+  //  for (size_t i = 0; i < fsize; ++i) {
+    //        std::cout << "[" << fp_[i] << "]" << std::endl;
+        //  }
+
   if (action_mode() == PARSING_MODE) {
     *score = svm_->classify(fsize, const_cast<char **>(fp_));
-    /*
-    double score2 = g_svm_base->classify(fsize, const_cast<char **>(fp_));
-    if (*score * score2 < 0) {
-      for (size_t i = 0; i < fsize; ++i) {
-        std::cout << "[" << fp_[i] << "]" << std::endl;
-      }
-      std::cout << "score=" << *score << " " << score2 << std::endl;
-      exit(-1);
-    }
-    */
+    //    std::cout << *score << std::endl;
     return *score > 0;
   } else {
     const bool isdep = (tree->chunk(src)->link == dst);
     *stream() << (isdep ? "+1" : "-1");
+    //    std::cout << std::endl;
     for (size_t i = 0; i < fsize; ++i) {
       *stream() << ' ' << fp_[i];
     }
@@ -266,6 +264,7 @@ bool DependencyParser::parse(Tree *tree) {
 }
 
 #if 0
+// Sassano's algorithm
 bool DependencyParser::parse(Tree *tree) {
 #define MYPOP(agenda, n) do {                   \
     if (agenda.empty()) {                       \

@@ -3,8 +3,8 @@
 //  $Id: selector_pat.h 41 2008-01-20 09:31:34Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#ifndef CABOCHA_SELECTOR_PAT_H
-#define CABOCHA_SELECTOR_PAT_H
+#ifndef CABOCHA_SELECTOR_PAT_H_
+#define CABOCHA_SELECTOR_PAT_H_
 namespace {
 //  const char KUTOUTEN_PAT[] = "(。|、)";
 //  const char OPEN_BRACKET_PAT [] = "((|（|‘|“|《|「|『|［|〈|｛)";

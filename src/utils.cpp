@@ -11,6 +11,7 @@
 #include <cstring>
 #include "cabocha.h"
 #include "common.h"
+#include "scoped_ptr.h"
 #include "utils.h"
 
 #ifdef HAVE_CONFIG_H
@@ -149,13 +150,13 @@ bool read_sentence(std::istream *is, std::string *str,
   if (inputLayer == INPUT_RAW_SENTENCE) {
     std::getline(*is, *str);
   } else {
-    char line[BUF_SIZE * 16];
+    scoped_array<char> line(new char[BUF_SIZE * 16]);
     size_t line_num = 0;
-    while (is->getline(line, sizeof(line))) {
-      *str += line;
+    while (is->getline(line.get(), BUF_SIZE * 16)) {
+      *str += line.get();
       *str += '\n';
       if (++line_num > CABOCHA_MAX_LINE_SIZE) return false;
-      if (std::strlen(line) == 0 || strcmp(line, "EOS") == 0) break;
+      if (std::strlen(line.get()) == 0 || strcmp(line.get(), "EOS") == 0) break;
     }
   }
   return true;

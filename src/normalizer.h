@@ -3,8 +3,8 @@
 //  $Id: normalizer.h 41 2008-01-20 09:31:34Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#ifndef CABOCHA_NORMALIZER_H
-#define CABOCHA_NORMALIZER_H
+#ifndef CABOCHA_NORMALIZER_H_
+#define CABOCHA_NORMALIZER_H_
 
 #include <string>
 

@@ -53,8 +53,6 @@ const CaboCha::Option long_options[] = {
     "make charset of binary dictionary ENC (default "
     CABOCHA_DEFAULT_CHARSET ")" },
   { "charset-file",    'T',  0, "FILE", "use charset written in FILE" },
-  { "nonpke",          'K', 0, 0, "not use PKE approximation "
-    "in SVM classification" },
   { "rcfile",          'r', 0, "FILE", "use FILE as resource file" },
   { "mecabrc",         'b', 0, "FILE", "use FILE as mecabrc"},
   { "mecab-dicdir",    'd', 0, "DIR",  "use DIR as mecab dictionary directory"},
@@ -96,7 +94,7 @@ static std::string get_default_rc() {
 #endif
 
 #if defined (HAVE_GETENV) && defined(_WIN32) && !defined(__CYGWIN__)
-  char buf[BUF_SIZE];
+  scoped_array<char> buf(new char[BUF_SIZE]);
   const DWORD len = GetEnvironmentVariable("CABOCHARC",
                                            buf,
                                            sizeof(buf));

@@ -200,7 +200,7 @@ class Cache {
     const size_t new_size = get_cache_size(l, cache_size_);
     if (100 * new_size/size >= 110 && new_size < l) {
       // realloc
-      for (head_t *h = lru_head_;;h = h->next) {
+      for (head_t *h = lru_head_; ; h = h->next) {
         T *new_data = new T[l];
         memcpy(new_data, h->data, sizeof(*new_data) * l);
         delete [] h->data;

@@ -151,7 +151,7 @@ int cabocha_learn(int argc, char **argv) {
      "set minimum frequency support for PKE approximation (default 2)" },
     {"degree",   'd', "2",  "INT",
      "set degree of polynomial kernel (default 2)"},
-    {"cache-size",  'b',  "500.0", "FLOAT",
+    {"cache-size",  'b',  "1000.0", "FLOAT",
      "set FLOAT for cache memory size (MB)" },
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
       "set parser charset to ENC (default "

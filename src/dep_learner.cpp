@@ -84,10 +84,10 @@ bool DependencyTrainingWithSVM(const char *train_file,
   {
     std::ifstream ifs(str_train_file.c_str());
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
-    char buf[8192 * 32];
-    char *column[BUF_SIZE];
-    while (ifs.getline(buf, sizeof(buf))) {
-      const size_t size = tokenize(buf, " ", column, BUF_SIZE);
+    scoped_array<char> buf(new char[BUF_SIZE * 32]);
+    scoped_array<char *> column(new char *[BUF_SIZE]);
+    while (ifs.getline(buf.get(), BUF_SIZE * 32)) {
+      const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
       CHECK_DIE(size >= 2);
       for (size_t i = 1; i < size; ++i) {
         dic[std::string(column[i])]++;
@@ -122,13 +122,13 @@ bool DependencyTrainingWithSVM(const char *train_file,
     const std::string model_debug_file = std::string(model_file) + ".svm";
     std::ofstream ofs(model_debug_file.c_str());
 
-    char buf[8192 * 32];
-    char *column[BUF_SIZE];
-    while (ifs.getline(buf, sizeof(buf))) {
-      if (dup.find(buf) != dup.end())
+    scoped_array<char> buf(new char[BUF_SIZE * 32]);
+    scoped_array<char *> column(new char *[BUF_SIZE]);
+    while (ifs.getline(buf.get(), BUF_SIZE * 32)) {
+      if (dup.find(buf.get()) != dup.end())
         continue;
-      dup.insert(buf);
-      const size_t size = tokenize(buf, " ", column, BUF_SIZE);
+      dup.insert(buf.get());
+      const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
       CHECK_DIE(size >= 2);
       std::vector<int> tmp;
       for (size_t i = 1; i < size; ++i) {

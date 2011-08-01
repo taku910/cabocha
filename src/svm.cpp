@@ -16,6 +16,7 @@
 #include "mmap.h"
 #include "darts.h"
 #include "svm.h"
+#include "scoped_ptr.h"
 #include "utils.h"
 #include "freelist.h"
 
@@ -38,6 +39,12 @@ inline double kernel(const std::vector<int> &x1,
       ++i1;
     }
   }
+
+  if (n == 0) {
+    return 1;
+  }
+
+  ++n;
   for (unsigned int i = 1; i < degree; ++i) {
     n *= n;
   }
@@ -394,8 +401,8 @@ bool SVM::compile(const char *filename, const char *output,
   std::ofstream bofs(output, std::ios::binary|std::ios::out);
   CHECK_DIE(bofs) << "permission denied: " << output;
 
-  char buf[BUF_SIZE];
-  char *column[BUF_SIZE];
+  scoped_array<char> buf(new char[BUF_SIZE]);
+  scoped_array<char *> column(new char *[BUF_SIZE]);
   unsigned int magic = 0;
   const unsigned int version = MODEL_VERSION;
   unsigned int dsize = 0;
@@ -408,10 +415,10 @@ bool SVM::compile(const char *filename, const char *output,
 
   {
     std::vector<std::pair<std::string, int> > dic;
-    while (ifs.getline(buf, BUF_SIZE)) {
-      if (std::strlen(buf) == 0) break;
-      const size_t size = tokenize(buf, " ", column, 2);
-      CHECK_DIE(size == 2) << "format error: " << buf;
+    while (ifs.getline(buf.get(), BUF_SIZE)) {
+      if (std::strlen(buf.get()) == 0) break;
+      const size_t size = tokenize(buf.get(), " ", column.get(), 2);
+      CHECK_DIE(size == 2) << "format error: " << buf.get();
       const int id = std::atoi(column[0]);
       maxid = _max(maxid, id);
       CHECK_DIE(id >= 0);
@@ -451,12 +458,12 @@ bool SVM::compile(const char *filename, const char *output,
     dsize = da.unit_size() * da.size();
   }
 
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE))  << "format error: " << filename;
-  degree = std::atoi(buf);
+  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE))  << "format error: " << filename;
+  degree = std::atoi(buf.get());
   CHECK_DIE(degree >= 1 && degree <= 3);
 
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE))  << "format error: " << filename;
-  double fbias = std::atof(buf);
+  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE))  << "format error: " << filename;
+  double fbias = std::atof(buf.get());
 
 
   // PKE mine
@@ -466,8 +473,8 @@ bool SVM::compile(const char *filename, const char *output,
     std::vector<std::vector<unsigned int> >  transaction;
     std::vector<float> w;
 
-    while (ifs.getline(buf, BUF_SIZE)) {
-      const size_t size = tokenize(buf, " ", column, BUF_SIZE);
+    while (ifs.getline(buf.get(), BUF_SIZE)) {
+      const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
       const float alpha = std::atof(column[0]);
       w.push_back(alpha);
       fbias -= WEIGHT[degree][0] * alpha;
@@ -579,29 +586,29 @@ void SVMTest::close() {
 }
 
 bool SVMTest::open(const char *filename) {
-  char *column[BUF_SIZE];
-  char buf[BUF_SIZE];
+  scoped_array<char *> column(new char *[BUF_SIZE]);
+  scoped_array<char> buf(new char[BUF_SIZE]);
 
   this->close();
   std::ifstream ifs(filename);
   CHECK_DIE(ifs) << "no such file or directory: [" << filename << "]";
 
-  while (ifs.getline(buf, BUF_SIZE)) {
-    if (std::strlen(buf) == 0)
+  while (ifs.getline(buf.get(), BUF_SIZE)) {
+    if (std::strlen(buf.get()) == 0)
       break;
-    const size_t size = tokenize(buf, "\t ", column, 2);
+    const size_t size = tokenize(buf.get(), "\t ", column.get(), 2);
     CHECK_DIE(size >= 2);
     dic_.insert(std::make_pair(std::string(column[1]), std::atoi(column[0])));
   }
 
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE));
-  degree_ = std::atoi(buf);
+  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE));
+  degree_ = std::atoi(buf.get());
 
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE));
-  bias_ = std::atof(buf);
+  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE));
+  bias_ = std::atof(buf.get());
 
-  while (ifs.getline(buf, BUF_SIZE)) {
-    const size_t size = tokenize(buf, " ", column, BUF_SIZE);
+  while (ifs.getline(buf.get(), BUF_SIZE)) {
+    const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
     if (size < 2) continue;
     w_.push_back(std::atof(column[0]));
     x_.resize(x_.size() + 1);
@@ -632,8 +639,8 @@ int main(int argc, char **argv) {
 
   std::ifstream ifs(argv[1]);
 
-  char buf[BUF_SIZE];
-  char *column[BUF_SIZE];
+  scoped_array<char *> column(new char *[BUF_SIZE]);
+  scoped_array<char> buf(new char[BUF_SIZE]);
 
   // skip
   while (ifs.getline(buf, BUF_SIZE)) {

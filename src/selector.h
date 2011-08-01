@@ -19,37 +19,13 @@ class Iconv;
 
 class PatternMatcher {
  public:
-  explicit PatternMatcher() {}
-  virtual ~PatternMatcher() { clear(); }
+  PatternMatcher();
+  virtual ~PatternMatcher();
 
   bool compile(const char *pat, Iconv *iconv);
-
-  void clear() {
-    patterns_.clear();
-  }
-
-  const char* match(const char *str) const {
-    for (size_t i = 0; i < patterns_.size(); ++i) {
-      if (patterns_[i] == str) {
-        return patterns_[i].c_str();
-      }
-    }
-    return 0;
-  }
-
-  const char* prefix_match(const char *str) const {
-    const size_t len = strlen(str);
-    for (size_t i = 0; i < patterns_.size(); ++i) {
-      if (len > patterns_[i].size()) {
-        continue;
-      }
-      if (0 == memcmp(str, patterns_[i].data(),
-                      patterns_[i].size())) {
-        return patterns_[i].c_str();
-      }
-    }
-    return 0;
-  }
+  void clear();
+  const char* match(const char *str) const;
+  const char* prefix_match(const char *str) const;
 
  private:
   std::vector<std::string> patterns_;

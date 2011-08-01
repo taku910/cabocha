@@ -3,8 +3,8 @@
 //  $Id: param.h 41 2008-01-20 09:31:34Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#ifndef CABOCHA_PARAM_H
-#define CABOCHA_PARAM_H
+#ifndef CABOCHA_PARAM_H_
+#define CABOCHA_PARAM_H_
 
 #include <map>
 #include <string>

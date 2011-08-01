@@ -169,7 +169,7 @@ class Eval {
     const double pr = (prec == 0) ? 0 : 100.0 * correct/prec;
     const double re = (recall == 0) ? 0 : 100.0 * correct/recall;
     const double F = ((pr + re) == 0.0) ? 0 : 2 * pr * re /(pr + re);
-    char buf[8192];
+    char buf[256];
     std::cout <<  "             precision              recall             F"
               << std::endl;
     snprintf(buf, sizeof(buf) - 1,
@@ -276,7 +276,7 @@ class Eval {
       }
     }
 
-    char buf[8192];
+    char buf[256];
     const double ac = (all == 0) ? 0.0 : 100.0 * acc / all;
     snprintf(buf, sizeof(buf) - 1,
              "Tag Accuracy:  %4.4f (%d/%d)\n",
@@ -382,7 +382,7 @@ class Eval {
     const float s1 = all_sentence == 0 ? 0.0 :
         100.0 * correct_sentence / all_sentence;
 
-    char buf[8192];
+    char buf[256];
     snprintf(buf, sizeof(buf) - 1,
              "dependency level1: %4.4f (%d/%d)\n"
              "dependency level2: %4.4f (%d/%d)\n"
@@ -404,4 +404,3 @@ class Eval {
 int cabocha_system_eval(int argc, char **argv) {
   return CaboCha::Eval::eval(argc, argv);
 }
-
