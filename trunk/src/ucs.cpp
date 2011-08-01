@@ -195,7 +195,7 @@ const char *encode_charset(CharsetType charset) {
     case UTF8:
       return "UTF8";
     case EUC_JP:
-      return "EUCJP-WIN";
+      return "EUC-JP";
     case  CP932:
       return "CP932";
     default:

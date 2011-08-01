@@ -191,17 +191,17 @@ void Param::clear() {
 }
 
 bool Param::open(const char *arg, const Option *opts) {
-  char str[BUF_SIZE];
-  std::strncpy(str, arg, sizeof(str));
+  scoped_array<char> str(new char[BUF_SIZE]);
+  std::strncpy(str.get(), arg, BUF_SIZE);
   char* ptr[64];
   unsigned int size = 1;
-  ptr[0] = const_cast<char*>(PACKAGE);
+  ptr[0] = const_cast<char *>(PACKAGE);
 
-  for (char *p = str; *p;) {
+  for (char *p = str.get(); *p;) {
     while (isspace(*p)) *p++ = '\0';
     if (*p == '\0') break;
     ptr[size++] = p;
-    if (size == sizeof(ptr)) break;
+    if (size == BUF_SIZE) break;
     while (*p && !isspace(*p)) p++;
   }
 

@@ -267,10 +267,10 @@ bool write_tree(const Tree &tree, StringBuffer *os,
 
 namespace CaboCha {
 
-Tree::Tree():
-    tree_allocator_(new TreeAllocator),
-    charset_(EUC_JP), posset_(IPA),
-    output_layer_(OUTPUT_DEP) {}
+Tree::Tree()
+    : tree_allocator_(new TreeAllocator),
+      charset_(EUC_JP), posset_(IPA),
+      output_layer_(OUTPUT_DEP) {}
 
 Tree::~Tree() {
   delete tree_allocator_;

@@ -8,6 +8,7 @@
 #include "cabocha.h"
 #include "selector.h"
 #include "common.h"
+#include "scoped_ptr.h"
 #include "utils.h"
 #include "ucs.h"
 #include "selector_pat.h"
@@ -17,6 +18,13 @@ inline const char *get_token(const Token *token, size_t id) {
   if (token->feature_list_size <= id) return 0;
   if (std::strcmp("*", token->feature_list[id]) == 0) return 0;
   return token->feature_list[id];
+}
+
+PatternMatcher::PatternMatcher() {}
+PatternMatcher::~PatternMatcher() {}
+
+void PatternMatcher::clear() {
+  patterns_.clear();
 }
 
 bool PatternMatcher::compile(const char *pattern,
@@ -31,12 +39,12 @@ bool PatternMatcher::compile(const char *pattern,
   const size_t len = converted.size();
   const char *pat = converted.c_str();
   if (len >= 3 && pat[0] == '(' && pat[len-1] == ')') {
-    char buf[BUF_SIZE];
-    CHECK_DIE(len < sizeof(buf) - 3) << "too long parameter";
-    std::strncpy(buf, pat + 1, BUF_SIZE);
+    scoped_array<char> buf(new char[BUF_SIZE]);
+    CHECK_DIE(len < BUF_SIZE - 3) << "too long parameter";
+    std::strncpy(buf.get(), pat + 1, BUF_SIZE);
     buf[len-2] = '\0';
-    char *col[BUF_SIZE];
-    const size_t n = tokenize(buf, "|", col, sizeof(col));
+    scoped_array<char *> col(new char *[BUF_SIZE]);
+    const size_t n = tokenize(buf.get(), "|", col.get(), BUF_SIZE);
     CHECK_DIE(n < BUF_SIZE) << "too long OR nodes";
     for (size_t i = 0; i < n; ++i) {
       patterns_.push_back(std::string(col[i]));
@@ -46,6 +54,29 @@ bool PatternMatcher::compile(const char *pattern,
   }
 
   return !patterns_.empty();
+}
+
+const char* PatternMatcher::match(const char *str) const {
+  for (size_t i = 0; i < patterns_.size(); ++i) {
+    if (patterns_[i] == str) {
+      return patterns_[i].c_str();
+    }
+  }
+  return 0;
+}
+
+const char* PatternMatcher::prefix_match(const char *str) const {
+  const size_t len = strlen(str);
+  for (size_t i = 0; i < patterns_.size(); ++i) {
+    if (len < patterns_[i].size()) {
+      continue;
+    }
+    if (0 == memcmp(str, patterns_[i].data(),
+                    patterns_[i].size())) {
+      return patterns_[i].c_str();
+    }
+  }
+  return 0;
 }
 
 Selector::Selector() {}
@@ -183,12 +214,12 @@ bool Selector::parse(Tree *tree) {
     mutable_chunk->func_pos = fid - chunk->token_pos;
 
     const int kFeatureSize = 256;
-    char *feature[kFeatureSize];
-    const size_t s = tokenize(buf + 1, " ", feature, kFeatureSize);
+    scoped_array<char *> feature(new char *[kFeatureSize]);
+    const size_t s = tokenize(buf + 1, " ", feature.get(), kFeatureSize);
     mutable_chunk->feature_list_size = static_cast<unsigned char>(s);
     mutable_chunk->feature_list = const_cast<const char **>
         (tree->alloc_char_array(s));
-    std::copy(feature, feature + s, mutable_chunk->feature_list);
+    std::copy(feature.get(), feature.get() + s, mutable_chunk->feature_list);
   }
 
   tree->set_output_layer(OUTPUT_SELECTION);

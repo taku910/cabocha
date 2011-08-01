@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include "darts.h"
+#include "scoped_ptr.h"
 #include "utils.h"
 #include "ucs.h"
 #include "normalizer.h"
@@ -175,13 +176,13 @@ void Normalizer::compile(const char *filename,
     CHECK_DIE(iconv.open("utf8", tmp.c_str()));
     std::ifstream ifs(filename);
     CHECK_DIE(ifs) << "no such file or directory: " << filename;
-    char line[8192];
+    scoped_array<char> line(new char[BUF_SIZE]);
     char *col[32];
     std::string output;
     std::vector<std::pair<std::string, int> > dic;
-    while (ifs.getline(line, sizeof(line))) {
-      const size_t size = tokenize(line, "\t", col, 2);
-      CHECK_DIE(size >= 2) << "format error: " << line;
+    while (ifs.getline(line.get(), BUF_SIZE)) {
+      const size_t size = tokenize(line.get(), "\t", col, 2);
+      CHECK_DIE(size >= 2) << "format error: " << line.get();
       std::string key = col[0];
       std::string value = col[1];
       iconv.convert(&key);
