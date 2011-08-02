@@ -266,10 +266,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = 1.4 no-dependencies
-SUBDIRS = src model doc man
+SUBDIRS = src model man
 confdir = $(sysconfdir)
 conf_DATA = cabocharc
-EXTRA_DIR = perl ruby python java swig tools example
+EXTRA_DIR = perl ruby python java swig tools example doc
 bin_SCRIPTS = cabocha-config
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

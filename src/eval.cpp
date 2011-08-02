@@ -320,9 +320,11 @@ class Eval {
     Tree tree1;
     Tree tree2;
 
-    size_t all_chunk2 = 0;
+    size_t all_chunk0 = 0;
     size_t all_chunk1 = 0;
+    size_t all_chunk2 = 0;
     size_t all_sentence = 0;
+    size_t correct_chunk0 = 0;
     size_t correct_chunk1 = 0;
     size_t correct_chunk2 = 0;
     size_t correct_sentence = 0;
@@ -346,20 +348,29 @@ class Eval {
 
       if (tree1.chunk_size() == 0) continue;
 
-      for (int i = 0;
-           i < static_cast<int>(tree1.chunk_size() - 1); ++i) {
+      for (int i = 0; i < static_cast<int>(tree1.chunk_size()); ++i) {
         const Chunk *chunk1 = tree1.chunk(i);
         const Chunk *chunk2 = tree2.chunk(i);
+        {
+          if (chunk1->link == chunk2->link) {
+            ++correct_chunk0;
+          }
+          ++all_chunk0;
+        }
+
+        if (i < static_cast<int>(tree1.chunk_size() - 1)) {
+          if (chunk1->link == chunk2->link) {
+            ++correct_chunk1;
+          }
+          ++all_chunk1;
+        }
+
         if (i < static_cast<int>(tree1.chunk_size() - 2)) {
           if (chunk1->link == chunk2->link) {
             ++correct_chunk2;
           }
           ++all_chunk2;
         }
-        if (chunk1->link == chunk2->link) {
-          ++correct_chunk1;
-        }
-        ++all_chunk1;
       }
 
       bool is_all_correct = true;
@@ -375,6 +386,8 @@ class Eval {
       ++all_sentence;
     }
 
+    const float p0 = all_chunk0 == 0 ? 0.0 :
+        100.0 * correct_chunk0 / all_chunk0;
     const float p1 = all_chunk1 == 0 ? 0.0 :
         100.0 * correct_chunk1 / all_chunk1;
     const float p2 = all_chunk2 == 0 ? 0.0 :
@@ -384,9 +397,12 @@ class Eval {
 
     char buf[256];
     snprintf(buf, sizeof(buf) - 1,
+             "dependency level0: %4.4f (%d/%d)\n"
              "dependency level1: %4.4f (%d/%d)\n"
              "dependency level2: %4.4f (%d/%d)\n"
              "sentence         : %4.4f (%d/%d)\n",
+             p0, static_cast<int>(correct_chunk0),
+             static_cast<int>(all_chunk0),
              p1, static_cast<int>(correct_chunk1),
              static_cast<int>(all_chunk1),
              p2, static_cast<int>(correct_chunk2),

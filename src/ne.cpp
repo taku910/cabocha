@@ -111,12 +111,20 @@ bool NE::parse(Tree *tree) {
   CHECK_FALSE(tree);
 
   if (ne_composite_.empty()) {
-    if (tree->posset() == IPA) {
-      // "名詞,数,"
-      ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
-    } else if (tree->posset() == JUMAN) {
-      // 名詞,数詞
-      ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
+    switch (tree->posset()) {
+      case IPA:
+        // "名詞,数,"
+        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
+        break;
+      case JUMAN:
+        // 名詞,数詞
+        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
+        break;
+      case UNIDIC:
+        // 名詞,数詞
+        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
+      default:
+        break;
     }
     Iconv iconv;
     iconv.open(UTF8, charset());
@@ -146,7 +154,7 @@ bool NE::parse(Tree *tree) {
 
     char *char_feature = tree->alloc(16);
     get_char_feature(charset(), surface, char_feature);
-    if (tree->posset() == IPA) {
+    if (tree->posset() == IPA || tree->posset() == UNIDIC) {
       concat_feature(token, 4, &tmp);
     } else if (tree->posset() == JUMAN) {
       concat_feature(token, 2, &tmp);

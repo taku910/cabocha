@@ -57,7 +57,7 @@ bool Chunker::parse(Tree *tree) {
     feature_.clear();
     const Token *token = tree->token(i);
     feature_.push_back(token->normalized_surface);
-    if (tree->posset() == IPA) {
+    if (tree->posset() == IPA || tree->posset() == UNIDIC) {
       concat_feature(token, 4, &tmp);
     } else if (tree->posset() == JUMAN) {
       concat_feature(token, 2, &tmp);

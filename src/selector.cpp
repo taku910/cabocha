@@ -106,10 +106,7 @@ bool Selector::parse(Tree *tree) {
 
   for (size_t i = 0; i < size; ++i) {  // for all chunks
     const Chunk *chunk = tree->chunk(i);
-    size_t hid = chunk->token_pos;
-    size_t fid = chunk->token_pos;
     const size_t token_size = chunk->token_pos + chunk->token_size;
-
     char *buf = tree->alloc(2048);
     std::ostrstream ostrs(buf, 2048);
 
@@ -134,29 +131,15 @@ bool Selector::parse(Tree *tree) {
         ostrs << " G_CB:" << p;
         ostrs << " F_CB:" << p;
       }
-
-      if (tree->posset() == IPA) {
-        if (pat_ipa_func_.prefix_match(token->feature)) {
-          fid = j;
-        } else if (!pat_ipa_head_.prefix_match(token->feature)) {
-          hid = j;
-        }
-      } else if (tree->posset() == JUMAN) {
-        if (!pat_juman_func_.prefix_match(token->feature)) {
-          fid = j;
-        }
-        if (!pat_juman_head_.prefix_match(token->feature)) {
-          hid = j;
-        }
-      }
     }
 
-    if (tree->posset() == IPA && hid > fid) {
-      fid = hid;
-    }
+    size_t hid = 0;
+    size_t fid = 0;
+    findHead(*tree, *chunk, &hid, &fid);
 
     const Token *htoken = tree->token(hid);
     const Token *ftoken = tree->token(fid);
+
     const char *hsurface = htoken->normalized_surface;
     const char *fsurface = ftoken->normalized_surface;
     const char *hctype   = get_token(htoken, pos_size);
@@ -207,7 +190,6 @@ bool Selector::parse(Tree *tree) {
     if (i == size - 1) ostrs << " F_EOS:1";
 
     ostrs << std::ends;
-
     // write to tree
     Chunk *mutable_chunk = tree->mutable_chunk(i);
     mutable_chunk->head_pos = hid - chunk->token_pos;
@@ -225,5 +207,58 @@ bool Selector::parse(Tree *tree) {
   tree->set_output_layer(OUTPUT_SELECTION);
 
   return true;
+}
+
+void Selector::findHead(const Tree &tree, const Chunk &chunk,
+                        size_t *hid, size_t *fid) const {
+  *hid = chunk.token_pos;
+  *fid = chunk.token_pos;
+  //  size_t hid2 = chunk.token_pos;
+  const size_t token_size = chunk.token_pos + chunk.token_size;
+
+  for (size_t j = chunk.token_pos; j < token_size; ++j) {
+    const Token *token = tree.token(j);
+    if (tree.posset() == IPA) {
+      if (pat_ipa_func_.prefix_match(token->feature)) {
+        *fid = j;
+      } else if (!pat_ipa_head_.prefix_match(token->feature)) {
+        *hid = j;
+      }
+    } else if (tree.posset() == JUMAN) {
+      if (!pat_juman_func_.prefix_match(token->feature)) {
+        *fid = j;
+      }
+      if (!pat_juman_head_.prefix_match(token->feature)) {
+        *hid = j;
+      }
+    }
+    /*else if (tree.posset() == UNIDIC) {
+      if (pat_ipa_func_.prefix_match(token->feature)) {
+        *fid = j;
+      } else if (!pat_ipa_head_.prefix_match(token->feature)) {
+        *hid = j;
+      } else if (pat_ipa_head2_.prefix_match(token->feature)) {
+        hid2 = j;
+      }
+    }
+    */
+  }
+
+  if (tree.posset() == IPA && *hid > *fid) {
+    *fid = *hid;
+  }
+
+  /*
+  if (tree.posset() == UNIDIC) {
+    if (*hid > hid2) {
+      *hid = hid2;
+    } else {
+      *fid = _max(hid2, *fid);
+    }
+    if (*hid > *fid) {
+      *fid = *hid;
+    }
+  }
+  */
 }
 }
