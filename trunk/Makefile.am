@@ -4,10 +4,10 @@
 #
 @SET_MAKE@
 AUTOMAKE_OPTIONS = 1.4 no-dependencies
-SUBDIRS = src model doc man
+SUBDIRS = src model man
 confdir = $(sysconfdir)
 conf_DATA = cabocharc
-EXTRA_DIR = perl ruby python java swig tools example
+EXTRA_DIR = perl ruby python java swig tools example doc
 bin_SCRIPTS = cabocha-config
 
 dist-hook:

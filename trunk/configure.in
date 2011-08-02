@@ -292,7 +292,6 @@ AC_OUTPUT([Makefile
 	  src/Makefile.msvc
 	  model/Makefile
 	  man/Makefile
-	  doc/Makefile
 	  swig/version.h
 	  cabocha-config
 	  cabocharc

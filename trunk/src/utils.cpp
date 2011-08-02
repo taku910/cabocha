@@ -28,6 +28,8 @@ PossetType decode_posset(const char *posset) {
     type = IPA;
   } else if (stype == "juman") {
     type = JUMAN;
+  } else if (stype == "unidic") {
+    type = UNIDIC;
   }
   return type;
 }
@@ -37,6 +39,8 @@ const char *encode_posset(PossetType posset) {
     return "IPA";
   } else if (posset == JUMAN) {
     return "JUMAN";
+  } else if (posset == UNIDIC) {
+    return "UNIDIC";
   }
   return "IPA";
 }

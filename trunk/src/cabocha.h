@@ -29,7 +29,7 @@ extern "C" {
     EUC_JP, CP932, UTF8, ASCII
   };
   enum cabocha_posset_t  {
-    IPA, JUMAN
+    IPA, JUMAN, UNIDIC
   };
 
   enum cabocha_format_t {

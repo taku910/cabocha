@@ -40,10 +40,13 @@ class Selector: public Analyzer {
   virtual ~Selector();
 
  private:
+  void findHead(const Tree &tree, const Chunk &chunk, size_t *hid, size_t *fid) const;
+
   PatternMatcher pat_kutouten_, pat_open_bracket_, pat_close_bracket_;
   PatternMatcher pat_dyn_a_, pat_case_;
   PatternMatcher pat_ipa_func_, pat_ipa_head_;
   PatternMatcher pat_juman_func_, pat_juman_head_;
+  PatternMatcher pat_all_func_;
 };
 }
 #endif
