@@ -230,4 +230,12 @@ int progress_bar(const char* message, size_t current, size_t total) {
 
   return 1;
 }
+ 
+void Unlink(const char *filename) {
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  ::DeleteFileA(filename);
+#else
+  ::unlink(filename);
+#endif
+}   
 }

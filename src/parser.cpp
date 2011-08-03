@@ -16,6 +16,7 @@
 #include "ne.h"
 #include "selector.h"
 #include "dep.h"
+#include "scoped_ptr.h"
 #include "stream_wrapper.h"
 #include "utils.h"
 
@@ -94,12 +95,12 @@ static std::string get_default_rc() {
 #endif
 
 #if defined (HAVE_GETENV) && defined(_WIN32) && !defined(__CYGWIN__)
-  scoped_array<char> buf(new char[BUF_SIZE]);
+  CaboCha::scoped_array<char> buf(new char[BUF_SIZE]);
   const DWORD len = GetEnvironmentVariable("CABOCHARC",
-                                           buf,
-                                           sizeof(buf));
-  if (len < sizeof(buf) && len > 0) {
-    return std::string(buf);
+                                           buf.get(),
+                                           BUF_SIZE);
+  if (len < BUF_SIZE && len > 0) {
+    return std::string(buf.get());
   }
 #endif
 
