@@ -129,7 +129,7 @@ int cabocha_model_index(int argc, char **argv) {
   }
 
   if (from_id != to_id) {
-    ::unlink(input.c_str());
+    Unlink(input.c_str());
   }
 
   return 0;

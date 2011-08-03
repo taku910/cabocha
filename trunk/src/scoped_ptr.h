@@ -32,7 +32,7 @@ namespace CaboCha {
   };
 
   template<class T> class scoped_array {
-  private:
+  private: 
     T * ptr_;
     scoped_array(scoped_array const &);
     scoped_array & operator= (scoped_array const &);

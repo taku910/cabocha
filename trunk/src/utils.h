@@ -212,5 +212,7 @@ inline char getEscapedChar(const char p) {
   }
   return '\0';  // never be here
 }
+
+void Unlink(const char *filename);
 }
 #endif

@@ -164,8 +164,8 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
                                const_cast<char **>(&argv[0])))
         << "crfpp_learn execution error";
 
-    ::unlink(tmp_train_file.c_str());
-    ::unlink(templ_file.c_str());
+    Unlink(tmp_train_file.c_str());
+    Unlink(templ_file.c_str());
   }
 
   return true;
