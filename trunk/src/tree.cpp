@@ -390,6 +390,8 @@ bool Tree::read(const char *input, size_t length,
 
   if (!input) return false;
 
+  int chunk_id = 0;
+
   switch (input_layer) {
     case INPUT_RAW_SENTENCE:
       set_sentence(input, length);
@@ -418,6 +420,11 @@ bool Tree::read(const char *input, size_t length,
             if (input_layer == INPUT_POS) continue;
             chunk = add_chunk();
             chunk->link = std::atoi(column[2]);
+
+            if (chunk_id != std::atoi(column[1])) {
+              return false;
+            }
+            ++chunk_id;
 
             if (size >= 4) {
               size_t i = 0;
@@ -480,6 +487,16 @@ bool Tree::read(const char *input, size_t length,
       if (old_chunk && old_chunk->token_size == 0)
         return false;
   }
+
+  // verfy chunk link
+  for (size_t i = 0; i < chunk_size(); ++i) {
+    if (chunk(i)->link !=  -1 &&
+        (chunk(i)->link >= static_cast<int>(chunk_size()) ||
+         chunk(i)->link < -1)) {
+      return false;
+    }
+  }
+
 
   return true;
 }
