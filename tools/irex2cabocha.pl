@@ -2,8 +2,12 @@
 
 use strict;
 use MeCab;
-
+use Getopt::Long;
 my $mecab;
+
+my $dicdir;
+GetOptions("dicdir=s" => \$dicdir);
+my $arg = defined $dicdir ? "-d $dicdir" : "";
 
 sub parseXML {
     my $str = shift @_;
@@ -20,7 +24,7 @@ sub parseXML {
     $sentence  .= $str;
 
     if (!$mecab) {
-        $mecab = new MeCab::Tagger("-d/usr/local/lib/mecab/dic/jumandic");
+        $mecab = new MeCab::Tagger($arg);
         die "MeCab load error\n" if (!$mecab);
     }
 

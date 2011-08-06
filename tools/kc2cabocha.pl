@@ -4,8 +4,13 @@
 
 use MeCab;
 use KyotoCorpus;
+use Getopt::Long;
+
+my $dicdir;
+GetOptions("dicdir=s" => \$dicdir);
+my $arg = defined $dicdir ? "-d $dicdir" : "";
   
-my $mecab = new MeCab::Tagger("");
+my $mecab = new MeCab::Tagger($arg);
 
 for my $file (@ARGV) {
 

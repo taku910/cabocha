@@ -24,10 +24,11 @@ class PatternMatcher {
 
   bool compile(const char *pat, Iconv *iconv);
   void clear();
-  const char* match(const char *str) const;
-  const char* prefix_match(const char *str) const;
+  bool match(const char *str) const;
+  bool prefix_match(const char *str) const;
 
  private:
+  bool matched_result_;
   std::vector<std::string> patterns_;
 };
 
@@ -46,7 +47,7 @@ class Selector: public Analyzer {
   PatternMatcher pat_dyn_a_, pat_case_;
   PatternMatcher pat_ipa_func_, pat_ipa_head_;
   PatternMatcher pat_juman_func_, pat_juman_head_;
-  PatternMatcher pat_all_func_;
+  PatternMatcher pat_unidic_func_, pat_unidic_head_, pat_unidic_func2_, pat_unidic_head2_, pat_unidic_head_pre_;
 };
 }
 #endif
