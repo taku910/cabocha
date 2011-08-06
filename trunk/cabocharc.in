@@ -7,6 +7,7 @@ charset = @CHARSET@
 
 # posset = IPA
 # posset = JUMAN
+# posset = UNIDIC
 
 # Output Format
 #  0 - tree
@@ -35,12 +36,18 @@ ne = 1
 
 # Parser model file name
 parser-model  = @prefix@/lib/cabocha/model/dep.ipa.model
+# parser-model  = @prefix@/lib/cabocha/model/dep.juman.model
+# parser-model  = @prefix@/lib/cabocha/model/dep.unidic.model
 
 # Chunker model file name
 chunker-model = @prefix@/lib/cabocha/model/chunk.ipa.model
+# chunker-model = @prefix@/lib/cabocha/model/chunk.juman.model
+# chunker-model = @prefix@/lib/cabocha/model/chunk.unidic.model
 
 # NE model file name
 ne-model = @prefix@/lib/cabocha/model/ne.ipa.model
+# ne-model = @prefix@/lib/cabocha/model/ne.juman.model
+# ne-model = @prefix@/lib/cabocha/model/ne.unidic.model
 
 # mecabrc
 # mecabrc = somwhere/mecabrc
