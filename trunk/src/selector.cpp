@@ -226,7 +226,9 @@ void Selector::findHead(const Tree &tree, const Chunk &chunk,
   const PatternMatcher *head_matcher = NULL;
 
   switch (tree.posset()) {
-    case UNIDIC: {
+    case UNIDIC:
+      /*
+      {
       bool found = false;
       for (size_t i = chunk.token_pos; i < token_size; ++i) {
         const Token *token = tree.token(i);
@@ -243,6 +245,9 @@ void Selector::findHead(const Tree &tree, const Chunk &chunk,
         func_matcher = &pat_unidic_func2_;
       }
     }
+      */
+      head_matcher = &pat_unidic_head2_;
+      func_matcher = &pat_unidic_func2_;
       break;
     case IPA:
       head_matcher = &pat_ipa_head_;
