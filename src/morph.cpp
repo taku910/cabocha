@@ -100,7 +100,7 @@ bool MorphAnalyzer::open(const Param &param) {
   }
 
   const std::string mecabdic = param.get<std::string>("mecab-dicdir");
-  if (!mecabrc.empty()) {
+  if (!mecabdic.empty()) {
     argv.push_back("-d");
     argv.push_back(mecabdic.c_str());
   }
