@@ -20,7 +20,6 @@ Name: "jp"; MessagesFile: "compiler:Japanese.isl"
 [Files]
 Source: "AUTHORS";               DestDir: "{app}"
 Source: "COPYING";               DestDir: "{app}"
-Source: "LGPL";                  DestDir: "{app}"
 Source: "BSD";                   DestDir: "{app}"
 Source: "src\cabocha.exe";         DestDir: "{app}\bin"
 Source: "src\cabocha-model-index.exe";     DestDir: "{app}\bin"
