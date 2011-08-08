@@ -1,5 +1,5 @@
 AC_INIT(src/cabocha.cpp)
-AM_INIT_AUTOMAKE(cabocha, 0.60pre5)
+AM_INIT_AUTOMAKE(cabocha, 0.60pre6)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY
@@ -62,7 +62,7 @@ AC_ARG_WITH(
 
 AC_ARG_WITH(
     posset,
-     [  --with-posset=charset  set default charset (IPA|JUMAN))],
+     [  --with-posset=charset  set default charset (IPA|JUMAN|UNIDIC))],
      [POSSET=${withval}], [POSSET='IPA']
 )
 if test "$POSSET" = "IPA"; then
@@ -71,8 +71,12 @@ else
  if test "$POSSET" = "JUMAN"; then
   POSSET="JUMAN"
  else
-  AC_ERROR(uknown posset: ${POSSET})
- fi 
+   if test "$POSSET" = "UNIDIC"; then
+    POSSET="UNIDIC"
+   else
+    AC_ERROR(uknown posset: ${POSSET})
+   fi
+ fi
 fi
 AC_SUBST(POSSET)
 
