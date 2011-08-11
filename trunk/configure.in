@@ -1,5 +1,5 @@
 AC_INIT(src/cabocha.cpp)
-AM_INIT_AUTOMAKE(cabocha, 0.60pre6)
+AM_INIT_AUTOMAKE(cabocha, 0.60)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY
@@ -65,6 +65,9 @@ AC_ARG_WITH(
      [  --with-posset=charset  set default charset (IPA|JUMAN|UNIDIC))],
      [POSSET=${withval}], [POSSET='IPA']
 )
+POSSET=`echo $POSSET|tr a-z A-Z`
+POSSET2=`echo $POSSET|tr A-Z a-z`
+
 if test "$POSSET" = "IPA"; then
  POSSET="IPA"
 else
@@ -79,6 +82,7 @@ else
  fi
 fi
 AC_SUBST(POSSET)
+AC_SUBST(POSSET2)
 
 AC_ARG_ENABLE(utf8-only,
 [  --enable-utf8-only            use utf8 only [default no]])

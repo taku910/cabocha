@@ -5,6 +5,7 @@ charset = @CHARSET@
 
 # charset-file = @prefix@/lib/cabocha/model/charset-file.txt
 
+posset = @POSSET@
 # posset = IPA
 # posset = JUMAN
 # posset = UNIDIC
@@ -35,17 +36,20 @@ output-layer = 4
 ne = 1
 
 # Parser model file name
-parser-model  = @prefix@/lib/cabocha/model/dep.ipa.model
+parser-model  = @prefix@/lib/cabocha/model/dep.@POSSET2@.model
+# parser-model  = @prefix@/lib/cabocha/model/dep.ipa.model
 # parser-model  = @prefix@/lib/cabocha/model/dep.juman.model
 # parser-model  = @prefix@/lib/cabocha/model/dep.unidic.model
 
 # Chunker model file name
-chunker-model = @prefix@/lib/cabocha/model/chunk.ipa.model
+chunker-model = @prefix@/lib/cabocha/model/chunk.@POSSET2@.model
+# chunker-model = @prefix@/lib/cabocha/model/chunk.ipa.model
 # chunker-model = @prefix@/lib/cabocha/model/chunk.juman.model
 # chunker-model = @prefix@/lib/cabocha/model/chunk.unidic.model
 
 # NE model file name
-ne-model = @prefix@/lib/cabocha/model/ne.ipa.model
+ne-model = @prefix@/lib/cabocha/model/ne.@POSSET2@.model
+# ne-model = @prefix@/lib/cabocha/model/ne.ipa.model
 # ne-model = @prefix@/lib/cabocha/model/ne.juman.model
 # ne-model = @prefix@/lib/cabocha/model/ne.unidic.model
 
