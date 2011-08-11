@@ -36,6 +36,8 @@ win-dist:
 	done
 	perl -pe 's#\@prefix\@/lib/cabocha/model/#\$$(rcpath)\\..\\model\\#g; \
                   s#\@CHARSET\@#SHIFT-JIS#g; \
+                  s#\@POSSET\@#IPA#g; \
+                  s#\@POSSET2\@#ipa#g; \
                   s/# charset-file/charset-file/g;' \
 		< cabocharc.in | nkf -sc > wintmp/cabocharc
 	(cd wintmp; qkc -s -m *.cpp *.c *.h cabocharc)

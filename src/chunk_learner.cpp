@@ -4,6 +4,7 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <crfpp.h>
+#include <iterator>
 #include <iostream>
 #include <fstream>
 #include <vector>
