@@ -33,8 +33,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = x86_64-unknown-linux-gnu
-host_triplet = x86_64-unknown-linux-gnu
+build_triplet = i686-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
 subdir = man
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -73,23 +73,23 @@ am__installdirs = "$(DESTDIR)$(man1dir)"
 NROFF = nroff
 MANS = $(man_MANS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run aclocal-1.11
-AMTAR = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run tar
+ACLOCAL = ${SHELL} /home/taku/cabocha/missing --run aclocal-1.11
+AMTAR = ${SHELL} /home/taku/cabocha/missing --run tar
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run automake-1.11
-AWK = gawk
+AUTOCONF = ${SHELL} /home/taku/cabocha/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/taku/cabocha/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/taku/cabocha/missing --run automake-1.11
+AWK = mawk
 CABOCHA_DEFAULT_RC = ${prefix}/etc/cabocharc
 CABOCHA_LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++
 CABOCHA_MODEL_LIST = chunk.ipa.model chunk.juman.model chunk.unidic.model dep.ipa.model dep.juman.model dep.unidic.model ne.ipa.model ne.juman.model ne.unidic.model
 CABOCHA_TXTMODEL_LIST = chunk.ipa.txt chunk.juman.txt chunk.unidic.txt dep.ipa.txt dep.juman.txt dep.unidic.txt ne.ipa.txt ne.juman.txt ne.unidic.txt
-CABOCHA_USE_UTF8_ONLY = 
+CABOCHA_USE_UTF8_ONLY = -DCABOCHA_USE_UTF8_ONLY
 CC = gcc
 CCDEPMODE = depmode=none
 CFLAGS = -O3  -Wno-deprecated -Wall
-CHARSET = EUC-JP
+CHARSET = UTF-8
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
@@ -114,7 +114,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld -m elf_x86_64
+LD = /usr/bin/ld
 LDFLAGS = 
 LIBICONV = 
 LIBOBJS = 
@@ -125,8 +125,8 @@ LN_S = ln -s
 LTLIBICONV = 
 LTLIBOBJS = 
 LTVERSION = 4:0:0
-MAINT = 
-MAKEINFO = ${SHELL} /home/taku/proj/cabocha/cabocha/missing --run makeinfo
+MAINT = #
+MAKEINFO = ${SHELL} /home/taku/cabocha/missing --run makeinfo
 MECAB_CFLAGS = 
 MECAB_CONFIG = /usr/local/bin/mecab-config
 MKDIR_P = /bin/mkdir -p
@@ -150,13 +150,13 @@ POSSET2 = ipa
 RANLIB = ranlib
 SED = /bin/sed
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = strip
 VERSION = 0.60
-abs_builddir = /home/taku/proj/cabocha/cabocha/man
-abs_srcdir = /home/taku/proj/cabocha/cabocha/man
-abs_top_builddir = /home/taku/proj/cabocha/cabocha
-abs_top_srcdir = /home/taku/proj/cabocha/cabocha
+abs_builddir = /home/taku/cabocha/man
+abs_srcdir = /home/taku/cabocha/man
+abs_top_builddir = /home/taku/cabocha
+abs_top_srcdir = /home/taku/cabocha
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
@@ -166,26 +166,26 @@ am__quote =
 am__tar = ${AMTAR} chof - "$$tardir"
 am__untar = ${AMTAR} xf -
 bindir = ${exec_prefix}/bin
-build = x86_64-unknown-linux-gnu
+build = i686-pc-linux-gnu
 build_alias = 
-build_cpu = x86_64
+build_cpu = i686
 build_os = linux-gnu
-build_vendor = unknown
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = x86_64-unknown-linux-gnu
+host = i686-pc-linux-gnu
 host_alias = 
-host_cpu = x86_64
+host_cpu = i686
 host_os = linux-gnu
-host_vendor = unknown
+host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/taku/proj/cabocha/cabocha/install-sh
+install_sh = ${SHELL} /home/taku/cabocha/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -211,7 +211,7 @@ EXTRA_DIST = $(man_MANS)
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -236,9 +236,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
