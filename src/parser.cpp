@@ -68,7 +68,7 @@ static CaboCha::CharsetType get_charset(const CaboCha::Param &param,
   std::string filename = param.get<std::string>("charset-file");
   CaboCha::replace_string(&filename, "$(rcpath)", rcpath);
   if (!filename.empty()) {
-    std::ifstream ifs(filename.c_str());
+    std::ifstream ifs(WPATH(filename.c_str()));
     std::string line;
     std::getline(ifs, line);
     if (!line.empty()) {
@@ -84,7 +84,7 @@ static std::string get_default_rc() {
   if (homedir) {
     std::string s = CaboCha::create_filename(std::string(homedir),
                                              ".cabocharc");
-    std::ifstream ifs(s.c_str());
+    std::ifstream ifs(WPATH(s.c_str()));
     if (ifs) return s;
   }
 
@@ -156,13 +156,21 @@ class ParserImpl: public Parser {
 
 bool ParserImpl::open(int argc, char **argv) {
   Param param;
-  CHECK_CLOSE_FALSE(param.open(argc, argv, long_options)) << param.what();
+  if (!param.open(argc, argv, long_options)) {
+    WHAT << param.what();
+    close();
+    return false;
+  }
   return open(&param);
 }
 
 bool ParserImpl::open(const char *arg) {
   Param param;
-  CHECK_CLOSE_FALSE(param.open(arg, long_options)) << param.what();
+  if (!param.open(arg, long_options)) {
+    WHAT << param.what();
+    close();
+    return false;
+  }
   return open(&param);
 }
 
@@ -188,7 +196,9 @@ bool ParserImpl::open(Param *param) {
   close();
 
   std::string rcfile = param->get<std::string>("rcfile");
-  if (rcfile.empty()) rcfile = get_default_rc();
+  if (rcfile.empty()) {
+    rcfile = get_default_rc();
+  }
 
   if (!param->load(rcfile.c_str())) {
     WHAT << param->what();
@@ -215,11 +225,13 @@ bool ParserImpl::open(Param *param) {
 
   const int action = param->get<int>("action-mode");
   const int ne     = param->get<int>("ne");
-  if (action == TRAINING_MODE)
+  if (action == TRAINING_MODE) {
     output_format_ = FORMAT_NONE;
+  }
 
-  if (output_layer_ != OUTPUT_DEP)
+  if (output_layer_ != OUTPUT_DEP) {
     output_format_ = FORMAT_LATTICE;
+  }
 
   charset_ = get_charset(*param, rcpath);
   posset_ = decode_posset(param->get<std::string>("posset").c_str());
@@ -330,8 +342,9 @@ bool ParserImpl::open(Param *param) {
 }
 
 void ParserImpl::close() {
-  for (size_t i = 0; i < analyzer_.size(); ++i)
+  for (size_t i = 0; i < analyzer_.size(); ++i) {
     delete analyzer_[i];
+  }
   analyzer_.clear();
   output_format_ = FORMAT_TREE;
   input_layer_ = INPUT_RAW_SENTENCE;
@@ -339,24 +352,35 @@ void ParserImpl::close() {
 }
 
 const Tree *ParserImpl::parse(Tree *tree) {
-  CHECK_0(tree) << "NULL tree is given";
+  if (!tree) {
+    WHAT << "NULL pointer is given";
+    return 0;
+  }
   tree->set_charset(charset_);
   tree->set_posset(posset_);
   tree->set_output_layer(output_layer_);
   for (size_t i = 0; i < analyzer_.size(); ++i) {
-    CHECK_0(analyzer_[i]->parse(tree)) << analyzer_[i]->what();
+    if (!analyzer_[i]->parse(tree)) {
+      WHAT << analyzer_[i]->what();
+      return 0;
+    }
   }
   return const_cast<const Tree *> (tree);
 }
 
 const Tree* ParserImpl::parse(const char *str, size_t len) {
-  CHECK_0(str) << "NULL pointer is given";
+  if (!str) {
+    WHAT << "NULL pointer is given";
+    return 0;
+  }
   // Set charset/posset, bacause Tree::read() may depend on
   // these parameters.
   tree_->set_charset(charset_);
   tree_->set_posset(posset_);
-  CHECK_0(tree_->read(str, len, input_layer_))
-      << "format error: [" << str << "] ";
+  if (!tree_->read(str, len, input_layer_)) {
+    WHAT << "format error: [" << str << "] ";
+    return 0;
+  }
   return parse(tree_.get());
 }
 
@@ -366,14 +390,24 @@ const Tree* ParserImpl::parse(const char *str) {
 
 const char *ParserImpl::parseToString(const char *str, size_t len,
                                       char *out, size_t len2) {
-  CHECK_0(str) << "NULL pointer is given";
-  CHECK_0(parse(str, len));
+  if (!str) {
+    WHAT << "NULL pointer is given";
+    return 0;
+  }
+  if (!parse(str, len)) {
+    return 0;
+  }
   return tree_->toString(output_format_, out, len2);
 }
 
 const char *ParserImpl::parseToString(const char* str, size_t len) {
-  CHECK_0(str) << "NULL pointer is given";
-  CHECK_0(parse(str, len));
+  if (!str) {
+    WHAT << "NULL pointer is given";
+    return 0;
+  }
+  if (!parse(str, len)) {
+    return 0;
+  }
   return tree_->toString(output_format_);
 }
 
@@ -431,10 +465,14 @@ int cabocha_do(int argc, char **argv) {
   if (!param.help_version()) return EXIT_SUCCESS;
 
   std::string ofilename = param.get<std::string>("output");
-  if (ofilename.empty()) ofilename = "-";
+  if (ofilename.empty()) {
+    ofilename = "-";
+  }
 
   CaboCha::ostream_wrapper ofs(ofilename.c_str());
-  if (!*ofs) WHAT_ERROR("no such file or directory: " << ofilename);
+  if (!*ofs) {
+    WHAT_ERROR("no such file or directory: " << ofilename);
+  }
 
   if (!parser.open(&param)) {
     std::cout << parser.what() << std::endl;
@@ -444,7 +482,9 @@ int cabocha_do(int argc, char **argv) {
   const std::vector <std::string>& rest_ = param.rest_args();
   std::vector<std::string> rest = rest_;
 
-  if (rest.empty()) rest.push_back("-");
+  if (rest.empty()) {
+    rest.push_back("-");
+  }
 
   int input_layer = param.get<int>("input-layer");
   std::string input;

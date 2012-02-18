@@ -1,23 +1,21 @@
 // CaboCha -- Yet Another Japanese Dependency Parser
 //
-//  $Id: param.cpp 50 2009-05-03 08:25:36Z taku-ku $;
+//  $Id: param.cpp 41 2008-01-20 09:31:34Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <fstream>
 #include <cstdio>
-#include "param.h"
+#include <fstream>
 #include "common.h"
-#include "utils.h"
+#include "param.h"
 #include "string_buffer.h"
+#include "utils.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 namespace CaboCha {
-
-using namespace std;
-
+namespace {
 void init_param(std::string *help,
                 std::string *version,
                 const std::string &system_name,
@@ -32,7 +30,7 @@ void init_param(std::string *help,
     size_t l = 1 + std::strlen(opts[i].name);
     if (opts[i].arg_description)
       l += (1 + std::strlen(opts[i].arg_description));
-    max = _max(l, max);
+    max = std::max(l, max);
   }
 
   for (size_t i = 0; opts[i].name; ++i) {
@@ -55,6 +53,7 @@ void init_param(std::string *help,
   *help += '\n';
   return;
 }
+}  // namespace
 
 void Param::dump_config(std::ostream *os) const {
   for (std::map<std::string, std::string>::const_iterator it = conf_.begin();
@@ -65,7 +64,7 @@ void Param::dump_config(std::ostream *os) const {
 }
 
 bool Param::load(const char *filename) {
-  std::ifstream ifs(filename);
+  std::ifstream ifs(WPATH(filename));
 
   CHECK_FALSE(ifs) << "no such file or directory: " << filename;
 
@@ -179,8 +178,8 @@ bool Param::open(int argc, char **argv, const Option *opts) {
 ERROR:
   switch (_errno) {
     case 0: WHAT << "unrecognized option `" << argv[ind] << "`"; break;
-    case 1: WHAT << "`" << argv[ind] << "` requres an argument";  break;
-    case 2: WHAT << "`" << argv[ind] << "` dosen't allow an argument"; break;
+    case 1: WHAT << "`" << argv[ind] << "` requires an argument";  break;
+    case 2: WHAT << "`" << argv[ind] << "` doesn't allow an argument"; break;
   }
   return false;
 }
@@ -191,17 +190,17 @@ void Param::clear() {
 }
 
 bool Param::open(const char *arg, const Option *opts) {
-  scoped_array<char> str(new char[BUF_SIZE]);
-  std::strncpy(str.get(), arg, BUF_SIZE);
+  scoped_fixed_array<char, BUF_SIZE> str;
+  std::strncpy(str.get(), arg, str.size());
   char* ptr[64];
   unsigned int size = 1;
-  ptr[0] = const_cast<char *>(PACKAGE);
+  ptr[0] = const_cast<char*>(PACKAGE);
 
   for (char *p = str.get(); *p;) {
     while (isspace(*p)) *p++ = '\0';
     if (*p == '\0') break;
     ptr[size++] = p;
-    if (size == BUF_SIZE) break;
+    if (size == sizeof(ptr)) break;
     while (*p && !isspace(*p)) p++;
   }
 

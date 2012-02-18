@@ -43,10 +43,10 @@ bool DependencyTrainingWithSVM(const char *train_file,
     progress_timer pg;
     Param param;
 
-    std::ifstream ifs(train_file);
+    std::ifstream ifs(WPATH(train_file));
     CHECK_DIE(ifs) << "no such file or directory: " << train_file;
 
-    std::ofstream ofs(str_train_file.c_str());
+    std::ofstream ofs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ofs) << "permission denied: " << str_train_file;
 
     scoped_ptr<Analyzer> analyzer(new DependencyParser);
@@ -82,7 +82,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
   // read training data and make dic
   {
-    std::ifstream ifs(str_train_file.c_str());
+    std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
     scoped_array<char> buf(new char[BUF_SIZE * 32]);
     scoped_array<char *> column(new char *[BUF_SIZE]);
@@ -116,11 +116,11 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
   {
     std::set<std::string> dup;
-    std::ifstream ifs(str_train_file.c_str());
+    std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
 
     const std::string model_debug_file = std::string(model_file) + ".svm";
-    std::ofstream ofs(model_debug_file.c_str());
+    std::ofstream ofs(WPATH(model_debug_file.c_str()));
 
     scoped_array<char> buf(new char[BUF_SIZE * 32]);
     scoped_array<char *> column(new char *[BUF_SIZE]);
@@ -183,7 +183,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
       }
     }
 
-    std::ofstream ofs(model_file);
+    std::ofstream ofs(WPATH(model_file));
     for (std::map<std::string, int>::const_iterator it = dic.begin();
          it != dic.end(); ++it) {
       if (active_feature.find(it->second) != active_feature.end()) {

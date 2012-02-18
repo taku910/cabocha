@@ -164,7 +164,7 @@ void Normalizer::normalize(int charset,
 void Normalizer::compile(const char *filename,
                          const char *header_filename) {
   const char* charset[3] = { "utf8", "euc_jp_win", "cp932" };
-  std::ofstream ofs(header_filename);
+  std::ofstream ofs(WPATH(header_filename));
   ofs << "#ifndef CABOCHA_NORMALIZER_RULE_H__" << std::endl;
   ofs << "#define CABOCHA_NORMALIZER_RULE_H__" << std::endl;
   ofs << "namespace {" << std::endl;
@@ -174,7 +174,7 @@ void Normalizer::compile(const char *filename,
     std::string tmp(charset[i]);
     replace_string(&tmp, "_", "-");
     CHECK_DIE(iconv.open("utf8", tmp.c_str()));
-    std::ifstream ifs(filename);
+    std::ifstream ifs(WPATH(filename));
     CHECK_DIE(ifs) << "no such file or directory: " << filename;
     scoped_array<char> line(new char[BUF_SIZE]);
     char *col[32];
@@ -207,8 +207,8 @@ void Normalizer::compile(const char *filename,
     ofs << "static const char " << charset[i]
         << "_table[] = \"" << escaped << "\";" << std::endl;
 
-    const DoubleArray *array = const_cast<const DoubleArray *>
-        (reinterpret_cast<DoubleArray *>(da.array()));
+    const DoubleArray *array =
+        reinterpret_cast<const DoubleArray *>(da.array());
     const size_t size = da.size();
     ofs << "static const DoubleArray " << charset[i] << "_da[] = {";
     for (size_t k = 0; k < size; ++k) {

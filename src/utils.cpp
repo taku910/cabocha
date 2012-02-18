@@ -20,6 +20,44 @@
 
 namespace CaboCha {
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+std::wstring Utf8ToWide(const std::string &input) {
+  int output_length = ::MultiByteToWideChar(CP_UTF8, 0,
+                                            input.c_str(), -1, NULL, 0);
+  output_length = output_length <= 0 ? 0 : output_length - 1;
+  if (output_length == 0) {
+    return L"";
+  }
+  scoped_array<wchar_t> input_wide(new wchar_t[output_length + 1]);
+  const int result = ::MultiByteToWideChar(CP_UTF8, 0, input.c_str(), -1,
+                                           input_wide.get(), output_length + 1);
+  std::wstring output;
+  if (result > 0) {
+    output.assign(input_wide.get());
+  }
+  return output;
+}
+
+std::string WideToUtf8(const std::wstring &input) {
+  const int output_length = ::WideCharToMultiByte(CP_UTF8, 0,
+                                                  input.c_str(), -1, NULL, 0,
+                                                  NULL, NULL);
+  if (output_length == 0) {
+    return "";
+  }
+
+  scoped_array<char> input_encoded(new char[output_length + 1]);
+  const int result = ::WideCharToMultiByte(CP_UTF8, 0, input.c_str(), -1,
+                                           input_encoded.get(),
+                                           output_length + 1, NULL, NULL);
+  std::string output;
+  if (result > 0) {
+    output.assign(input_encoded.get());
+  }
+  return output;
+}
+#endif
+
 PossetType decode_posset(const char *posset) {
   std::string stype(posset);
   to_lower(&stype);
