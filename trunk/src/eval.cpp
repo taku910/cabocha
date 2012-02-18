@@ -101,8 +101,8 @@ class Eval {
  private:
   static bool eval_chunk(const char *result_file,
                          const char *answer_file) {
-    std::ifstream ifs1(result_file);
-    std::ifstream ifs2(answer_file);
+    std::ifstream ifs1(WPATH(result_file));
+    std::ifstream ifs2(WPATH(answer_file));
     CHECK_DIE(ifs1) << "no such file or directory: " << result_file;
     CHECK_DIE(ifs2) << "no such file or directory: " << answer_file;
 
@@ -187,8 +187,8 @@ class Eval {
 
   static bool eval_ne(const char *result_file,
                       const char *answer_file) {
-    std::ifstream ifs1(result_file);
-    std::ifstream ifs2(answer_file);
+    std::ifstream ifs1(WPATH(result_file));
+    std::ifstream ifs2(WPATH(answer_file));
     CHECK_DIE(ifs1) << "no such file or directory: " << result_file;
     CHECK_DIE(ifs2) << "no such file or directory: " << answer_file;
 
@@ -310,8 +310,8 @@ class Eval {
 
   static bool eval_dep(const char *answer_file,
                        const char *result_file) {
-    std::ifstream ifs1(answer_file);
-    std::ifstream ifs2(result_file);
+    std::ifstream ifs1(WPATH(answer_file));
+    std::ifstream ifs2(WPATH(result_file));
     CHECK_DIE(ifs1) << "no such file or directory: " << answer_file;
     CHECK_DIE(ifs2) << "no such file or directory: " << result_file;
 

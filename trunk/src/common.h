@@ -25,7 +25,6 @@
 #include <sstream>
 #endif
 
-
 // tricky macro for MSVC
 #ifdef _MSC_VER
 #define for if (0); else for
@@ -69,6 +68,12 @@ Copyright(C) 2001-2011 Taku Kudo, All rights reserved.\n"
 #define CABOCHA_DEFAULT_RC "/usr/local/etc/cabocharc"
 #endif
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#define WPATH(path) (MeCab::Utf8ToWide(path).c_str())
+#else
+#define WPATH(path) (path)
+#endif
+
 namespace CaboCha {
 
 enum { PARSING_MODE, TRAINING_MODE };
@@ -76,63 +81,45 @@ enum { PARSING_MODE, TRAINING_MODE };
 class die {
  public:
   die() {}
-  ~die() { std::cerr << std::endl; exit(-1); }
-  int operator&(std::ostream&) { return 0; }
-};
-
-class warn {
- public:
-  warn() {}
-  ~warn() { std::cerr << std::endl; }
+  ~die() {
+    std::cerr << std::endl;
+    exit(-1);
+  }
   int operator&(std::ostream&) { return 0; }
 };
 
 struct whatlog {
-#if defined(_WIN32) && ! defined(__CYGWIN__)
-  std::ostrstream stream_;
-  const char *str() { stream_ << std::ends; return stream_.str(); }
-#else
   std::ostringstream stream_;
-  const char *str() { stream_ << std::ends; return stream_.str().c_str(); }
-#endif
-  jmp_buf cond_;
+  std::string str_;
+  const char *str() {
+    str_ = stream_.str();
+    return str_.c_str();
+  }
 };
 
 class wlog {
  public:
-  whatlog *l_;
-  wlog(whatlog &l): l_(&l) { l_->stream_.clear(); };
-  ~wlog() { longjmp(l_->cond_, 1); }
-  int operator&(std::ostream &) { return 0; }
+  wlog(whatlog *what) : what_(what) {
+    what_->stream_.clear();
+  }
+  bool operator&(std::ostream &) {
+    return false;
+  }
+ private:
+  whatlog *what_;
 };
-}
+}  // CRFPP
 
 #define WHAT what_.stream_
 
-#define CHECK_RETURN(condition, value)                                  \
-  if ((condition)) {} else                                              \
-    if (setjmp(what_.cond_) == 1) {                                     \
-      return value;                                                     \
-    } else                                                              \
-      wlog(what_) & what_.stream_ <<                                    \
-          __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
+#define CHECK_FALSE(condition) \
+ if (condition) {} else return \
+   wlog(&what_) & what_.stream_ <<              \
+      __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
 
-#define CHECK_0(condition)      CHECK_RETURN(condition, 0)
-#define CHECK_FALSE(condition)  CHECK_RETURN(condition, false)
-
-#define CHECK_CLOSE_FALSE(condition)                                    \
-  if ((condition)) {} else                                              \
-    if (setjmp(what_.cond_) == 1) {                                     \
-      close();                                                          \
-      return false;                                                     \
-    } else                                                              \
-      wlog(what_) & what_.stream_ <<                                    \
-          __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
-
-#define CHECK_DIE(condition)                                            \
-  (condition) ? 0 : die() & std::cerr << __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
-
-#define CHECK_WARN(condition)                                           \
-  (condition) ? 0 : warn() & std::cerr << __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
+#define CHECK_DIE(condition) \
+(condition) ? 0 : die() & std::cerr << __FILE__ << \
+"(" << __LINE__ << ") [" << #condition << "] "
 
 #endif
+

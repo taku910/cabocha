@@ -94,10 +94,10 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
 
   {
     progress_timer pg;
-    std::ifstream ifs(train_file);
+    std::ifstream ifs(WPATH(train_file));
     CHECK_DIE(ifs) << "no such file or directory: " << train_file;
 
-    std::ofstream ofs(tmp_train_file.c_str());
+    std::ofstream ofs(WPATH(tmp_train_file.c_str()));
     CHECK_DIE(ofs) << "permission denied: " << tmp_train_file;
 
     scoped_ptr<Analyzer> analyzer(0);
@@ -140,7 +140,7 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
   // call CRF++
   {
     {
-      std::ofstream ofs(templ_file.c_str());
+      std::ofstream ofs(WPATH(templ_file.c_str()));
       CHECK_DIE(ofs) << "permission denied: " << templ_file;
       ofs << template_str;
     }

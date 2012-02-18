@@ -35,7 +35,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
 namespace {
 using namespace CaboCha;
 ParserType guess_text_model_type(const char *filename) {
-  std::ifstream ifs(filename);
+  std::ifstream ifs(WPATH(filename));
   CHECK_DIE(ifs);
   std::string line;
   std::getline(ifs, line);
@@ -85,9 +85,9 @@ int cabocha_model_index(int argc, char **argv) {
   if (from_id != to_id) {
     const std::string input2 = rest[1] + ".tmp";
     std::string line;
-    std::ifstream ifs(input.c_str());
+    std::ifstream ifs(WPATH(input.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << input;
-    std::ofstream ofs(input2.c_str());
+    std::ofstream ofs(WPATH(input2.c_str()));
     CHECK_DIE(ifs) << "permission denied: " << input2;
 
     Iconv iconv;

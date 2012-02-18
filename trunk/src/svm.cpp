@@ -395,10 +395,10 @@ struct RuleCompare {
 bool SVM::compile(const char *filename, const char *output,
                   float sigma, size_t minsup) {
   progress_timer timer;
-  std::ifstream ifs(filename);
+  std::ifstream ifs(WPATH(filename));
   CHECK_DIE(ifs) << "no such file or directory: " << filename;
 
-  std::ofstream bofs(output, std::ios::binary|std::ios::out);
+  std::ofstream bofs(WPATH(output), std::ios::binary|std::ios::out);
   CHECK_DIE(bofs) << "permission denied: " << output;
 
   scoped_array<char> buf(new char[BUF_SIZE]);
@@ -590,7 +590,7 @@ bool SVMTest::open(const char *filename) {
   scoped_array<char> buf(new char[BUF_SIZE]);
 
   this->close();
-  std::ifstream ifs(filename);
+  std::ifstream ifs(WPATH(filename));
   CHECK_DIE(ifs) << "no such file or directory: [" << filename << "]";
 
   while (ifs.getline(buf.get(), BUF_SIZE)) {
@@ -637,7 +637,7 @@ int main(int argc, char **argv) {
   CaboCha::SVM svm;
   CHECK_DIE(svm.open(argv[2]));
 
-  std::ifstream ifs(argv[1]);
+  std::ifstream ifs(WPATH(argv[1]));
 
   scoped_array<char *> column(new char *[BUF_SIZE]);
   scoped_array<char> buf(new char[BUF_SIZE]);
