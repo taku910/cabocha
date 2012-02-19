@@ -20,11 +20,9 @@
 #include "svm.h"
 #include "common.h"
 
-using namespace CaboCha;
-
 namespace {
 const int LIBCABOCHA_ID = 5220707;
-}
+}  // namespace
 
 namespace CaboCha {
 
@@ -55,9 +53,6 @@ extern "C" {
       DllInstance = hinst;
     }
     if (dwReason == DLL_PROCESS_ATTACH) {
-      std::locale loc(std::locale("japanese"),
-                      "C", std::locale::numeric);
-      std::locale::global(loc);
       mecab_attach();
     } else if (dwReason == DLL_PROCESS_DETACH) {
       mecab_detatch();

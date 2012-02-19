@@ -379,7 +379,7 @@ struct RuleCompare {
                   const PKEMine::Rule *f2) {
     const unsigned char *p1 = f1->f;
     const unsigned char *p2 = f2->f;
-    const unsigned int l = _min(f1->len, f2->len);
+    const unsigned int l = std::min(f1->len, f2->len);
     for (size_t i = 0; i < l; i++) {
       if (static_cast<unsigned int>(p1[i])
           > static_cast<unsigned int>(p2[i]))
@@ -401,8 +401,8 @@ bool SVM::compile(const char *filename, const char *output,
   std::ofstream bofs(WPATH(output), std::ios::binary|std::ios::out);
   CHECK_DIE(bofs) << "permission denied: " << output;
 
-  scoped_array<char> buf(new char[BUF_SIZE]);
-  scoped_array<char *> column(new char *[BUF_SIZE]);
+  scoped_fixed_array<char, BUF_SIZE> buf;
+  scoped_fixed_array<char *, BUF_SIZE> column;
   unsigned int magic = 0;
   const unsigned int version = MODEL_VERSION;
   unsigned int dsize = 0;
@@ -415,12 +415,12 @@ bool SVM::compile(const char *filename, const char *output,
 
   {
     std::vector<std::pair<std::string, int> > dic;
-    while (ifs.getline(buf.get(), BUF_SIZE)) {
+    while (ifs.getline(buf.get(), buf.size())) {
       if (std::strlen(buf.get()) == 0) break;
       const size_t size = tokenize(buf.get(), " ", column.get(), 2);
       CHECK_DIE(size == 2) << "format error: " << buf.get();
       const int id = std::atoi(column[0]);
-      maxid = _max(maxid, id);
+      maxid = std::max(maxid, id);
       CHECK_DIE(id >= 0);
       dic.push_back(std::make_pair(std::string(column[1]), id));
     }
@@ -458,11 +458,13 @@ bool SVM::compile(const char *filename, const char *output,
     dsize = da.unit_size() * da.size();
   }
 
-  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE))  << "format error: " << filename;
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()))
+      << "format error: " << filename;
   degree = std::atoi(buf.get());
   CHECK_DIE(degree >= 1 && degree <= 3);
 
-  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE))  << "format error: " << filename;
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()))
+      << "format error: " << filename;
   double fbias = std::atof(buf.get());
 
 
@@ -473,8 +475,8 @@ bool SVM::compile(const char *filename, const char *output,
     std::vector<std::vector<unsigned int> >  transaction;
     std::vector<float> w;
 
-    while (ifs.getline(buf.get(), BUF_SIZE)) {
-      const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
+    while (ifs.getline(buf.get(), buf.size())) {
+      const size_t size = tokenize(buf.get(), " ", column.get(), column.size());
       const float alpha = std::atof(column[0]);
       w.push_back(alpha);
       fbias -= kWeight[degree][0] * alpha;
@@ -497,8 +499,8 @@ bool SVM::compile(const char *filename, const char *output,
     std::vector<char *> str(rules.size());
 
     for (size_t i = 0; i < rules.size(); i++) {
-      normalize_factor = _max(static_cast<double>(std::abs(rules[i]->w)),
-                              normalize_factor);
+      normalize_factor = std::max(static_cast<double>(std::abs(rules[i]->w)),
+                                  normalize_factor);
     }
 
     normalize_factor /= kPKEBase;
@@ -586,14 +588,14 @@ void SVMTest::close() {
 }
 
 bool SVMTest::open(const char *filename) {
-  scoped_array<char *> column(new char *[BUF_SIZE]);
-  scoped_array<char> buf(new char[BUF_SIZE]);
+  scoped_fixed_array<char *, BUF_SIZE> column;
+  scoped_fixed_array<char, BUF_SIZE> buf;
 
   this->close();
   std::ifstream ifs(WPATH(filename));
   CHECK_DIE(ifs) << "no such file or directory: [" << filename << "]";
 
-  while (ifs.getline(buf.get(), BUF_SIZE)) {
+  while (ifs.getline(buf.get(), buf.size())) {
     if (std::strlen(buf.get()) == 0)
       break;
     const size_t size = tokenize(buf.get(), "\t ", column.get(), 2);
@@ -601,14 +603,14 @@ bool SVMTest::open(const char *filename) {
     dic_.insert(std::make_pair(std::string(column[1]), std::atoi(column[0])));
   }
 
-  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE));
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()));
   degree_ = std::atoi(buf.get());
 
-  CHECK_DIE(ifs.getline(buf.get(), BUF_SIZE));
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()));
   bias_ = std::atof(buf.get());
 
-  while (ifs.getline(buf.get(), BUF_SIZE)) {
-    const size_t size = tokenize(buf.get(), " ", column.get(), BUF_SIZE);
+  while (ifs.getline(buf.get(), buf.size())) {
+    const size_t size = tokenize(buf.get(), " ", column.get(), column.size());
     if (size < 2) continue;
     w_.push_back(std::atof(column[0]));
     x_.resize(x_.size() + 1);
@@ -639,22 +641,25 @@ int main(int argc, char **argv) {
 
   std::ifstream ifs(WPATH(argv[1]));
 
-  scoped_array<char *> column(new char *[BUF_SIZE]);
-  scoped_array<char> buf(new char[BUF_SIZE]);
+  scoped_fixed_array<char *, BUF_SIZE> column;
+  scoped_fixed_array<char, BUF_SIZE> buf;
 
   // skip
-  while (ifs.getline(buf, BUF_SIZE)) {
-    if (std::strlen(buf) == 0)
+  while (ifs.getline(buf.get(), buf.size())) {
+    if (std::strlen(buf) == 0) {
       break;
+    }
   }
 
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE));
-  CHECK_DIE(ifs.getline(buf, BUF_SIZE));
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()));
+  CHECK_DIE(ifs.getline(buf.get(), buf.size()));
 
   std::vector<int> ary;
-  while (ifs.getline(buf, BUF_SIZE)) {
-    const size_t size = tokenize(buf, " ", column, BUF_SIZE);
-    if (size < 2) continue;
+  while (ifs.getline(buf.get(), buf.size())) {
+    const size_t size = tokenize(buf.get(), " ", column, buf.size());
+    if (size < 2) {
+      continue;
+    }
     ary.clear();
     for (size_t i = 1; i < size; ++i) {
       ary.push_back(std::atoi(column[i]));

@@ -3,9 +3,6 @@
 //  $Id: utils.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#include <windows.h>
-#endif
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -102,11 +99,15 @@ void concat_feature(const Token *token,
                     std::string *output) {
   output->clear();
   output->reserve(64);
-  const size_t minsize = _min(static_cast<size_t>(token->feature_list_size),
-                              size);
+  const size_t minsize = std::min(static_cast<size_t>(token->feature_list_size),
+                                  size);
   for (size_t i = 0; i < minsize; ++i) {
-    if (std::strcmp("*", token->feature_list[i]) == 0) break;
-    if (i != 0) output->append("-");
+    if (std::strcmp("*", token->feature_list[i]) == 0) {
+      break;
+    }
+    if (i != 0) {
+      output->append("-");
+    }
     output->append(token->feature_list[i]);
   }
 }
@@ -115,9 +116,13 @@ std::string create_filename(const std::string &path,
                             const std::string &file) {
   std::string s = path;
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  if (s.size() && s[s.size()-1] != '\\') s += '\\';
+  if (s.size() && s[s.size()-1] != '\\') {
+    s += '\\';
+  }
 #else
-  if (s.size() && s[s.size()-1] != '/') s += '/';
+  if (s.size() && s[s.size()-1] != '/') {
+    s += '/';
+  }
 #endif
   s += file;
   return s;
@@ -139,10 +144,11 @@ void remove_filename(std::string *s) {
     }
 #endif
   }
-  if (ok)
+  if (ok) {
     *s = s->substr(0, len);
-  else
+  } else {
     *s = ".";
+  }
 }
 
 void remove_pathname(std::string *s) {
@@ -161,18 +167,20 @@ void remove_pathname(std::string *s) {
     }
 #endif
   }
-  if (ok)
+  if (ok) {
     *s = s->substr(len + 1, s->size() - len);
-  else
+  } else {
     *s = ".";
+  }
 }
 
 void replace_string(std::string *s,
                     const std::string &src,
                     const std::string &dst) {
-  size_t pos = s->find(src);
-  if (pos != std::string::npos)
+  const size_t pos = s->find(src);
+  if (pos != std::string::npos) {
     s->replace(pos, src.size(), dst);
+  }
 }
 
 bool to_lower(std::string *s) {
@@ -192,13 +200,17 @@ bool read_sentence(std::istream *is, std::string *str,
   if (inputLayer == INPUT_RAW_SENTENCE) {
     std::getline(*is, *str);
   } else {
-    scoped_array<char> line(new char[BUF_SIZE * 16]);
+    scoped_fixed_array<char, BUF_SIZE * 16> line;
     size_t line_num = 0;
-    while (is->getline(line.get(), BUF_SIZE * 16)) {
-      *str += line.get();
+    while (is->getline(line.get(), line.size())) {
+      str->append(line.get());
       *str += '\n';
-      if (++line_num > CABOCHA_MAX_LINE_SIZE) return false;
-      if (std::strlen(line.get()) == 0 || strcmp(line.get(), "EOS") == 0) break;
+      if (++line_num > CABOCHA_MAX_LINE_SIZE) {
+        return false;
+      }
+      if (std::strlen(line.get()) == 0 || strcmp(line.get(), "EOS") == 0) {
+        break;
+      }
     }
   }
   return true;
@@ -209,7 +221,9 @@ bool escape_csv_element(std::string *w) {
       w->find('"') != std::string::npos) {
     std::string tmp = "\"";
     for (size_t j = 0; j < w->size(); j++) {
-      if ((*w)[j] == '"') tmp += '"';
+      if ((*w)[j] == '"') {
+        tmp += '"';
+      }
       tmp += (*w)[j];
     }
     tmp += '"';
@@ -222,24 +236,31 @@ bool escape_csv_element(std::string *w) {
 std::string get_windows_reg_value(const char *key,
                                   const char *name) {
   HKEY hKey;
-  char v[1024];
+  scoped_fixed_array<wchar_t, 1024> v;
   DWORD vt;
-  DWORD size = sizeof(v);
+  DWORD size = sizeof(v.size()) * sizeof(v[0]);
 
-  RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-               key, 0, KEY_READ, &hKey);
-  RegQueryValueEx(hKey, name, 0, &vt, reinterpret_cast<BYTE *>(v), &size);
+  RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                CaboCha::Utf8ToWide(key).c_str(),
+                0, KEY_READ, &hKey);
+  RegQueryValueExW(hKey,
+                   CaboCha::Utf8ToWide(name).c_str(),
+                   0, &vt, reinterpret_cast<BYTE *>(v.get()), &size);
   RegCloseKey(hKey);
   if (vt == REG_SZ) {
-    return std::string(v);
+    return CaboCha::WideToUtf8(v.get());
   }
 
-  RegOpenKeyEx(HKEY_CURRENT_USER,
-               key, 0, KEY_READ, &hKey);
-  RegQueryValueEx(hKey, name, 0, &vt, reinterpret_cast<BYTE *>(v), &size);
+  RegOpenKeyExW(HKEY_CURRENT_USER,
+                CaboCha::Utf8ToWide(key).c_str(),
+                0, KEY_READ, &hKey);
+  RegQueryValueExW(hKey,
+                   CaboCha::Utf8ToWide(name).c_str(),
+                   0, &vt, reinterpret_cast<BYTE *>(v.get()), &size);
   RegCloseKey(hKey);
   if (vt == REG_SZ) {
-    return std::string(v);
+    return CaboCha::WideToUtf8(v.get());
+
   }
 
   return std::string("");
@@ -268,12 +289,12 @@ int progress_bar(const char* message, size_t current, size_t total) {
 
   return 1;
 }
- 
+
 void Unlink(const char *filename) {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  ::DeleteFileA(filename);
+  ::DeleteFileW(WPATH(filename));
 #else
   ::unlink(filename);
 #endif
-}   
+}
 }

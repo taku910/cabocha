@@ -125,10 +125,10 @@ class Cache {
   head_t** index2head_;
 
   inline size_t get_cache_size(size_t l, double cache_size) {
-    return _min(l,
-                _max(static_cast<size_t>(2),
-                     static_cast<size_t>
-                     (1024 * 1024 * cache_size/(sizeof(T) * l))));
+    return std::min(l,
+                    std::max(static_cast<size_t>(2),
+                         static_cast<size_t>
+                         (1024 * 1024 * cache_size/(sizeof(T) * l))));
   }
 
   // delete h from current postion
@@ -494,15 +494,15 @@ void SVMSolverImpl::learn_sub() {
     const float *Q_j = q_matrix_->Q(j, active_size_);
 
     if (y_[i] * y_[j] < 0) {
-      const double L = _max(0.0, alpha_[j] - alpha_[i]);
-      const double H = _min(C_, C_ + alpha_[j] - alpha_[i]);
+      const double L = std::max(0.0, alpha_[j] - alpha_[i]);
+      const double H = std::min(C_, C_ + alpha_[j] - alpha_[i]);
       alpha_[j] += (-G_[i] - G_[j]) /(Q_i[i] + Q_j[j] + 2 * Q_i[j]);
       if (alpha_[j] >= H)      alpha_[j] = H;
       else if (alpha_[j] <= L) alpha_[j] = L;
       alpha_[i] += (alpha_[j] - old_alpha_j);
     } else {
-      const double L = _max(0.0, alpha_[i] + alpha_[j] - C_);
-      const double H = _min(C_, alpha_[i] + alpha_[j]);
+      const double L = std::max(0.0, alpha_[i] + alpha_[j] - C_);
+      const double H = std::min(C_, alpha_[i] + alpha_[j]);
       alpha_[j] += (G_[i] - G_[j]) /(Q_i[i] + Q_j[j] - 2 * Q_i[j]);
       if (alpha_[j] >= H)      alpha_[j] = H;
       else if (alpha_[j] <= L) alpha_[j] = L;

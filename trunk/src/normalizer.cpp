@@ -176,11 +176,11 @@ void Normalizer::compile(const char *filename,
     CHECK_DIE(iconv.open("utf8", tmp.c_str()));
     std::ifstream ifs(WPATH(filename));
     CHECK_DIE(ifs) << "no such file or directory: " << filename;
-    scoped_array<char> line(new char[BUF_SIZE]);
+    scoped_fixed_array<char, BUF_SIZE> line;
     char *col[32];
     std::string output;
     std::vector<std::pair<std::string, int> > dic;
-    while (ifs.getline(line.get(), BUF_SIZE)) {
+    while (ifs.getline(line.get(), line.size())) {
       const size_t size = tokenize(line.get(), "\t", col, 2);
       CHECK_DIE(size >= 2) << "format error: " << line.get();
       std::string key = col[0];

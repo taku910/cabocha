@@ -129,25 +129,25 @@ bool DependencyParser::estimate(const Tree *tree,
 
   // gap feature
   const int k = dst * (dst + 1) / 2 + src;
-  max_gap = _min(gap_[k].size(), kMaxGapSize);
+  max_gap = std::min(gap_[k].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     fpset_.insert(gap_[k][i]);
   }
 
   // dynamic features
-  max_gap = _min(dyn_a_[dst].size(), kMaxGapSize);
+  max_gap = std::min(dyn_a_[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_a_[dst][i][0] = 'A';
     fpset_.insert(dyn_a_[dst][i]);
   }
 
-  max_gap = _min(dyn_a_[src].size(), kMaxGapSize);
+  max_gap = std::min(dyn_a_[src].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_a_[src][i][0] = 'a';
     fpset_.insert(dyn_a_[src][i]);
   }
 
-  max_gap = _min(dyn_b_[dst].size(), kMaxGapSize);
+  max_gap = std::min(dyn_b_[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
     dyn_b_[dst][i][0] = 'B';
     fpset_.insert(dyn_b_[dst][i]);

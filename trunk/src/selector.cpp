@@ -45,13 +45,13 @@ bool PatternMatcher::compile(const char *pattern,
   const size_t len = converted.size();
   const char *pat = converted.c_str();
   if (len >= 3 && pat[0] == '(' && pat[len-1] == ')') {
-    scoped_array<char> buf(new char[BUF_SIZE]);
-    CHECK_DIE(len < BUF_SIZE - 3) << "too long parameter";
-    std::strncpy(buf.get(), pat + 1, BUF_SIZE);
+    scoped_fixed_array<char, BUF_SIZE> buf;
+    CHECK_DIE(len < buf.size() - 3) << "too long parameter";
+    std::strncpy(buf.get(), pat + 1, buf.size());
     buf[len-2] = '\0';
-    scoped_array<char *> col(new char *[BUF_SIZE]);
-    const size_t n = tokenize(buf.get(), "|", col.get(), BUF_SIZE);
-    CHECK_DIE(n < BUF_SIZE) << "too long OR nodes";
+    scoped_fixed_array<char *, BUF_SIZE> col;
+    const size_t n = tokenize(buf.get(), "|", col.get(), col.size());
+    CHECK_DIE(n < col.size()) << "too long OR nodes";
     for (size_t i = 0; i < n; ++i) {
       patterns_.push_back(std::string(col[i]));
     }
@@ -156,8 +156,9 @@ bool Selector::parse(Tree *tree) {
 
     ostrs << " F_H0:" << hsurface;
 
-    const size_t hsize = _min(pos_size,
-                              static_cast<size_t>(htoken->feature_list_size));
+    const size_t hsize =
+        std::min(pos_size,
+                 static_cast<size_t>(htoken->feature_list_size));
     for (size_t k = 0; k < hsize; ++k) {
       if (std::strcmp("*", htoken->feature_list[k]) == 0) break;
       ostrs << " F_H" << k + 1 << ':' << htoken->feature_list[k];
@@ -166,8 +167,9 @@ bool Selector::parse(Tree *tree) {
     if (hcform) ostrs << " F_H6:" << hcform;
 
     ostrs << " F_F0:" << fsurface;
-    const size_t fsize = _min(pos_size,
-                              static_cast<size_t>(ftoken->feature_list_size));
+    const size_t fsize = std::min(
+        pos_size,
+        static_cast<size_t>(ftoken->feature_list_size));
     for (size_t k = 0; k < fsize; ++k) {
       if (std::strcmp("*", ftoken->feature_list[k]) == 0) break;
       ostrs << " F_F" << k + 1 << ':' << ftoken->feature_list[k];
@@ -227,25 +229,6 @@ void Selector::findHead(const Tree &tree, const Chunk &chunk,
 
   switch (tree.posset()) {
     case UNIDIC:
-      /*
-      {
-      bool found = false;
-      for (size_t i = chunk.token_pos; i < token_size; ++i) {
-        const Token *token = tree.token(i);
-        if (pat_unidic_head_pre_.prefix_match(token->feature)) {
-          found = true;
-          break;
-        }
-      }
-      if (found) {
-        head_matcher = &pat_unidic_head_;
-        func_matcher = &pat_unidic_func_;
-      } else {
-        head_matcher = &pat_unidic_head2_;
-        func_matcher = &pat_unidic_func2_;
-      }
-    }
-      */
       head_matcher = &pat_unidic_head2_;
       func_matcher = &pat_unidic_func2_;
       break;

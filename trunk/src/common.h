@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -19,19 +20,12 @@
 #include "config.h"
 #endif
 
-#if defined(_WIN32) && ! defined(__CYGWIN__)
-#include <strstream>
-#else
-#include <sstream>
-#endif
-
 // tricky macro for MSVC
 #ifdef _MSC_VER
 #define for if (0); else for
-/* why windows.h define such a generic macro */
-#undef max
-#undef min
+#define NOMINMAX
 #define snprintf _snprintf
+#include <windows.h>
 #endif
 
 #ifndef EXIT_FAILURE
@@ -69,7 +63,7 @@ Copyright(C) 2001-2011 Taku Kudo, All rights reserved.\n"
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-#define WPATH(path) (MeCab::Utf8ToWide(path).c_str())
+#define WPATH(path) (CaboCha::Utf8ToWide(path).c_str())
 #else
 #define WPATH(path) (path)
 #endif
