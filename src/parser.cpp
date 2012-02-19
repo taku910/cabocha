@@ -6,7 +6,6 @@
 #include <crfpp.h>
 #include <vector>
 #include <string>
-#include "scoped_ptr.h"
 #include "freelist.h"
 #include "cabocha.h"
 #include "param.h"
@@ -95,12 +94,12 @@ static std::string get_default_rc() {
 #endif
 
 #if defined (HAVE_GETENV) && defined(_WIN32) && !defined(__CYGWIN__)
-  CaboCha::scoped_array<char> buf(new char[BUF_SIZE]);
-  const DWORD len = GetEnvironmentVariable("CABOCHARC",
+  CaboCha::scoped_fixed_array<wchar_t, BUF_SIZE> buf;
+  const DWORD len = GetEnvironmentVariable(L"CABOCHARC",
                                            buf.get(),
-                                           BUF_SIZE);
-  if (len < BUF_SIZE && len > 0) {
-    return std::string(buf.get());
+                                           buf.size());
+  if (len < buf.size() && len > 0) {
+    return CaboCha::WideToUtf8(buf.get());
   }
 #endif
 

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cstring>
 #include "common.h"
+#include "utils.h"
 
 namespace CaboCha {
 

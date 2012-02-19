@@ -15,8 +15,8 @@
 #include "utils.h"
 #include "char_category.h"
 
+namespace CaboCha {
 namespace {
-using namespace CaboCha;
 
 int get_char_class(int charset,
                    const char *begin,
@@ -72,8 +72,6 @@ void get_char_feature(int charset, const char *str, char *feature) {
   }
 }
 } // end of anonmyous
-
-namespace CaboCha {
 
 NE::NE(): tagger_(0) {}
 NE::~NE() { close(); }

@@ -3,22 +3,21 @@
 //  $Id: tree.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <mecab.h>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <sstream>
-#include <algorithm>
 #include "cabocha.h"
+#include "common.h"
 #include "normalizer.h"
+#include "mecab.h"
 #include "string_buffer.h"
 #include "freelist.h"
-#include "common.h"
 #include "ucs.h"
 #include "tree_allocator.h"
 
+namespace CaboCha {
 namespace {
-
-using namespace CaboCha;
 
 size_t get_string_length(const std::string &str, int charset) {
   const char *begin = str.c_str();
@@ -54,8 +53,10 @@ size_t get_string_length(const std::string &str, int charset) {
 char *getline(char **begin, int *length) {
   char *end = *begin + *length;
   char *n = std::find(*begin, end, '\n');
-  if (n != end) *n = '\0';
-  *length -= static_cast<int> (n - *begin);
+  if (n != end) {
+    *n = '\0';
+  }
+  *length -= static_cast<int>(n - *begin);
   char *result = *begin;
   *begin = n + 1;
   return result;
@@ -67,14 +68,18 @@ void make_csv_feature(const char **feature, size_t size,
   for (size_t i = 0; i < size; ++i) {
     tmp = feature[i] ? std::string(feature[i]) : "*";
     escape_csv_element(&tmp);
-    if (i != 0) *str += ',';
+    if (i != 0) {
+      *str += ',';
+    }
     *str += tmp;
   }
 }
 
 void write_lattice_token(const Token &token, StringBuffer *os) {
   *os << token.surface << '\t' << token.feature;
-  if (token.ne) *os << '\t' << token.ne;
+  if (token.ne) {
+    *os << '\t' << token.ne;
+  }
   *os << '\n';
 }
 
@@ -85,8 +90,9 @@ void write_lattice(const Tree &tree, StringBuffer *os,
     if (tree.empty()) {
       *os << tree.sentence() << '\n';
     } else {
-      for (size_t i = 0; i < size; ++i)
+      for (size_t i = 0; i < size; ++i) {
         *os << tree.token(i)->surface;
+      }
       *os << '\n';
     }
   } else {
@@ -127,7 +133,9 @@ void write_lattice(const Tree &tree, StringBuffer *os,
 void write_xml_token(const Token &token, StringBuffer *os, int i) {
   *os << "  <tok id=\"" << i << "\""
       << " feature=\"" << token.feature << "\"";
-  if (token.ne) *os << " ne=\""     << token.ne << "\"";
+  if (token.ne) {
+    *os << " ne=\""     << token.ne << "\"";
+  }
   *os << ">" << token.surface << "</tok>\n";
 }
 
@@ -141,7 +149,9 @@ void write_xml(const Tree &tree, StringBuffer *os,
     const Token *token = tree.token(i);
     const Chunk *chunk = token->chunk;
     if (chunk && output_layer != OUTPUT_POS) {
-      if (ci) *os << " </chunk>\n";
+      if (ci) {
+        *os << " </chunk>\n";
+      }
       *os << " <chunk id=\"" << ci++ << "\" link=\"" << chunk->link
           << "\" rel=\"D"
           << "\" score=\"" << chunk->score
@@ -157,7 +167,9 @@ void write_xml(const Tree &tree, StringBuffer *os,
     write_xml_token(*token, os, i);
   }
 
-  if (ci) *os << " </chunk>\n";
+  if (ci) {
+    *os << " </chunk>\n";
+  }
   *os << "</sentence>\n";
 }
 
@@ -183,8 +195,9 @@ void write_tree(const Tree &tree, StringBuffer *os,
         in = false;
       }
 
-      if (i != cid && token->chunk)
+      if (i != cid && token->chunk) {
         break;
+      }
 
       if (token->ne && token->ne[0] == 'B') {
         ne = std::string(token->ne + 2);
@@ -203,8 +216,8 @@ void write_tree(const Tree &tree, StringBuffer *os,
       }
     }
 
-    max_len = _max(static_cast<size_t>(max_len),
-                   get_string_length(surface, charset));
+    max_len = std::max(static_cast<size_t>(max_len),
+                       get_string_length(surface, charset));
     chunks.back() = std::make_pair(cid, surface);
   }
 
@@ -215,7 +228,9 @@ void write_tree(const Tree &tree, StringBuffer *os,
     const int  link = tree.token(chunks[i].first)->chunk->link;
     const std::string &surface = chunks[i].second;
     const size_t rem = max_len - get_string_length(surface, charset) + i * 2;
-    for (size_t j = 0; j < rem; ++j) *os << ' ';
+    for (size_t j = 0; j < rem; ++j) {
+      *os << ' ';
+    }
     *os << surface.c_str();
 
     for (size_t j = i+1; j < chunks.size(); j++) {
@@ -264,8 +279,6 @@ bool write_tree(const Tree &tree, StringBuffer *os,
   return true;
 }
 } // end of anonymous namespace
-
-namespace CaboCha {
 
 Tree::Tree()
     : tree_allocator_(new TreeAllocator),
@@ -348,7 +361,9 @@ char **Tree::alloc_char_array(size_t size) {
 
 bool Tree::read(const mecab_node_t *node) {
   clear();
-  if (!node) return false;
+  if (!node) {
+    return false;
+  }
   std::string normalized;
   char *cols[256];
   for (; node; node = node->next) {
@@ -388,7 +403,9 @@ bool Tree::read(const char *input, size_t length,
                 InputLayerType input_layer) {
   clear();
 
-  if (!input) return false;
+  if (!input) {
+    return false;
+  }
 
   int chunk_id = 0;
 
@@ -435,8 +452,9 @@ bool Tree::read(const char *input, size_t length,
               chunk->func_pos = std::atoi(column[3] +i + 1);
             }
 
-            if (size >= 5)
+            if (size >= 5) {
               chunk->score = std::atof(column[4]);
+            }
 
             if (size >= 6) {
               const size_t s = tokenizeCSV(column[5], cols, sizeof(cols));
@@ -448,8 +466,9 @@ bool Tree::read(const char *input, size_t length,
 
             chunk->token_pos = token_size();
 
-            if (old_chunk && old_chunk->token_size == 0)
+            if (old_chunk && old_chunk->token_size == 0) {
               return false;
+            }
 
             old_chunk = chunk;
           } else {
@@ -477,15 +496,18 @@ bool Tree::read(const char *input, size_t length,
             token->feature_list = const_cast<const char **> (feature);
             token->feature_list_size = s;
             chunk = 0;
-            if (old_chunk) old_chunk->token_size++;
+            if (old_chunk) {
+              old_chunk->token_size++;
+            }
           } else {
             break;
           }
         }
       }
 
-      if (old_chunk && old_chunk->token_size == 0)
+      if (old_chunk && old_chunk->token_size == 0) {
         return false;
+      }
   }
 
   // verfy chunk link
@@ -504,8 +526,9 @@ bool Tree::read(const char *input, size_t length,
 const char *Tree::toString(FormatType output_format) {
   StringBuffer *os = tree_allocator_->mutable_string_buffer();
   os->clear();
-  if (!write_tree(*this, os, output_layer_, output_format, charset_))
+  if (!write_tree(*this, os, output_layer_, output_format, charset_)) {
     return 0;
+  }
   *os << '\0';
   return os->str();
 }
@@ -513,8 +536,9 @@ const char *Tree::toString(FormatType output_format) {
 const char *Tree::toString(FormatType output_format,
                            char *out, size_t len) const {
   StringBuffer os(out, len);
-  if (!write_tree(*this, &os, output_layer_, output_format, charset_))
+  if (!write_tree(*this, &os, output_layer_, output_format, charset_)) {
     return 0;
+  }
   os << '\0';
   return os.str();
 }

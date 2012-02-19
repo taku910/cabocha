@@ -22,9 +22,6 @@
 
 namespace CaboCha {
 
-template <class T> inline T _min(T x, T y) { return(x < y) ? x : y; }
-template <class T> inline T _max(T x, T y) { return(x > y) ? x : y; }
-
 PossetType decode_posset(const char *posset);
 const char *encode_posset(PossetType posset);
 ParserType parser_type(const char *str_type);

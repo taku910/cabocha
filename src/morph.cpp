@@ -3,10 +3,6 @@
 //  $Id: morph.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#if defined  (_WIN32) && !defined (__CYGWIN__)
-#include <windows.h>
-#endif
-
 #include <mecab.h>
 #include "cabocha.h"
 #include "param.h"
@@ -19,12 +15,12 @@ namespace {
 using namespace CaboCha;
 
 typedef void* (*DLPROC)(...);
-static HINSTANCE g_mecab_handle;
-static DLPROC g_mecab_new;
-static DLPROC g_mecab_destroy;
-static DLPROC g_mecab_sparse_tonode2;
-static DLPROC g_mecab_strerror;
-static DLPROC g_mecab_dictionary_info;
+HINSTANCE g_mecab_handle;
+DLPROC g_mecab_new;
+DLPROC g_mecab_destroy;
+DLPROC g_mecab_sparse_tonode2;
+DLPROC g_mecab_strerror;
+DLPROC g_mecab_dictionary_info;
 
 const std::string find_libmecab_dll() {
   std::string rcfile =
@@ -40,7 +36,7 @@ const std::string find_libmecab_dll() {
 void mecab_attach() {
   using namespace CaboCha;
   const std::string libmecabdll = find_libmecab_dll();
-  g_mecab_handle = LoadLibrary(libmecabdll.c_str());
+  g_mecab_handle = LoadLibrary(WPATH(libmecabdll.c_str()));
   CHECK_DIE(g_mecab_handle != 0)
       << "LoadLibrary(\"" << libmecabdll << "\") failed";
   g_mecab_new             = (DLPROC)GetProcAddress(g_mecab_handle,

@@ -1,13 +1,12 @@
 // CaboCha -- Yet Another Japanese Dependency Parser
 //
-//  $Id: param.cpp 41 2008-01-20 09:31:34Z taku-ku $;
+//  $Id: param.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <cstdio>
 #include <fstream>
-#include "common.h"
+#include <cstdio>
 #include "param.h"
-#include "string_buffer.h"
+#include "common.h"
 #include "utils.h"
 
 #ifdef HAVE_CONFIG_H
@@ -16,6 +15,7 @@
 
 namespace CaboCha {
 namespace {
+
 void init_param(std::string *help,
                 std::string *version,
                 const std::string &system_name,
@@ -91,9 +91,9 @@ bool Param::open(int argc, char **argv, const Option *opts) {
   int ind = 0;
   int _errno = 0;
 
-#define GOTO_ERROR(n) {                         \
+#define GOTO_FATAL_ERROR(n) {                         \
     _errno = n;                                 \
-    goto ERROR; } while (0)
+    goto FATAL_ERROR; } while (0)
 
   if (argc <= 0) {
     system_name_ = "unknown";
@@ -129,17 +129,18 @@ bool Param::open(int argc, char **argv, const Option *opts) {
           }
         }
 
-        if (!hit) GOTO_ERROR(0);
+        if (!hit) GOTO_FATAL_ERROR(0);
 
         if (opts[i].arg_description) {
           if (*s == '=') {
+            if (*(s+1) == '\0') GOTO_FATAL_ERROR(1);
             set<std::string>(opts[i].name, s+1);
           } else {
-            if (argc == (ind+1)) GOTO_ERROR(1);
+            if (argc == (ind+1)) GOTO_FATAL_ERROR(1);
             set<std::string>(opts[i].name, argv[++ind]);
           }
         } else {
-          if (*s == '=') GOTO_ERROR(2);
+          if (*s == '=') GOTO_FATAL_ERROR(2);
           set<int>(opts[i].name, 1);
         }
 
@@ -154,17 +155,17 @@ bool Param::open(int argc, char **argv, const Option *opts) {
           }
         }
 
-        if (!hit) GOTO_ERROR(0);
+        if (!hit) GOTO_FATAL_ERROR(0);
 
         if (opts[i].arg_description) {
           if (argv[ind][2] != '\0') {
             set<std::string>(opts[i].name, &argv[ind][2]);
           } else {
-            if (argc == (ind+1)) GOTO_ERROR(1);
+            if (argc == (ind+1)) GOTO_FATAL_ERROR(1);
             set<std::string>(opts[i].name, argv[++ind]);
           }
         } else {
-          if (argv[ind][2] != '\0') GOTO_ERROR(2);
+          if (argv[ind][2] != '\0') GOTO_FATAL_ERROR(2);
           set<int>(opts[i].name, 1);
         }
       }
@@ -175,7 +176,7 @@ bool Param::open(int argc, char **argv, const Option *opts) {
 
   return true;
 
-ERROR:
+FATAL_ERROR:
   switch (_errno) {
     case 0: WHAT << "unrecognized option `" << argv[ind] << "`"; break;
     case 1: WHAT << "`" << argv[ind] << "` requires an argument";  break;
