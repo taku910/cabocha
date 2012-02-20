@@ -13,6 +13,7 @@
 #include "dep.h"
 #include "cabocha.h"
 #include "timer.h"
+#include "tree_allocator.h"
 #include "svm.h"
 #include "utils.h"
 #include "common.h"
@@ -156,22 +157,18 @@ bool DependencyParser::estimate(const Tree *tree,
   const size_t fsize = fpset_.size();
   std::copy(fpset_.begin(), fpset_.end(), fp_);
 
-  //  for (size_t i = 0; i < fsize; ++i) {
-    //        std::cout << "[" << fp_[i] << "]" << std::endl;
-        //  }
+  TreeAllocator *allocator = tree->allocator();
 
   if (action_mode() == PARSING_MODE) {
     *score = svm_->classify(fsize, const_cast<char **>(fp_));
-    //    std::cout << *score << std::endl;
     return *score > 0;
   } else {
     const bool isdep = (tree->chunk(src)->link == dst);
-    *stream() << (isdep ? "+1" : "-1");
-    //    std::cout << std::endl;
+    *(allocator->stream()) << (isdep ? "+1" : "-1");
     for (size_t i = 0; i < fsize; ++i) {
-      *stream() << ' ' << fp_[i];
+      *(allocator->stream()) << ' ' << fp_[i];
     }
-    *stream() << std::endl;
+    *(allocator->stream()) << std::endl;
     return isdep;
   }
 

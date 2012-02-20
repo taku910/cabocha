@@ -189,12 +189,6 @@ typedef enum cabocha_parser_t ParserType;
 class TreeAllocator;
 
 class Tree {
- private:
-  TreeAllocator              *tree_allocator_;
-  CharsetType                 charset_;
-  PossetType                  posset_;
-  OutputLayerType             output_layer_;
-
  public:
   void set_sentence(const char *sentence);
   const char *sentence() const;
@@ -217,6 +211,8 @@ class Tree {
   char *strdup(const char *str);
   char *alloc(size_t size);
   char **alloc_char_array(size_t size);
+
+  TreeAllocator *allocator() const;
 #endif
 
   bool   read(const char *input,
@@ -239,7 +235,8 @@ class Tree {
   const char *toString(FormatType output_format);
 
 #ifndef SWIG
-  const char *toString(FormatType output_format, char *output, size_t length) const;
+  const char *toString(FormatType output_format,
+                       char *output, size_t length) const;
 #endif
 
   CharsetType charset() const { return charset_; }
@@ -251,6 +248,12 @@ class Tree {
 
   explicit Tree();
   virtual ~Tree();
+
+ private:
+  TreeAllocator              *tree_allocator_;
+  CharsetType                 charset_;
+  PossetType                  posset_;
+  OutputLayerType             output_layer_;
 };
 
 class Parser {

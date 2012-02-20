@@ -5,7 +5,6 @@
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #ifndef CABOCHA_CHUNKER_H_
 #define CABOCHA_CHUNKER_H_
-#include <vector>
 #include "analyzer.h"
 
 struct crfpp_t;
@@ -22,8 +21,7 @@ class Chunker: public Analyzer {
   virtual ~Chunker();
 
  private:
-  crfpp_t *tagger_;
-  std::vector<const char*> feature_;
+  crfpp_model_t *model_;
 };
 }
 #endif

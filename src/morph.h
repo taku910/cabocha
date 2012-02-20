@@ -10,6 +10,7 @@
 #include <string>
 
 struct mecab_t;
+struct mecab_lattice_t;
 
 namespace CaboCha {
 
@@ -18,6 +19,9 @@ class MorphAnalyzer: public Analyzer {
   bool open(const Param &) ;
   void close();
   bool parse(Tree *);
+
+  static void clearMeCabLattice(mecab_lattice_t *);
+  static void deleteMeCabLattice(mecab_lattice_t *);
 
   explicit MorphAnalyzer();
   virtual ~MorphAnalyzer();

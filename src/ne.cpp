@@ -4,16 +4,17 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <crfpp.h>
-#include <vector>
-#include <string>
 #include <cstdio>
 #include <iterator>
+#include <string>
+#include <vector>
 #include "cabocha.h"
+#include "char_category.h"
 #include "ne.h"
 #include "param.h"
+#include "tree_allocator.h"
 #include "ucs.h"
 #include "utils.h"
-#include "char_category.h"
 
 namespace CaboCha {
 namespace {
@@ -73,7 +74,7 @@ void get_char_feature(int charset, const char *str, char *feature) {
 }
 } // end of anonmyous
 
-NE::NE(): tagger_(0) {}
+NE::NE(): model_(0) {}
 NE::~NE() { close(); }
 
 bool NE::open(const Param &param) {
@@ -85,54 +86,73 @@ bool NE::open(const Param &param) {
     argv.push_back(param.program_name());
     argv.push_back("-m");
     argv.push_back(filename.c_str());
-    tagger_ = crfpp_new(argv.size(),
-                        const_cast<char **>(&argv[0]));
-    CHECK_FALSE(tagger_) << crfpp_strerror(tagger_);
-    CHECK_FALSE(crfpp_ysize(tagger_) >= 2);
-    CHECK_FALSE(crfpp_xsize(tagger_) == 3);
-    for (size_t i = 0; i < crfpp_ysize(tagger_); ++i) {
-      const char *p = crfpp_yname(tagger_, i);
-      CHECK_FALSE(p && (p[0] == 'B' || p[0] == 'I' || p[0] == 'O'));
-    }
+    model_ = crfpp_model_new(argv.size(),
+                              const_cast<char **>(&argv[0]));
+    // CHECK_FALSE(tagger_) << crfpp_strerror(tagger_);
+    // CHECK_FALSE(crfpp_ysize(tagger_) >= 2);
+    // CHECK_FALSE(crfpp_xsize(tagger_) == 3);
+    // for (size_t i = 0; i < crfpp_ysize(tagger_); ++i) {
+    //   const char *p = crfpp_yname(tagger_, i);
+    //   CHECK_FALSE(p && (p[0] == 'B' || p[0] == 'I' || p[0] == 'O'));
+    // }
   }
+
+  // "名詞,数,"
+  ne_composite_ipa_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
+  // 名詞,数詞
+  ne_composite_juman_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
+  // 名詞,数詞
+  ne_composite_unidic_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
+
+  Iconv iconv;
+  iconv.open(UTF8, charset());
+  CHECK_DIE(iconv.convert(&ne_composite_ipa_));
+  CHECK_DIE(iconv.convert(&ne_composite_juman_));
+  CHECK_DIE(iconv.convert(&ne_composite_unidic_));
+  CHECK_FALSE(!ne_composite_ipa_.empty());
+  CHECK_FALSE(!ne_composite_juman_.empty());
+  CHECK_FALSE(!ne_composite_unidic_.empty());
 
   return true;
 }
 
 void NE::close() {
-  crfpp_destroy(tagger_);
-  ne_composite_.clear();
-  tagger_ = 0;
+  crfpp_model_destroy(model_);
+  model_ = 0;
+  ne_composite_ipa_.clear();
+  ne_composite_juman_.clear();
+  ne_composite_unidic_.clear();
 }
 
 bool NE::parse(Tree *tree) {
   CHECK_FALSE(tree);
 
-  if (ne_composite_.empty()) {
-    switch (tree->posset()) {
-      case IPA:
-        // "名詞,数,"
-        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
-        break;
-      case JUMAN:
-        // 名詞,数詞
-        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
-        break;
-      case UNIDIC:
-        // 名詞,数詞
-        ne_composite_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
-      default:
-        break;
-    }
-    Iconv iconv;
-    iconv.open(UTF8, charset());
-    CHECK_DIE(iconv.convert(&ne_composite_));
-    CHECK_FALSE(!ne_composite_.empty());
-  }
+  TreeAllocator *allocator = tree->allocator();
+  CHECK_FALSE(allocator);
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(tagger_);
-    crfpp_clear(tagger_);
+    CHECK_FALSE(model_);
+    if (!allocator->crfpp_ne) {
+      allocator->crfpp_ne = crfpp_model_new_tagger(model_);
+      CHECK_FALSE(allocator->crfpp_ne);
+    }
+    crfpp_set_model(allocator->crfpp_ne, model_);
+    crfpp_clear(allocator->crfpp_ne);
+  }
+
+  std::string ne_composite;
+  switch (tree->posset()) {
+    case IPA:
+      ne_composite = ne_composite_ipa_;
+      break;
+    case JUMAN:
+      ne_composite = ne_composite_juman_;
+      break;
+    case UNIDIC:
+      ne_composite = ne_composite_unidic_;
+      break;
+    default:
+      CHECK_FALSE(false) << "unknown posset";
   }
 
   int comp = 0;
@@ -142,7 +162,7 @@ bool NE::parse(Tree *tree) {
     const Token *token = tree->token(i);
     const char *surface = token->normalized_surface;
     const char *feature = token->feature;
-    if (std::string(feature).find(ne_composite_) == 0) {
+    if (std::string(feature).find(ne_composite) == 0) {
       ++comp;
     } else {
       comp = 0;
@@ -158,42 +178,51 @@ bool NE::parse(Tree *tree) {
       concat_feature(token, 2, &tmp);
     }
     const char *pos = tree->strdup(tmp.c_str());
-    feature_.clear();
-    feature_.push_back(surface);
-    feature_.push_back(char_feature);
-    feature_.push_back(pos);
+    allocator->feature.clear();
+    allocator->feature.push_back(surface);
+    allocator->feature.push_back(char_feature);
+    allocator->feature.push_back(pos);
 
     const char *ne = token->ne;
     if (action_mode() == PARSING_MODE) {
-      if (ne) feature_.push_back(ne);
-      crfpp_add2(tagger_, feature_.size(), (const char **)&feature_[0]);
+      if (ne) {
+        allocator->feature.push_back(ne);
+      }
+      crfpp_add2(allocator->crfpp_ne,
+                 allocator->feature.size(),
+                 (const char **)&allocator->feature[0]);
     } else {
       CHECK_FALSE(ne) << "named entity is not defined";
-      std::copy(feature_.begin(), feature_.end(),
-                std::ostream_iterator<const char*>(*stream(), " "));
-      *stream() << ne << std::endl;
+      std::copy(allocator->feature.begin(), allocator->feature.end(),
+                std::ostream_iterator<const char*>(
+                    *(allocator->stream()), " "));
+      *(allocator->stream()) << ne << std::endl;
     }
   }
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(crfpp_parse(tagger_));
+    CHECK_FALSE(crfpp_parse(allocator->crfpp_ne));
     const char *prev = 0;
     size_t      ci   = 0;
     int         comp = 0;
 
     for (size_t i = 0; i < size; ++i) {
       Token *token = tree->mutable_token(i);
-      if (std::string(token->feature).find(ne_composite_) == 0)
+      if (std::string(token->feature).find(ne_composite) == 0) {
         ++comp;
-      else
+      } else {
         comp = 0;
+      }
 
       if (comp >= 2) {
         char *ne = tree->strdup(prev);
-        if (ne[0] != 'O') ne[0] = 'I';
+        if (ne[0] != 'O') {
+          ne[0] = 'I';
+        }
         token->ne = ne;
       } else {
-        token->ne = tree->strdup(crfpp_y2(tagger_, ci));
+        token->ne = tree->strdup(crfpp_y2(allocator->crfpp_ne,
+                                          ci));
         ++ci;
       }
 
@@ -209,7 +238,7 @@ bool NE::parse(Tree *tree) {
       prev = token->ne;
     }
   } else {
-    *stream() << std::endl;
+    *(allocator->stream()) << std::endl;
   }
 
   return true;

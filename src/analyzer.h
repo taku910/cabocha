@@ -16,15 +16,6 @@ namespace CaboCha {
 class Param;
 
 class Analyzer {
- private:
-  int action_mode_;
-  std::ostream *os_;
-  CharsetType charset_;
-  PossetType posset_;
-
- protected:
-  whatlog what_;
-
  public:
   const char *what() { return what_.str(); }
 
@@ -37,11 +28,6 @@ class Analyzer {
     action_mode_ = action_mode;
   }
 
-  std::ostream *stream() const { return os_; }
-  void set_stream(std::ostream *os) {
-    os_ = os;
-  }
-
   CharsetType charset() const { return charset_; }
   void set_charset(CharsetType charset) { charset_ = charset; }
 
@@ -49,11 +35,17 @@ class Analyzer {
   void set_posset(PossetType posset) { posset_ = posset; }
 
   explicit Analyzer(): action_mode_(PARSING_MODE),
-                       os_(&std::cout),
                        charset_(EUC_JP),
                        posset_(IPA) {}
   virtual ~Analyzer() {}
+
+ protected:
+  whatlog what_;
+
+ private:
+  int action_mode_;
+  CharsetType charset_;
+  PossetType posset_;
 };
 }
-
 #endif
