@@ -14,6 +14,7 @@
 #include "scoped_ptr.h"
 #include "utils.h"
 #include "timer.h"
+#include "tree_allocator.h"
 #include "chunker.h"
 #include "ne.h"
 
@@ -117,11 +118,11 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
 
     tree.set_charset(charset);
     tree.set_posset(posset);
+    tree.allocator()->set_stream(&ofs);
 
     analyzer->set_charset(charset);
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
-    analyzer->set_stream(&ofs);
 
     size_t line = 0;
     std::string str;

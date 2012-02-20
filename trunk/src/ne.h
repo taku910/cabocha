@@ -6,7 +6,6 @@
 #ifndef CABOCHA_NE_H_
 #define CABOCHA_NE_H_
 
-#include <vector>
 #include <string>
 #include "cabocha.h"
 #include "analyzer.h"
@@ -25,9 +24,10 @@ class NE : public Analyzer {
   virtual ~NE();
 
  private:
-  crfpp_t *tagger_;
-  std::vector<const char*> feature_;
-  std::string ne_composite_;
+  crfpp_model_t *model_;
+  std::string ne_composite_juman_;
+  std::string ne_composite_ipa_;
+  std::string ne_composite_unidic_;
 };
 }
 #endif

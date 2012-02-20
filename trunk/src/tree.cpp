@@ -359,6 +359,10 @@ char **Tree::alloc_char_array(size_t size) {
   return tree_allocator_->alloc_char_array(size);
 }
 
+TreeAllocator *Tree::allocator() const {
+  return tree_allocator_;
+}
+
 bool Tree::read(const mecab_node_t *node) {
   clear();
   if (!node) {

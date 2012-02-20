@@ -17,6 +17,7 @@
 #include "common.h"
 #include "freelist.h"
 #include "scoped_ptr.h"
+#include "tree_allocator.h"
 #include "utils.h"
 #include "timer.h"
 #include "svm_learn.h"
@@ -56,13 +57,13 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
     tree.set_charset(charset);
     tree.set_posset(posset);
+    tree.allocator()->set_stream(&ofs);
+
     analyzer->set_charset(charset);
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
-    analyzer->set_stream(&ofs);
     selector->set_charset(charset);
     selector->set_posset(posset);
-    selector->set_stream(&ofs);
     selector->open(param);
 
     size_t line = 0;
