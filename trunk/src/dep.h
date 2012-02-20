@@ -17,39 +17,40 @@ class SVMInterface;
 
 class cmpstr {
  public:bool operator() (const char *s1, const char *s2) {
-   return (strcmp (s1, s2) < 0);}
+   return (strcmp(s1, s2) < 0);}
+};
+
+struct DependencyParserData {
+  struct Result {
+    double score;
+    int link;
+  };
+  std::vector<std::vector <char *> > static_feature;
+  std::vector<std::vector <char *> > dyn_b_feature;
+  std::vector<std::vector <char *> > dyn_b;
+  std::vector<std::vector <char *> > dyn_a_feature;
+  std::vector<std::vector <char *> > dyn_a;
+  std::vector<std::vector <char *> > gap;
+  std::vector<std::vector <char *> > gap_list;
+  std::vector<Result> results;
+  const char *fp[1024];
+  std::set<const char *, cmpstr> fpset;
 };
 
 class DependencyParser: public Analyzer {
  public:
   bool open(const Param &param);
   void close();
-  bool parse(Tree *tree);
+  bool parse(Tree *tree) const;
   explicit DependencyParser();
   virtual ~DependencyParser();
 
  private:
-  struct Result {
-    double score;
-    int link;
-  };
-
-  scoped_ptr<SVMInterface> svm_;
-  std::vector<std::vector <char *> > static_feature_;
-  std::vector<std::vector <char *> > dyn_b_feature_;
-  std::vector<std::vector <char *> > dyn_b_;
-  std::vector<std::vector <char *> > dyn_a_feature_;
-  std::vector<std::vector <char *> > dyn_a_;
-  std::vector<std::vector <char *> > gap_;
-  std::vector<std::vector <char *> > gap_list_;
-  std::vector<Result> results_;
-  const char *fp_[1024];
-  std::set<const char *, cmpstr> fpset_;
-
-  void build(Tree *tree);
+  void build(Tree *tree) const;
   bool estimate(const Tree *tree,
                 int src, int dst,
-                double *score);
+                double *score) const;
+  scoped_ptr<SVMInterface> svm_;
 };
 }
 #endif

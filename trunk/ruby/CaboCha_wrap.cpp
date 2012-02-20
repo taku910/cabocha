@@ -3239,6 +3239,40 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_Tree_what(int argc, VALUE *argv, VALUE self) {
+  CaboCha::Tree *arg1 = (CaboCha::Tree *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "CaboCha::Tree *","what", 1, self )); 
+  }
+  arg1 = reinterpret_cast< CaboCha::Tree * >(argp1);
+  {
+    try {
+      result = (char *)(arg1)->what(); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 #ifdef HAVE_RB_DEFINE_ALLOC_FUNC
 SWIGINTERN VALUE
 _wrap_Tree_allocate(VALUE self) {
@@ -3394,7 +3428,7 @@ _wrap_Parser_parse__SWIG_1(int argc, VALUE *argv, VALUE self) {
   }
   res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_CaboCha__Parser, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "CaboCha::Parser *","parse", 1, self )); 
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "CaboCha::Parser const *","parse", 1, self )); 
   }
   arg1 = reinterpret_cast< CaboCha::Parser * >(argp1);
   res2 = SWIG_ConvertPtr(argv[0], &argp2,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
@@ -3404,7 +3438,7 @@ _wrap_Parser_parse__SWIG_1(int argc, VALUE *argv, VALUE self) {
   arg2 = reinterpret_cast< CaboCha::Tree * >(argp2);
   {
     try {
-      result = (CaboCha::Tree *)(arg1)->parse(arg2); 
+      result = (CaboCha::Tree *)((CaboCha::Parser const *)arg1)->parse(arg2); 
     }
     catch (char *e) {
       SWIG_exception (SWIG_RuntimeError, e); 
@@ -4043,6 +4077,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_method(SwigClassTree.klass, "set_posset", VALUEFUNC(_wrap_Tree_set_posset), -1);
   rb_define_method(SwigClassTree.klass, "output_layer", VALUEFUNC(_wrap_Tree_output_layer), -1);
   rb_define_method(SwigClassTree.klass, "set_output_layer", VALUEFUNC(_wrap_Tree_set_output_layer), -1);
+  rb_define_method(SwigClassTree.klass, "what", VALUEFUNC(_wrap_Tree_what), -1);
   SwigClassTree.mark = 0;
   SwigClassTree.destroy = (void (*)(void *)) free_CaboCha_Tree;
   SwigClassTree.trackObjects = 0;
@@ -4058,6 +4093,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.mark = 0;
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
-  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.60"));
+  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.61\30"));
 }
 

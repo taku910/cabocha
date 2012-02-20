@@ -246,6 +246,8 @@ class Tree {
   OutputLayerType output_layer() const { return output_layer_; }
   void set_output_layer(OutputLayerType output_layer) { output_layer_ = output_layer; }
 
+  const char *what();
+
   explicit Tree();
   virtual ~Tree();
 
@@ -260,7 +262,7 @@ class Parser {
  public:
   virtual const Tree *parse(const char *input)                          = 0;
   virtual const char *parseToString(const char *input)                  = 0;
-  virtual const Tree *parse(Tree *tree)                                 = 0;
+  virtual const Tree *parse(Tree *tree) const                           = 0;
 
 #ifndef SWIG
   virtual const Tree *parse(const char *input, size_t length)           = 0;

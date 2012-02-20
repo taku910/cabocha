@@ -15,7 +15,7 @@ class Chunker: public Analyzer {
  public:
   bool open(const Param &param);
   void close();
-  bool parse(Tree *tree);
+  bool parse(Tree *tree) const;
 
   explicit Chunker();
   virtual ~Chunker();

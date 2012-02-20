@@ -113,6 +113,10 @@ public class Tree {
     CaboChaJNI.Tree_set_output_layer(swigCPtr, this, output_layer.swigValue());
   }
 
+  public String what() {
+    return CaboChaJNI.Tree_what(swigCPtr, this);
+  }
+
   public Tree() {
     this(CaboChaJNI.new_Tree(), true);
   }

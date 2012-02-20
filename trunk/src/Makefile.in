@@ -76,8 +76,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libcabocha_la_LIBADD =
 am_libcabocha_la_OBJECTS = chunk_learner.lo chunker.lo dep.lo \
 	dep_learner.lo eval.lo learner.lo libcabocha.lo morph.lo ne.lo \
-	normalizer.lo param.lo parser.lo selector.lo string_buffer.lo \
-	svm.lo svm_learn.lo tree.lo ucs.lo utils.lo
+	normalizer.lo param.lo parser.lo selector.lo tree_allocator.lo \
+	string_buffer.lo svm.lo svm_learn.lo tree.lo ucs.lo utils.lo
 libcabocha_la_OBJECTS = $(am_libcabocha_la_OBJECTS)
 libcabocha_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -269,7 +269,8 @@ libcabocha_la_LDFLAGS = -no-undefined -version-info $(LTVERSION)
 libcabocha_la_SOURCES = analyzer.h cabocha.h char_category.h chunk_learner.cpp chunker.cpp chunker.h \
 	common.h darts.h dep.cpp dep.h dep_learner.cpp eval.cpp freelist.h \
 	learner.cpp libcabocha.cpp mmap.h morph.cpp morph.h ne.cpp ne.h normalizer.cpp \
-	normalizer.h normalizer_rule.h param.cpp param.h parser.cpp scoped_ptr.h selector.cpp \
+	normalizer.h normalizer_rule.h param.cpp param.h parser.cpp scoped_ptr.h \
+	selector.cpp tree_allocator.cpp \
 	selector.h selector_pat.h stream_wrapper.h string_buffer.cpp string_buffer.h svm.cpp \
 	svm.h svm_learn.cpp svm_learn.h  timer.h  tree.cpp  tree_allocator.h ucs.cpp ucs.h \
 	ucstable.h utils.cpp utils.h

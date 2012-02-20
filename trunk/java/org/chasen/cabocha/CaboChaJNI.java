@@ -43,6 +43,7 @@ class CaboChaJNI {
   public final static native void Tree_set_posset(long jarg1, Tree jarg1_, int jarg2);
   public final static native int Tree_output_layer(long jarg1, Tree jarg1_);
   public final static native void Tree_set_output_layer(long jarg1, Tree jarg1_, int jarg2);
+  public final static native String Tree_what(long jarg1, Tree jarg1_);
   public final static native long new_Tree();
   public final static native void delete_Tree(long jarg1);
   public final static native long Parser_parse__SWIG_0(long jarg1, Parser jarg1_, String jarg2);

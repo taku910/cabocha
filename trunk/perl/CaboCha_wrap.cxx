@@ -3222,6 +3222,44 @@ XS(_wrap_Tree_set_output_layer) {
 }
 
 
+XS(_wrap_Tree_what) {
+  {
+    CaboCha::Tree *arg1 = (CaboCha::Tree *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: Tree_what(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Tree_what" "', argument " "1"" of type '" "CaboCha::Tree *""'"); 
+    }
+    arg1 = reinterpret_cast< CaboCha::Tree * >(argp1);
+    {
+      try {
+        result = (char *)(arg1)->what(); 
+      }
+      catch (char *e) {
+        SWIG_exception (SWIG_RuntimeError, e); 
+      }
+      catch (const char *e) {
+        SWIG_exception (SWIG_RuntimeError, (char*)e); 
+      }
+    }
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_new_Tree) {
   {
     int argvi = 0;
@@ -3402,7 +3440,7 @@ XS(_wrap_Parser_parse__SWIG_1) {
     }
     res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_CaboCha__Parser, 0 |  0 );
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Parser_parse" "', argument " "1"" of type '" "CaboCha::Parser *""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Parser_parse" "', argument " "1"" of type '" "CaboCha::Parser const *""'"); 
     }
     arg1 = reinterpret_cast< CaboCha::Parser * >(argp1);
     res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
@@ -3412,7 +3450,7 @@ XS(_wrap_Parser_parse__SWIG_1) {
     arg2 = reinterpret_cast< CaboCha::Tree * >(argp2);
     {
       try {
-        result = (CaboCha::Tree *)(arg1)->parse(arg2); 
+        result = (CaboCha::Tree *)((CaboCha::Parser const *)arg1)->parse(arg2); 
       }
       catch (char *e) {
         SWIG_exception (SWIG_RuntimeError, e); 
@@ -3844,6 +3882,7 @@ static swig_command_info swig_commands[] = {
 {"CaboChac::Tree_set_posset", _wrap_Tree_set_posset},
 {"CaboChac::Tree_output_layer", _wrap_Tree_output_layer},
 {"CaboChac::Tree_set_output_layer", _wrap_Tree_set_output_layer},
+{"CaboChac::Tree_what", _wrap_Tree_what},
 {"CaboChac::new_Tree", _wrap_new_Tree},
 {"CaboChac::delete_Tree", _wrap_delete_Tree},
 {"CaboChac::Parser_parseToString", _wrap_Parser_parseToString},
@@ -4277,7 +4316,7 @@ XS(SWIG_init) {
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Parser, (void*) "CaboCha::Parser");
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "VERSION", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_FromCharPtr("0.60"));
+    sv_setsv(sv, SWIG_FromCharPtr("0.61\30"));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   ST(0) = &PL_sv_yes;

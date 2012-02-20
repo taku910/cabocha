@@ -4,26 +4,33 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <vector>
-#include <cmath>
-#include "utils.h"
-#include "timer.h"
 #include "svm_learn.h"
-
+#include "timer.h"
+#include "utils.h"
 
 namespace CaboCha {
-
-static const double EPS_A = 1e-12;
-static const short LOWER_BOUND = -1;
-static const short UPPER_BOUND = +1;
-static const short FREE        = 0;
+namespace {
+const double EPS_A       = 1e-12;
+const short  LOWER_BOUND = -1;
+const short  UPPER_BOUND = +1;
+const short  FREE        = 0;
+}
 
 class QMatrix;
 
 class SVMSolverImpl {
- private:
+ public:
+  SVMModel *learn(size_t l,
+                  double *y,
+                  int    **x,
+                  double C,
+                  size_t degree,
+                  double cache_size);
 
+ private:
   size_t                        l_;
   int                           **x_;
   double                        *y_;
@@ -64,14 +71,6 @@ class SVMSolverImpl {
   }
   void    learn_sub();
   size_t  check_inactive();
-
- public:
-  SVMModel *learn(size_t l,
-                  double *y,
-                  int    **x,
-                  double C,
-                  size_t degree,
-                  double cache_size);
 };
 
 SVMModel *SVMSolver::learn(size_t l,

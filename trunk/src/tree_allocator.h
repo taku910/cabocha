@@ -8,15 +8,18 @@
 
 #include <cstring>
 #include <iostream>
-#include <mecab.h>
-#include <crfpp.h>
 #include "cabocha.h"
 #include "common.h"
 #include "freelist.h"
 #include "morph.h"
 #include "string_buffer.h"
 
+struct mecab_lattice_t;
+struct crfpp_t;
+
 namespace CaboCha {
+
+class DependencyParserData;
 
 class TreeAllocator {
  public:
@@ -25,88 +28,29 @@ class TreeAllocator {
   std::string                 sentence;
   std::vector<const char *>   feature;
 
-  mecab_lattice_t *mecab_lattice;
-  crfpp_t         *crfpp_chunker;
-  crfpp_t         *crfpp_ne;
+  mecab_lattice_t      *mecab_lattice;
+  crfpp_t              *crfpp_chunker;
+  crfpp_t              *crfpp_ne;
+  DependencyParserData *dependency_parser_data;
 
-  TreeAllocator():
-      mecab_lattice(0),
-      crfpp_chunker(0),
-      crfpp_ne(0),
-      char_freelist_(BUF_SIZE * 16),
-      token_freelist_(CABOCHA_TOKEN_SIZE),
-      chunk_freelist_(CABOCHA_CHUNK_SIZE),
-      char_array_freelist_(BUF_SIZE),
-      stream_(&std::cout) {}
+  TreeAllocator();
+  virtual ~TreeAllocator();
 
-  virtual ~TreeAllocator() {
-    if (mecab_lattice) {
-      MorphAnalyzer::deleteMeCabLattice(mecab_lattice);
-      mecab_lattice = 0;
-    }
-    if (crfpp_chunker) {
-      crfpp_destroy(crfpp_chunker);
-      crfpp_chunker = 0;
-    }
-    if (crfpp_ne) {
-      crfpp_destroy(crfpp_ne);
-      crfpp_ne = 0;
-    }
-  }
+  void free();
+  void clear();
 
-  void free() {
-    char_freelist_.free();
-    token_freelist_.free();
-    chunk_freelist_.free();
-    char_array_freelist_.free();
-    os_.clear();
-    if (mecab_lattice) {
-      MorphAnalyzer::clearMeCabLattice(mecab_lattice);
-    }
-    if (crfpp_chunker) {
-      crfpp_clear(crfpp_chunker);
-    }
-    if (crfpp_ne) {
-      crfpp_clear(crfpp_ne);
-    }
-  }
+  char *alloc(size_t size);
+  char *alloc(const char *str);
+  char **alloc_char_array(size_t size);
+  Chunk* allocChunk();
+  Token* allocToken();
+  StringBuffer *mutable_string_buffer();
 
-  void clear() { return this->free(); }
+  std::ostream *stream() const;
+  void set_stream(std::ostream *os);
 
-  char *alloc(size_t size) {
-    return char_freelist_.alloc(size + 1);
-  }
-
-  char *alloc(const char *str) {
-    const size_t size = std::strlen(str);
-    char *n = char_freelist_.alloc(size + 1);
-    std::strcpy(n, str);
-    return n;
-  }
-
-  char **alloc_char_array(size_t size) {
-    return char_array_freelist_.alloc(size);
-  }
-
-  Chunk* allocChunk() {
-    Chunk *c = chunk_freelist_.alloc();
-    std::memset(c, 0, sizeof(Chunk));
-    c->link = -1;
-    return c;
-  }
-
-  Token* allocToken() {
-    Token *t = token_freelist_.alloc();
-    std::memset(t, 0, sizeof(Token));
-    return t;
-  }
-
-  StringBuffer *mutable_string_buffer() { return &os_; }
-
-  std::ostream *stream() const { return stream_; }
-  void set_stream(std::ostream *os) {
-    stream_ = os;
-  }
+  whatlog *mutable_what();
+  const char *what();
 
  private:
   FreeList<char>   char_freelist_;
@@ -115,6 +59,7 @@ class TreeAllocator {
   FreeList<char *> char_array_freelist_;
   StringBuffer     os_;
   std::ostream    *stream_;
+  whatlog          what_;
 };
 }
 #endif

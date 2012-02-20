@@ -6,12 +6,12 @@
 #include <crfpp.h>
 #include <cstdio>
 #include <iterator>
-#include "utils.h"
 #include "cabocha.h"
 #include "chunker.h"
 #include "common.h"
 #include "param.h"
 #include "tree_allocator.h"
+#include "utils.h"
 
 namespace CaboCha {
 
@@ -44,17 +44,15 @@ void Chunker::close() {
   model_ = 0;
 }
 
-bool Chunker::parse(Tree *tree) {
-  CHECK_FALSE(tree);
-
+bool Chunker::parse(Tree *tree) const {
   TreeAllocator *allocator = tree->allocator();
-  CHECK_FALSE(allocator);
+  CHECK_TREE_FALSE(allocator);
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(model_);
+    CHECK_TREE_FALSE(model_);
     if (!allocator->crfpp_chunker) {
       allocator->crfpp_chunker = crfpp_model_new_tagger(model_);
-      CHECK_FALSE(allocator->crfpp_chunker);
+      CHECK_TREE_FALSE(allocator->crfpp_chunker);
     }
     crfpp_set_model(allocator->crfpp_chunker, model_);
     crfpp_clear(allocator->crfpp_chunker);
@@ -88,7 +86,7 @@ bool Chunker::parse(Tree *tree) {
   }
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(crfpp_parse(allocator->crfpp_chunker));
+    CHECK_TREE_FALSE(crfpp_parse(allocator->crfpp_chunker));
 
     tree->clear_chunk();
     Chunk *old_chunk = 0;

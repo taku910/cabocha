@@ -4,21 +4,21 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <algorithm>
-#include <functional>
 #include <cmath>
-#include <vector>
-#include <string>
-#include <map>
-#include <iostream>
 #include <fstream>
-#include "timer.h"
+#include <functional>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 #include "common.h"
-#include "mmap.h"
 #include "darts.h"
-#include "svm.h"
-#include "scoped_ptr.h"
-#include "utils.h"
 #include "freelist.h"
+#include "mmap.h"
+#include "scoped_ptr.h"
+#include "svm.h"
+#include "timer.h"
+#include "utils.h"
 
 namespace CaboCha {
 

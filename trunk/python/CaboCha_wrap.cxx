@@ -147,6 +147,7 @@ template <typename T> T SwigValueInit() {
 
 /* Python.h has to appear first */
 #include <Python.h>
+#include <stddef.h>
 
 /* -----------------------------------------------------------------------------
  * swigrun.swg
@@ -4271,6 +4272,38 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Tree_what(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  CaboCha::Tree *arg1 = (CaboCha::Tree *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Tree_what",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Tree_what" "', argument " "1"" of type '" "CaboCha::Tree *""'"); 
+  }
+  arg1 = reinterpret_cast< CaboCha::Tree * >(argp1);
+  {
+    try {
+      result = (char *)(arg1)->what(); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_new_Tree(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   CaboCha::Tree *result = 0 ;
@@ -4435,7 +4468,7 @@ SWIGINTERN PyObject *_wrap_Parser_parse__SWIG_1(PyObject *SWIGUNUSEDPARM(self), 
   if (!PyArg_ParseTuple(args,(char *)"OO:Parser_parse",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_CaboCha__Parser, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Parser_parse" "', argument " "1"" of type '" "CaboCha::Parser *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Parser_parse" "', argument " "1"" of type '" "CaboCha::Parser const *""'"); 
   }
   arg1 = reinterpret_cast< CaboCha::Parser * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_CaboCha__Tree, 0 |  0 );
@@ -4445,7 +4478,7 @@ SWIGINTERN PyObject *_wrap_Parser_parse__SWIG_1(PyObject *SWIGUNUSEDPARM(self), 
   arg2 = reinterpret_cast< CaboCha::Tree * >(argp2);
   {
     try {
-      result = (CaboCha::Tree *)(arg1)->parse(arg2); 
+      result = (CaboCha::Tree *)((CaboCha::Parser const *)arg1)->parse(arg2); 
     }
     catch (char *e) {
       SWIG_exception (SWIG_RuntimeError, e); 
@@ -4503,7 +4536,7 @@ fail:
   SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number of arguments for overloaded function 'Parser_parse'.\n"
     "  Possible C/C++ prototypes are:\n"
     "    parse(CaboCha::Parser *,char const *)\n"
-    "    parse(CaboCha::Parser *,CaboCha::Tree *)\n");
+    "    parse(CaboCha::Parser const *,CaboCha::Tree *)\n");
   return NULL;
 }
 
@@ -4728,6 +4761,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Tree_set_posset", _wrap_Tree_set_posset, METH_VARARGS, NULL},
 	 { (char *)"Tree_output_layer", _wrap_Tree_output_layer, METH_VARARGS, NULL},
 	 { (char *)"Tree_set_output_layer", _wrap_Tree_set_output_layer, METH_VARARGS, NULL},
+	 { (char *)"Tree_what", _wrap_Tree_what, METH_VARARGS, NULL},
 	 { (char *)"new_Tree", _wrap_new_Tree, METH_VARARGS, NULL},
 	 { (char *)"delete_Tree", _wrap_delete_Tree, METH_VARARGS, NULL},
 	 { (char *)"Tree_swigregister", Tree_swigregister, METH_VARARGS, NULL},
@@ -5424,7 +5458,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(TRAIN_NE)));
   SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(TRAIN_CHUNK)));
   SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(TRAIN_DEP)));
-  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.60"));
+  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.61\30"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

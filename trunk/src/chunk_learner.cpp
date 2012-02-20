@@ -4,19 +4,19 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <crfpp.h>
-#include <iterator>
-#include <iostream>
 #include <fstream>
-#include <vector>
+#include <iostream>
+#include <iterator>
 #include <string>
+#include <vector>
 #include "cabocha.h"
+#include "chunker.h"
 #include "common.h"
+#include "ne.h"
 #include "scoped_ptr.h"
 #include "utils.h"
 #include "timer.h"
 #include "tree_allocator.h"
-#include "chunker.h"
-#include "ne.h"
 
 namespace {
 static const char *chunk_crfpp_template =

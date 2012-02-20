@@ -144,6 +144,7 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *set_posset = *CaboChac::Tree_set_posset;
 *output_layer = *CaboChac::Tree_output_layer;
 *set_output_layer = *CaboChac::Tree_set_output_layer;
+*what = *CaboChac::Tree_what;
 sub new {
     my $pkg = shift;
     my $self = CaboChac::new_Tree(@_);

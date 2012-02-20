@@ -44,7 +44,7 @@ void get_char_feature(int charset, const char *str, char *feature) {
   size_t clen = 0;
 
   while (str < end) {
-    int c = get_char_class(charset, str, end,  &mblen);
+    const int c = get_char_class(charset, str, end,  &mblen);
     str += mblen;
     if (iscap && c != ALPHA) iscap = false;
     if (clen == 0) {
@@ -124,17 +124,15 @@ void NE::close() {
   ne_composite_unidic_.clear();
 }
 
-bool NE::parse(Tree *tree) {
-  CHECK_FALSE(tree);
-
+bool NE::parse(Tree *tree) const {
   TreeAllocator *allocator = tree->allocator();
-  CHECK_FALSE(allocator);
+  CHECK_TREE_FALSE(allocator);
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(model_);
+    CHECK_TREE_FALSE(model_);
     if (!allocator->crfpp_ne) {
       allocator->crfpp_ne = crfpp_model_new_tagger(model_);
-      CHECK_FALSE(allocator->crfpp_ne);
+      CHECK_TREE_FALSE(allocator->crfpp_ne);
     }
     crfpp_set_model(allocator->crfpp_ne, model_);
     crfpp_clear(allocator->crfpp_ne);
@@ -152,7 +150,7 @@ bool NE::parse(Tree *tree) {
       ne_composite = ne_composite_unidic_;
       break;
     default:
-      CHECK_FALSE(false) << "unknown posset";
+      CHECK_TREE_FALSE(false) << "unknown posset";
   }
 
   int comp = 0;
@@ -192,7 +190,7 @@ bool NE::parse(Tree *tree) {
                  allocator->feature.size(),
                  (const char **)&allocator->feature[0]);
     } else {
-      CHECK_FALSE(ne) << "named entity is not defined";
+      CHECK_TREE_FALSE(ne) << "named entity is not defined";
       std::copy(allocator->feature.begin(), allocator->feature.end(),
                 std::ostream_iterator<const char*>(
                     *(allocator->stream()), " "));
@@ -201,7 +199,7 @@ bool NE::parse(Tree *tree) {
   }
 
   if (action_mode() == PARSING_MODE) {
-    CHECK_FALSE(crfpp_parse(allocator->crfpp_ne));
+    CHECK_TREE_FALSE(crfpp_parse(allocator->crfpp_ne));
     const char *prev = 0;
     size_t      ci   = 0;
     int         comp = 0;

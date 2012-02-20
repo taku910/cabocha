@@ -5,12 +5,12 @@
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <map>
 #include <set>
-#include "param.h"
+#include <vector>
 #include "cabocha.h"
 #include "common.h"
+#include "param.h"
 #include "utils.h"
 
 namespace CaboCha {
