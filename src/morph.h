@@ -18,7 +18,7 @@ class MorphAnalyzer: public Analyzer {
  public:
   bool open(const Param &) ;
   void close();
-  bool parse(Tree *);
+  bool parse(Tree *) const;
 
   static void clearMeCabLattice(mecab_lattice_t *);
   static void deleteMeCabLattice(mecab_lattice_t *);

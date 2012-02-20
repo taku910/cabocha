@@ -7,7 +7,8 @@ libcabocha_la_LDFLAGS = -no-undefined -version-info $(LTVERSION)
 libcabocha_la_SOURCES = analyzer.h cabocha.h char_category.h chunk_learner.cpp chunker.cpp chunker.h \
 	common.h darts.h dep.cpp dep.h dep_learner.cpp eval.cpp freelist.h \
 	learner.cpp libcabocha.cpp mmap.h morph.cpp morph.h ne.cpp ne.h normalizer.cpp \
-	normalizer.h normalizer_rule.h param.cpp param.h parser.cpp scoped_ptr.h selector.cpp \
+	normalizer.h normalizer_rule.h param.cpp param.h parser.cpp scoped_ptr.h \
+	selector.cpp tree_allocator.cpp \
 	selector.h selector_pat.h stream_wrapper.h string_buffer.cpp string_buffer.h svm.cpp \
 	svm.h svm_learn.cpp svm_learn.h  timer.h  tree.cpp  tree_allocator.h ucs.cpp ucs.h \
 	ucstable.h utils.cpp utils.h

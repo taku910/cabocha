@@ -3,9 +3,9 @@
 //  $Id: ucs.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <iostream>
-#include <fstream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include "common.h"
 #include "scoped_ptr.h"

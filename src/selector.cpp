@@ -6,17 +6,21 @@
 #include <cstring>
 #include <strstream>
 #include "cabocha.h"
-#include "selector.h"
 #include "common.h"
 #include "scoped_ptr.h"
-#include "utils.h"
-#include "ucs.h"
+#include "selector.h"
 #include "selector_pat.h"
+#include "ucs.h"
+#include "utils.h"
 
 namespace CaboCha {
 inline const char *get_token(const Token *token, size_t id) {
-  if (token->feature_list_size <= id) return 0;
-  if (std::strcmp("*", token->feature_list[id]) == 0) return 0;
+  if (token->feature_list_size <= id) {
+    return 0;
+  }
+  if (std::strcmp("*", token->feature_list[id]) == 0) {
+    return 0;
+  }
   return token->feature_list[id];
 }
 
@@ -110,8 +114,7 @@ bool Selector::open(const Param &param) {
   return true;
 }
 
-bool Selector::parse(Tree *tree) {
-  CHECK_FALSE(tree);
+bool Selector::parse(Tree *tree) const {
   const size_t size = tree->chunk_size();
   const size_t pos_size = (tree->posset() == IPA) ? 4 : 2;
 
@@ -160,11 +163,17 @@ bool Selector::parse(Tree *tree) {
         std::min(pos_size,
                  static_cast<size_t>(htoken->feature_list_size));
     for (size_t k = 0; k < hsize; ++k) {
-      if (std::strcmp("*", htoken->feature_list[k]) == 0) break;
+      if (std::strcmp("*", htoken->feature_list[k]) == 0) {
+        break;
+      }
       ostrs << " F_H" << k + 1 << ':' << htoken->feature_list[k];
     }
-    if (hctype) ostrs << " F_H5:" << hctype;
-    if (hcform) ostrs << " F_H6:" << hcform;
+    if (hctype) {
+      ostrs << " F_H5:" << hctype;
+    }
+    if (hcform) {
+      ostrs << " F_H6:" << hcform;
+    }
 
     ostrs << " F_F0:" << fsurface;
     const size_t fsize = std::min(
@@ -175,8 +184,12 @@ bool Selector::parse(Tree *tree) {
       ostrs << " F_F" << k + 1 << ':' << ftoken->feature_list[k];
     }
 
-    if (fctype) ostrs << " F_F5:" << fctype;
-    if (fcform) ostrs << " F_F6:" << fcform;
+    if (fctype) {
+      ostrs << " F_F5:" << fctype;
+    }
+    if (fcform) {
+      ostrs << " F_F6:" << fcform;
+    }
 
     std::string output;
     if (pat_dyn_a_.prefix_match(ftoken->feature)) {
@@ -195,8 +208,12 @@ bool Selector::parse(Tree *tree) {
       ostrs << " G_CASE:" << fsurface;
     }
 
-    if (i == 0) ostrs << " F_BOS:1";
-    if (i == size - 1) ostrs << " F_EOS:1";
+    if (i == 0) {
+      ostrs << " F_BOS:1";
+    }
+    if (i == size - 1) {
+      ostrs << " F_EOS:1";
+    }
 
     ostrs << std::ends;
     // write to tree

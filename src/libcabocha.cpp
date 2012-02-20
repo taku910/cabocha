@@ -11,14 +11,14 @@
 #include <fstream>
 #include <iostream>
 #include "cabocha.h"
+#include "common.h"
 #include "dep.h"
 #include "ne.h"
 #include "chunker.h"
-#include "utils.h"
-#include "ucs.h"
 #include "param.h"
 #include "svm.h"
-#include "common.h"
+#include "ucs.h"
+#include "utils.h"
 
 namespace {
 const int LIBCABOCHA_ID = 5220707;

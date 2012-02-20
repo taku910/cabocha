@@ -4,18 +4,18 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include <crfpp.h>
-#include <vector>
 #include <string>
-#include "freelist.h"
+#include <vector>
 #include "cabocha.h"
-#include "param.h"
-#include "common.h"
-#include "morph.h"
 #include "chunker.h"
-#include "ne.h"
-#include "selector.h"
+#include "common.h"
 #include "dep.h"
+#include "freelist.h"
+#include "morph.h"
+#include "ne.h"
+#include "param.h"
 #include "scoped_ptr.h"
+#include "selector.h"
 #include "stream_wrapper.h"
 #include "utils.h"
 
@@ -84,7 +84,9 @@ static std::string get_default_rc() {
     std::string s = CaboCha::create_filename(std::string(homedir),
                                              ".cabocharc");
     std::ifstream ifs(WPATH(s.c_str()));
-    if (ifs) return s;
+    if (ifs) {
+      return s;
+    }
   }
 
   const char *rcenv = getenv("CABOCHARC");
@@ -136,7 +138,7 @@ class ParserImpl: public Parser {
   bool        open(int, char**);
   bool        open(const char*);
   void        close();
-  const Tree *parse(Tree *tree);
+  const Tree *parse(Tree *tree) const;
   const Tree *parse(const char*, size_t);
   const Tree *parse(const char*);
   const char *parseToString(const char*);
@@ -333,10 +335,6 @@ bool ParserImpl::open(Param *param) {
       break;
   }
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  std::locale::global(std::locale("C"));
-#endif
-
   return true;
 }
 
@@ -350,9 +348,8 @@ void ParserImpl::close() {
   output_layer_ = OUTPUT_DEP;
 }
 
-const Tree *ParserImpl::parse(Tree *tree) {
+const Tree *ParserImpl::parse(Tree *tree) const {
   if (!tree) {
-    WHAT << "NULL pointer is given";
     return 0;
   }
   tree->set_charset(charset_);
@@ -360,7 +357,6 @@ const Tree *ParserImpl::parse(Tree *tree) {
   tree->set_output_layer(output_layer_);
   for (size_t i = 0; i < analyzer_.size(); ++i) {
     if (!analyzer_[i]->parse(tree)) {
-      WHAT << analyzer_[i]->what();
       return 0;
     }
   }
@@ -380,7 +376,12 @@ const Tree* ParserImpl::parse(const char *str, size_t len) {
     WHAT << "format error: [" << str << "] ";
     return 0;
   }
-  return parse(tree_.get());
+  if (!parse(tree_.get())) {
+    WHAT << tree_->what();
+    return 0;
+  }
+
+  return tree_.get();
 }
 
 const Tree* ParserImpl::parse(const char *str) {
@@ -501,7 +502,10 @@ int cabocha_do(int argc, char **argv) {
         return false;
       }
 
-      if (ifs->eof() && input.empty()) return false;
+      if (ifs->eof() && input.empty()) {
+        return false;
+      }
+
       if (ifs->fail()) {
         std::cerr << "input-beffer overflow. "
                   << "The line is splitted. use -b #SIZE option."
@@ -510,7 +514,9 @@ int cabocha_do(int argc, char **argv) {
       }
 
       const char *r = parser.parseToString(input.c_str(), input.size());
-      if (!r) WHAT_ERROR(parser.what());
+      if (!r) {
+        WHAT_ERROR(parser.what());
+      }
       *ofs << r << std::flush;
     }
   }

@@ -164,6 +164,7 @@ class Tree(_object):
     def set_posset(self, *args): return _CaboCha.Tree_set_posset(self, *args)
     def output_layer(self): return _CaboCha.Tree_output_layer(self)
     def set_output_layer(self, *args): return _CaboCha.Tree_set_output_layer(self, *args)
+    def what(self): return _CaboCha.Tree_what(self)
     def __init__(self): 
         this = _CaboCha.new_Tree()
         try: self.this.append(this)

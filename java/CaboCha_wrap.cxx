@@ -1114,6 +1114,35 @@ SWIGEXPORT void JNICALL Java_org_chasen_cabocha_CaboChaJNI_Tree_1set_1output_1la
 }
 
 
+SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_Tree_1what(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  CaboCha::Tree *arg1 = (CaboCha::Tree *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(CaboCha::Tree **)&jarg1; 
+  {
+    try {
+      result = (char *)(arg1)->what(); 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
 SWIGEXPORT jlong JNICALL Java_org_chasen_cabocha_CaboChaJNI_new_1Tree(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   CaboCha::Tree *result = 0 ;
@@ -1250,7 +1279,7 @@ SWIGEXPORT jlong JNICALL Java_org_chasen_cabocha_CaboChaJNI_Parser_1parse_1_1SWI
   arg2 = *(CaboCha::Tree **)&jarg2; 
   {
     try {
-      result = (CaboCha::Tree *)(arg1)->parse(arg2); 
+      result = (CaboCha::Tree *)((CaboCha::Parser const *)arg1)->parse(arg2); 
     }
     catch (char *e) {
       {
@@ -1412,7 +1441,7 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEn
   
   (void)jenv;
   (void)jcls;
-  result = (char *) "0.60";
+  result = (char *) "0.61\30";
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }

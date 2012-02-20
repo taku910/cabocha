@@ -3,20 +3,20 @@
 //  $Id: dep.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <vector>
 #include <algorithm>
-#include <fstream>
 #include <functional>
-#include <stack>
+#include <fstream>
 #include <iterator>
-#include "param.h"
+#include <stack>
+#include <vector>
 #include "dep.h"
 #include "cabocha.h"
+#include "common.h"
+#include "param.h"
+#include "svm.h"
 #include "timer.h"
 #include "tree_allocator.h"
-#include "svm.h"
 #include "utils.h"
-#include "common.h"
 
 namespace CaboCha {
 
@@ -48,35 +48,39 @@ void DependencyParser::close() {
   svm_.reset(0);
 }
 
-void DependencyParser::build(Tree *tree) {
+void DependencyParser::build(Tree *tree) const {
   const size_t size  = tree->chunk_size();
 
-  static_feature_.clear();
-  static_feature_.resize(size);
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
 
-  dyn_b_feature_.clear();
-  dyn_b_feature_.resize(size);
-  dyn_b_.clear();
-  dyn_b_.resize(size);
+  data->static_feature.clear();
+  data->static_feature.resize(size);
 
-  dyn_a_feature_.clear();
-  dyn_a_feature_.resize(size);
-  dyn_a_.clear();
-  dyn_a_.resize(size);
+  data->dyn_b_feature.clear();
+  data->dyn_b_feature.resize(size);
+  data->dyn_b.clear();
+  data->dyn_b.resize(size);
 
-  gap_.clear();
-  gap_list_.clear();
-  gap_list_.resize(size);
+  data->dyn_a_feature.clear();
+  data->dyn_a_feature.resize(size);
+  data->dyn_a.clear();
+  data->dyn_a.resize(size);
+
+  data->gap.clear();
+  data->gap_list.clear();
+  data->gap_list.resize(size);
 
   for (size_t i = 0; i < tree->chunk_size(); ++i) {
     Chunk *chunk = tree->mutable_chunk(i);
     for (size_t k = 0; k < chunk->feature_list_size; ++k) {
       char *feature = const_cast<char *>(chunk->feature_list[k]);
       switch (feature[0]) {
-        case 'F': static_feature_[i].push_back(feature); break;
-        case 'G': gap_list_[i].push_back(feature);       break;
-        case 'A': dyn_a_feature_[i].push_back(feature);  break;
-        case 'B': dyn_b_feature_[i].push_back(feature);  break;
+        case 'F': data->static_feature[i].push_back(feature); break;
+        case 'G': data->gap_list[i].push_back(feature);       break;
+        case 'A': data->dyn_a_feature[i].push_back(feature);  break;
+        case 'B': data->dyn_b_feature[i].push_back(feature);  break;
         default:
           break;
       }
@@ -84,89 +88,98 @@ void DependencyParser::build(Tree *tree) {
   }
 
   // make gap features
-  gap_.resize(size * (size + 3) / 2 + 1);
+  data->gap.resize(size * (size + 3) / 2 + 1);
 
   for (size_t k = 0; k < size; k++) {
     for (size_t i = 0; i < k; i++) {
       for (size_t j = k + 1; j < size; j++) {
-        std::copy(gap_list_[k].begin(), gap_list_[k].end(),
-                  std::back_inserter(gap_[j * (j + 1) / 2 + i]));
+        std::copy(data->gap_list[k].begin(), data->gap_list[k].end(),
+                  std::back_inserter(data->gap[j * (j + 1) / 2 + i]));
       }
     }
   }
 
-  results_.resize(size);
-  for (size_t i = 0; i < results_.size(); ++i) {
-    results_[i].score = 0.0;
-    results_[i].link = -1;
+  data->results.resize(size);
+  for (size_t i = 0; i < data->results.size(); ++i) {
+    data->results[i].score = 0.0;
+    data->results[i].link = -1;
   }
 }
 
 bool DependencyParser::estimate(const Tree *tree,
                                 int src, int dst,
-                                double *score) {
-  if (action_mode() == PARSING_MODE && results_[src].link != -1) {
+                                double *score) const {
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
+
+  if (action_mode() == PARSING_MODE &&
+      data->results[src].link != -1) {
     return tree->chunk(src)->link == dst;
   }
 
-  fpset_.clear();
+  data->fpset.clear();
   const int dist = dst - src;
-  if (dist == 1)                   fpset_.insert("DIST:1");
-  else if (dist >= 2 && dist <= 5) fpset_.insert("DIST:2-5");
-  else                             fpset_.insert("DIST:6-");
-
-  // static feature
-  for (size_t i = 0; i < static_feature_[src].size(); ++i) {
-    static_feature_[src][i][0] = 'f';
-    fpset_.insert(static_feature_[src][i]);
+  if (dist == 1) {
+    data->fpset.insert("DIST:1");
+  } else if (dist >= 2 && dist <= 5) {
+    data->fpset.insert("DIST:2-5");
+  } else {
+    data->fpset.insert("DIST:6-");
   }
 
-  for (size_t i = 0; i < static_feature_[dst].size(); ++i) {
-    static_feature_[dst][i][0] = 'F';
-    fpset_.insert(static_feature_[dst][i]);
+  // static feature
+  for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
+    data->static_feature[src][i][0] = 'f';
+    data->fpset.insert(data->static_feature[src][i]);
+  }
+
+  for (size_t i = 0; i < data->static_feature[dst].size(); ++i) {
+    data->static_feature[dst][i][0] = 'F';
+    data->fpset.insert(data->static_feature[dst][i]);
   }
 
   size_t max_gap = 0;
 
   // gap feature
   const int k = dst * (dst + 1) / 2 + src;
-  max_gap = std::min(gap_[k].size(), kMaxGapSize);
+  max_gap = std::min(data->gap[k].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
-    fpset_.insert(gap_[k][i]);
+    data->fpset.insert(data->gap[k][i]);
   }
 
   // dynamic features
-  max_gap = std::min(dyn_a_[dst].size(), kMaxGapSize);
+  max_gap = std::min(data->dyn_a[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
-    dyn_a_[dst][i][0] = 'A';
-    fpset_.insert(dyn_a_[dst][i]);
+    data->dyn_a[dst][i][0] = 'A';
+    data->fpset.insert(data->dyn_a[dst][i]);
   }
 
-  max_gap = std::min(dyn_a_[src].size(), kMaxGapSize);
+  max_gap = std::min(data->dyn_a[src].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
-    dyn_a_[src][i][0] = 'a';
-    fpset_.insert(dyn_a_[src][i]);
+    data->dyn_a[src][i][0] = 'a';
+    data->fpset.insert(data->dyn_a[src][i]);
   }
 
-  max_gap = std::min(dyn_b_[dst].size(), kMaxGapSize);
+  max_gap = std::min(data->dyn_b[dst].size(), kMaxGapSize);
   for (size_t i = 0; i < max_gap; ++i) {
-    dyn_b_[dst][i][0] = 'B';
-    fpset_.insert(dyn_b_[dst][i]);
+    data->dyn_b[dst][i][0] = 'B';
+    data->fpset.insert(data->dyn_b[dst][i]);
   }
 
-  const size_t fsize = fpset_.size();
-  std::copy(fpset_.begin(), fpset_.end(), fp_);
+  const size_t fsize = data->fpset.size();
+  std::copy(data->fpset.begin(), data->fpset.end(), data->fp);
 
   TreeAllocator *allocator = tree->allocator();
 
   if (action_mode() == PARSING_MODE) {
-    *score = svm_->classify(fsize, const_cast<char **>(fp_));
+    *score = svm_->classify(fsize, const_cast<char **>(data->fp));
     return *score > 0;
   } else {
     const bool isdep = (tree->chunk(src)->link == dst);
     *(allocator->stream()) << (isdep ? "+1" : "-1");
     for (size_t i = 0; i < fsize; ++i) {
-      *(allocator->stream()) << ' ' << fp_[i];
+      *(allocator->stream()) << ' ' << data->fp[i];
     }
     *(allocator->stream()) << std::endl;
     return isdep;
@@ -175,7 +188,17 @@ bool DependencyParser::estimate(const Tree *tree,
   return false;
 }
 
-bool DependencyParser::parse(Tree *tree) {
+bool DependencyParser::parse(Tree *tree) const {
+  if (!tree->allocator()->dependency_parser_data) {
+    tree->allocator()->dependency_parser_data
+        = new DependencyParserData;
+    CHECK_DIE(tree->allocator()->dependency_parser_data);
+  }
+
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
+
   const int size = static_cast<int>(tree->chunk_size());
   if (size == 0) {
     return true;
@@ -218,7 +241,7 @@ bool DependencyParser::parse(Tree *tree) {
       bool      isdep = true;
       double    score = 0.0;
 
-      if (src != size - 2 && results_[src].link != dst) {
+      if (src != size - 2 && data->results[src].link != dst) {
         isdep = estimate(tree, src, dst, &score);
       }
 
@@ -229,14 +252,14 @@ bool DependencyParser::parse(Tree *tree) {
 
       // OK depend
       if (isdep) {
-        std::copy(dyn_b_feature_[dst].begin(),
-                  dyn_b_feature_[dst].end(),
-                  std::back_inserter(dyn_b_[src]));
-        std::copy(dyn_a_feature_[src].begin(),
-                  dyn_a_feature_[src].end(),
-                  std::back_inserter(dyn_a_[dst]));
-        results_[src].link = dst;
-        results_[src].score = score;
+        std::copy(data->dyn_b_feature[dst].begin(),
+                  data->dyn_b_feature[dst].end(),
+                  std::back_inserter(data->dyn_b[src]));
+        std::copy(data->dyn_a_feature[src].begin(),
+                  data->dyn_a_feature[src].end(),
+                  std::back_inserter(data->dyn_a[dst]));
+        data->results[src].link = dst;
+        data->results[src].score = score;
         if (!dead[src]) {
           change = true;
         }
@@ -249,10 +272,10 @@ bool DependencyParser::parse(Tree *tree) {
     }
   }
 
-  for (size_t i = 0; i < results_.size(); ++i) {
+  for (size_t i = 0; i < data->results.size(); ++i) {
     Chunk *chunk = tree->mutable_chunk(i);
-    chunk->link = results_[i].link;
-    chunk->score = results_[i].score;
+    chunk->link = data->results[i].link;
+    chunk->score = data->results[i].score;
   }
 
   tree->set_output_layer(OUTPUT_DEP);

@@ -17,7 +17,7 @@ namespace CaboCha {
 class NE : public Analyzer {
  public:
   bool open(const Param &param);
-  bool parse(Tree *tree);
+  bool parse(Tree *tree) const;
   void close();
 
   explicit NE();

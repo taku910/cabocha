@@ -3,24 +3,24 @@
 //  $Id: dep_learner.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <map>
 #include <set>
 #include <sstream>
-#include <vector>
 #include <string>
-#include <map>
+#include <vector>
 #include "analyzer.h"
-#include "selector.h"
 #include "dep.h"
-#include "param.h"
 #include "common.h"
 #include "freelist.h"
+#include "param.h"
 #include "scoped_ptr.h"
+#include "selector.h"
+#include "svm_learn.h"
+#include "timer.h"
 #include "tree_allocator.h"
 #include "utils.h"
-#include "timer.h"
-#include "svm_learn.h"
 
 namespace CaboCha {
 

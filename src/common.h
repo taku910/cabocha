@@ -41,10 +41,9 @@ Copyright(C) 2001-2012 Taku Kudo, All rights reserved.\n"
 
 #define BUF_SIZE 8192
 #define CABOCHA_MAX_LINE_SIZE 8192
-#define CABOCHA_NODE_SIZE 8192
 #define CABOCHA_FEATURE_SIZE 8192 * 16
-#define CABOCHA_CHUNK_SIZE 256
-#define CABOCHA_TOKEN_SIZE 1024
+#define CABOCHA_CHUNK_SIZE 128
+#define CABOCHA_TOKEN_SIZE 512
 
 #ifndef CABOCHA_DEFAULT_POSSET
 #define CABOCHA_DEFAULT_POSSET  "IPA"
@@ -109,6 +108,12 @@ class wlog {
 #define CHECK_FALSE(condition) \
  if (condition) {} else return \
    wlog(&what_) & what_.stream_ <<              \
+      __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
+
+#define CHECK_TREE_FALSE(condition) \
+ if (condition) {} else return \
+  wlog(tree->allocator()->mutable_what()) & \
+    tree->allocator()->mutable_what()->stream_ << \
       __FILE__ << "(" << __LINE__ << ") [" << #condition << "] "
 
 #define CHECK_DIE(condition) \

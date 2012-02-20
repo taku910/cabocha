@@ -21,7 +21,7 @@ class Analyzer {
 
   virtual bool open(const Param &) = 0;
   virtual void close() = 0;
-  virtual bool parse(Tree *tree) = 0;
+  virtual bool parse(Tree *tree) const = 0;
 
   int action_mode() const { return action_mode_; }
   void set_action_mode(int action_mode) {

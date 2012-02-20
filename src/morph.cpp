@@ -190,14 +190,13 @@ void MorphAnalyzer::close() {
   mecab_ = 0;
 }
 
-bool MorphAnalyzer::parse(Tree *tree) {
-  CHECK_FALSE(tree);
+bool MorphAnalyzer::parse(Tree *tree) const {
   TreeAllocator *allocator = tree->allocator();
-  CHECK_FALSE(allocator);
+  CHECK_TREE_FALSE(allocator);
 
   if (!allocator->mecab_lattice) {
     allocator->mecab_lattice = mecab_lattice_new_f();
-    CHECK_FALSE(allocator->mecab_lattice);
+    CHECK_TREE_FALSE(allocator->mecab_lattice);
   }
 
   mecab_lattice_add_request_type_f(
@@ -208,14 +207,14 @@ bool MorphAnalyzer::parse(Tree *tree) {
       tree->sentence(),
       tree->sentence_size());
 
-  CHECK_FALSE(mecab_parse_lattice_f(
+  CHECK_TREE_FALSE(mecab_parse_lattice_f(
                   mecab_, allocator->mecab_lattice))
       << mecab_lattice_strerror_f(allocator->mecab_lattice);
 
   const mecab_node_t *node  =
       mecab_lattice_get_bos_node_f(allocator->mecab_lattice);
-  CHECK_FALSE(node);
-  CHECK_FALSE(tree->read(node)) << "parse failed";
+  CHECK_TREE_FALSE(node);
+  CHECK_TREE_FALSE(tree->read(node)) << "parse failed";
   tree->set_output_layer(OUTPUT_POS);
   return true;
 };

@@ -546,4 +546,8 @@ const char *Tree::toString(FormatType output_format,
   os << '\0';
   return os.str();
 }
+
+const char *Tree::what() {
+  return tree_allocator_->what();
+}
 }
