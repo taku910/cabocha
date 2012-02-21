@@ -198,6 +198,10 @@ def Parser_version():
   return _CaboCha.Parser_version()
 Parser_version = _CaboCha.Parser_version
 
+
+def getLastError():
+  return _CaboCha.getLastError()
+getLastError = _CaboCha.getLastError
 VERSION = _CaboCha.VERSION
 
 

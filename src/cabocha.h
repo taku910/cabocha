@@ -285,6 +285,7 @@ class Parser {
 CABOCHA_DLL_EXTERN Parser *createParser(int argc, char **argv);
 CABOCHA_DLL_EXTERN Parser *createParser(const char *arg);
 CABOCHA_DLL_EXTERN const char *getParserError();
+CABOCHA_DLL_EXTERN const char *getLastError();
 }
 #endif
 #endif

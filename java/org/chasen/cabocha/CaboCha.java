@@ -9,4 +9,8 @@
 package org.chasen.cabocha;
 
 public class CaboCha implements CaboChaConstants {
+  public static String getLastError() {
+    return CaboChaJNI.getLastError();
+  }
+
 }

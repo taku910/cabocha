@@ -438,7 +438,9 @@ bool Tree::read(const char *input, size_t length,
         if (std::strlen(line) >= 3 && line[0] == '*' && line[1] == ' ') {
           const size_t size = tokenize(line, " ", column, sizeof(column));
           if (size >= 3 && (column[1][0] == '-' || isdigit(column[1][0]))) {
-            if (input_layer == INPUT_POS) continue;
+            if (input_layer == INPUT_POS) {
+              continue;
+            }
             chunk = add_chunk();
             chunk->link = std::atoi(column[2]);
 
@@ -450,8 +452,11 @@ bool Tree::read(const char *input, size_t length,
             if (size >= 4) {
               size_t i = 0;
               const size_t len = std::strlen(column[3]) - 1;
-              for (i = 0; i < len ; i++)
-                if (column[3][i] == '/') break;
+              for (i = 0; i < len ; i++) {
+                if (column[3][i] == '/') {
+                  break;
+                }
+              }
               chunk->head_pos = std::atoi(column[3]);
               chunk->func_pos = std::atoi(column[3] +i + 1);
             }

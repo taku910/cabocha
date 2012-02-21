@@ -123,16 +123,6 @@ const char *getGlobalError();
 void setGlobalError(const char *str);
 
 class ParserImpl: public Parser {
- private:
-  std::vector<Analyzer *> analyzer_;
-  scoped_ptr<Tree>        tree_;
-  FormatType              output_format_;
-  InputLayerType          input_layer_;
-  OutputLayerType         output_layer_;
-  CharsetType             charset_;
-  PossetType              posset_;
-  whatlog                 what_;
-
  public:
   bool        open(Param *);
   bool        open(int, char**);
@@ -151,8 +141,19 @@ class ParserImpl: public Parser {
   ParserImpl(): tree_(new Tree),
                 output_format_(FORMAT_TREE),
                 input_layer_(INPUT_RAW_SENTENCE),
-                output_layer_(OUTPUT_DEP), charset_(EUC_JP), posset_(IPA) {}
+                output_layer_(OUTPUT_DEP),
+                charset_(EUC_JP), posset_(IPA) {}
   virtual ~ParserImpl() { this->close(); }
+
+ private:
+  std::vector<Analyzer *> analyzer_;
+  scoped_ptr<Tree>        tree_;
+  FormatType              output_format_;
+  InputLayerType          input_layer_;
+  OutputLayerType         output_layer_;
+  CharsetType             charset_;
+  PossetType              posset_;
+  whatlog                 what_;
 };
 
 bool ParserImpl::open(int argc, char **argv) {
@@ -447,6 +448,10 @@ Parser *createParser(const char *argv) {
   return parser;
 }
 
+const char *getLastError() {
+  return getGlobalError();
+}
+
 const char *getParserError() {
   return getGlobalError();
 }
@@ -462,7 +467,9 @@ int cabocha_do(int argc, char **argv) {
 
   param.open(argc, argv, long_options);
 
-  if (!param.help_version()) return EXIT_SUCCESS;
+  if (!param.help_version()) {
+    return EXIT_SUCCESS;
+  }
 
   std::string ofilename = param.get<std::string>("output");
   if (ofilename.empty()) {
@@ -492,8 +499,9 @@ int cabocha_do(int argc, char **argv) {
   for (size_t i = 0; i < rest.size(); ++i) {
     CaboCha::istream_wrapper ifs(rest[i].c_str());
 
-    if (!*ifs)
+    if (!*ifs) {
       WHAT_ERROR("no such file or directory: " << rest[i]);
+    }
 
     while (true) {
       if (!CaboCha::read_sentence(ifs.get(), &input, input_layer)) {

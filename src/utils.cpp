@@ -238,26 +238,26 @@ std::string get_windows_reg_value(const char *key,
   HKEY hKey;
   scoped_fixed_array<wchar_t, 1024> v;
   DWORD vt;
-  DWORD size = sizeof(v.size()) * sizeof(v[0]);
+  DWORD size = v.size() * sizeof(v[0]);
 
-  RegOpenKeyExW(HKEY_LOCAL_MACHINE,
-                CaboCha::Utf8ToWide(key).c_str(),
-                0, KEY_READ, &hKey);
-  RegQueryValueExW(hKey,
-                   CaboCha::Utf8ToWide(name).c_str(),
-                   0, &vt, reinterpret_cast<BYTE *>(v.get()), &size);
-  RegCloseKey(hKey);
+  ::RegOpenKeyExW(HKEY_LOCAL_MACHINE,
+                  CaboCha::Utf8ToWide(key).c_str(),
+                  0, KEY_READ, &hKey);
+  ::RegQueryValueExW(hKey,
+                     CaboCha::Utf8ToWide(name).c_str(),
+                     0, &vt, reinterpret_cast<BYTE *>(v.get()), &size);
+  ::RegCloseKey(hKey);
   if (vt == REG_SZ) {
     return CaboCha::WideToUtf8(v.get());
   }
 
-  RegOpenKeyExW(HKEY_CURRENT_USER,
-                CaboCha::Utf8ToWide(key).c_str(),
-                0, KEY_READ, &hKey);
-  RegQueryValueExW(hKey,
+  ::RegOpenKeyExW(HKEY_CURRENT_USER,
+                  CaboCha::Utf8ToWide(key).c_str(),
+                  0, KEY_READ, &hKey);
+  ::RegQueryValueExW(hKey,
                    CaboCha::Utf8ToWide(name).c_str(),
                    0, &vt, reinterpret_cast<BYTE *>(v.get()), &size);
-  RegCloseKey(hKey);
+  ::RegCloseKey(hKey);
   if (vt == REG_SZ) {
     return CaboCha::WideToUtf8(v.get());
 

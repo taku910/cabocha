@@ -101,7 +101,7 @@ class wlog {
  private:
   whatlog *what_;
 };
-}  // CRFPP
+}  // CaboCha
 
 #define WHAT what_.stream_
 

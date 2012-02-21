@@ -3768,6 +3768,34 @@ XS(_wrap_new_Parser) {
 }
 
 
+XS(_wrap_getLastError) {
+  {
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 0) || (items > 0)) {
+      SWIG_croak("Usage: getLastError();");
+    }
+    {
+      try {
+        result = (char *)CaboCha::getLastError(); 
+      }
+      catch (char *e) {
+        SWIG_exception (SWIG_RuntimeError, e); 
+      }
+      catch (const char *e) {
+        SWIG_exception (SWIG_RuntimeError, (char*)e); 
+      }
+    }
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    XSRETURN(argvi);
+  fail:
+    SWIG_croak_null();
+  }
+}
+
+
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -3891,6 +3919,7 @@ static swig_command_info swig_commands[] = {
 {"CaboChac::Parser_version", _wrap_Parser_version},
 {"CaboChac::delete_Parser", _wrap_delete_Parser},
 {"CaboChac::new_Parser", _wrap_new_Parser},
+{"CaboChac::getLastError", _wrap_getLastError},
 {0,0}
 };
 /* -----------------------------------------------------------------------------

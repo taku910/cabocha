@@ -49,6 +49,7 @@ sub this {
 
 package CaboCha;
 
+*getLastError = *CaboChac::getLastError;
 
 ############# Class : CaboCha::Chunk ##############
 

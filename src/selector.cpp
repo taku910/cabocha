@@ -76,13 +76,13 @@ bool PatternMatcher::match(const char *str) const {
 }
 
 bool PatternMatcher::prefix_match(const char *str) const {
-  const size_t len = strlen(str);
+  const size_t len = std::strlen(str);
   for (size_t i = 0; i < patterns_.size(); ++i) {
     if (len < patterns_[i].size()) {
       continue;
     }
-    if (0 == memcmp(str, patterns_[i].data(),
-                    patterns_[i].size())) {
+    if (0 == std::memcmp(str, patterns_[i].data(),
+                         patterns_[i].size())) {
       return matched_result_;
     }
   }

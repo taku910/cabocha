@@ -1435,6 +1435,32 @@ SWIGEXPORT jlong JNICALL Java_org_chasen_cabocha_CaboChaJNI_new_1Parser_1_1SWIG_
 }
 
 
+SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_getLastError(JNIEnv *jenv, jclass jcls) {
+  jstring jresult = 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (char *)CaboCha::getLastError(); 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEnv *jenv, jclass jcls) {
   jstring jresult = 0 ;
   char *result = 0 ;
