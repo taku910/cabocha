@@ -14,7 +14,7 @@ OBJ = chunk_learner.obj learner.obj \
       chunker.obj dep.obj dep_learner.obj eval.obj libcabocha.obj \
       ne.obj normalizer.obj param.obj parser.obj \
       string_buffer.obj svm.obj svm_learn.obj tree.obj \
-      ucs.obj utils.obj morph.obj selector.obj
+      ucs.obj utils.obj morph.obj selector.obj tree_allocator.obj
 
 .cpp.obj:
 	$(CC) $(CFLAGS) $(INC) $(DEFS) -c  $<

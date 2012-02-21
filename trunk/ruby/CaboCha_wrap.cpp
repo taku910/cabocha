@@ -3676,6 +3676,32 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_getLastError(int argc, VALUE *argv, VALUE self) {
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  {
+    try {
+      result = (char *)CaboCha::getLastError(); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -4093,6 +4119,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.mark = 0;
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
+  rb_define_module_function(mCaboCha, "getLastError", VALUEFUNC(_wrap_getLastError), -1);
   rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.61\30"));
 }
 

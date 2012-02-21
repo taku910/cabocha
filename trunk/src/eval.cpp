@@ -30,9 +30,9 @@ void find_ne_chunks(const Tree &tree,
   for (size_t i = 0; i < tree.token_size(); ++i) {
     const Token *token = tree.token(i);
     const char *ne = token->ne;
-    CHECK_DIE(ne && strlen(ne) >= 1) << "NE tag is empty";
+    CHECK_DIE(ne && std::strlen(ne) >= 1) << "NE tag is empty";
     if (ne[0] == 'O') continue;
-    CHECK_DIE(strlen(ne) >= 3) << "NE tag is empty";
+    CHECK_DIE(std::strlen(ne) >= 3) << "NE tag is empty";
     CHECK_DIE(ne[1] == '-') << "NE must be formetted as B-NE: " << ne;
     const char stat = ne[0];
     if (stat == 'B') {

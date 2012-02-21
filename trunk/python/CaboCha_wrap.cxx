@@ -4723,6 +4723,29 @@ SWIGINTERN PyObject *Parser_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObjec
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_getLastError(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":getLastError")) SWIG_fail;
+  {
+    try {
+      result = (char *)CaboCha::getLastError(); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"SWIG_PyInstanceMethod_New", (PyCFunction)SWIG_PyInstanceMethod_New, METH_O, NULL},
 	 { (char *)"Chunk_link_get", _wrap_Chunk_link_get, METH_VARARGS, NULL},
@@ -4772,6 +4795,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_Parser", _wrap_delete_Parser, METH_VARARGS, NULL},
 	 { (char *)"new_Parser", _wrap_new_Parser, METH_VARARGS, NULL},
 	 { (char *)"Parser_swigregister", Parser_swigregister, METH_VARARGS, NULL},
+	 { (char *)"getLastError", _wrap_getLastError, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

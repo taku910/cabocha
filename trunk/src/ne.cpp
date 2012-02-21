@@ -46,7 +46,9 @@ void get_char_feature(int charset, const char *str, char *feature) {
   while (str < end) {
     const int c = get_char_class(charset, str, end,  &mblen);
     str += mblen;
-    if (iscap && c != ALPHA) iscap = false;
+    if (iscap && c != ALPHA) {
+      iscap = false;
+    }
     if (clen == 0) {
       type1 = c;
     } else if (clen == 1 && type1 == CAPALPHA && c == ALPHA) {
@@ -98,10 +100,10 @@ bool NE::open(const Param &param) {
   }
 
   // "名詞,数,"
-  ne_composite_ipa_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
-  // 名詞,数詞
+  ne_composite_ipa_   ="\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0,";
+  // "名詞,数詞"
   ne_composite_juman_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
-  // 名詞,数詞
+  // "名詞,数詞"
   ne_composite_unidic_ = "\xE5\x90\x8D\xE8\xA9\x9E,\xE6\x95\xB0\xE8\xA9\x9E,";
 
   Iconv iconv;

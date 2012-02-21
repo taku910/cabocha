@@ -54,5 +54,6 @@ class CaboChaJNI {
   public final static native void delete_Parser(long jarg1);
   public final static native long new_Parser__SWIG_0(String jarg1);
   public final static native long new_Parser__SWIG_1();
+  public final static native String getLastError();
   public final static native String VERSION_get();
 }

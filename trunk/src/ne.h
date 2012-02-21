@@ -25,8 +25,8 @@ class NE : public Analyzer {
 
  private:
   crfpp_model_t *model_;
-  std::string ne_composite_juman_;
   std::string ne_composite_ipa_;
+  std::string ne_composite_juman_;
   std::string ne_composite_unidic_;
 };
 }
