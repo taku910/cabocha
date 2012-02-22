@@ -114,7 +114,7 @@ void setGlobalError(const char *str) {
 
 cabocha_t* cabocha_new(int argc, char **argv) {
   CaboCha::Parser *ptr = CaboCha::createParser(argc, argv);
-  if (ptr) {
+  if (!ptr) {
     CaboCha::setGlobalError(CaboCha::getParserError());
     return 0;
   }

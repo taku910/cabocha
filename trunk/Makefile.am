@@ -59,5 +59,5 @@ dist-all-package:
 	$(MAKE) win-dist
 
 export-package:
-	./upload.pl -p cabocha -n cabocha        -r @VERSION@ -f cabocha-@VERSION@.tar.bz2
-	./upload.pl -p cabocha -n cabocha-win32  -r @VERSION@ -f cabocha-@VERSION@.exe
+	python googlecode_upload.py -p cabocha -s cabocha      -u taku@chasen.org -w `cat ~/.googlecode_upload_password` cabocha-@VERSION@.tar.gz
+	python googlecode_upload.py -p cabocha -s cabocha-win  -u taku@chasen.org -w `cat ~/.googlecode_upload_password` cabocha-@VERSION@.exe
