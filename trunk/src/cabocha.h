@@ -62,8 +62,8 @@ extern "C" {
     TRAIN_DEP
   };
 
-  struct cabocha_t;
-  struct cabocha_tree_t;
+  typedef struct cabocha_t cabocha_t;
+  typedef struct cabocha_tree_t cabocha_tree_t;
   struct mecab_node_t;
 
   struct cabocha_chunk_t {
