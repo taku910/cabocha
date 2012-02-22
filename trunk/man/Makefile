@@ -89,7 +89,7 @@ CABOCHA_USE_UTF8_ONLY =
 CC = gcc
 CCDEPMODE = depmode=none
 CFLAGS = -O3  -Wno-deprecated -Wall
-CHARSET = utf8
+CHARSET = sjis
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
