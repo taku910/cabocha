@@ -1,4 +1,5 @@
 AC_INIT(src/cabocha.cpp)
+AH_TEMPLATE([HAVE_TLS_KEYWORD], [])
 AM_INIT_AUTOMAKE(cabocha, 0.61)
 AM_MAINTAINER_MODE
 
@@ -267,6 +268,28 @@ dnl AC_DEFINE(HAVE_CXX_NAMESPACE)
 ])
 AC_MSG_RESULT([$ac_namespaces])
 
+
+dnl __thread keyword
+AC_MSG_CHECKING([if ${CXX-c++} supports __thread (optional)])
+AC_TRY_COMPILE(
+[
+__thread int a = 0;
+],[
+  a = 10;
+],[
+ enable_tls=yes
+],[
+ enable_tls=no
+])
+AC_MSG_RESULT([$enable_tls])
+
+if test "$enable_tls" = "no"; then
+AC_MSG_WARN([__thread keyword is not supported on this environment. \
+Error handling of CaboCha, e.g., CaboCha::getLastError(), is not thread safe.])
+else
+AC_DEFINE([HAVE_TLS_KEYWORD])
+fi
+
 AC_MSG_CHECKING(if ${CXX-c++} environment provides all required features)
 if test "x$config_error" = xyes ; then
   AC_MSG_RESULT([no])
@@ -295,7 +318,7 @@ AC_SUBST(CABOCHA_TXTMODEL_LIST)
 AC_SUBST(CABOCHA_MODEL_LIST)
 
 AM_CONFIG_HEADER(config.h)
-AC_OUTPUT([Makefile 
+AC_OUTPUT([Makefile
           src/Makefile
 	  src/Makefile.msvc
 	  model/Makefile

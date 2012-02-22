@@ -2571,6 +2571,7 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
 am__api_version='1.11'
 
 ac_aux_dir=
@@ -3038,7 +3039,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=cabocha
- VERSION=0.61
+ VERSION=0.61
 
 
 cat >>confdefs.h <<_ACEOF
@@ -18404,6 +18405,47 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_namespaces" >&5
 $as_echo "$ac_namespaces" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if ${CXX-c++} supports __thread (optional)" >&5
+$as_echo_n "checking if ${CXX-c++} supports __thread (optional)... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+__thread int a = 0;
+
+int
+main ()
+{
+
+  a = 10;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+ enable_tls=yes
+
+else
+
+ enable_tls=no
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_tls" >&5
+$as_echo "$enable_tls" >&6; }
+
+if test "$enable_tls" = "no"; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: __thread keyword is not supported on this environment. \
+Error handling of CaboCha, e.g., CaboCha::getLastError(), is not thread safe." >&5
+$as_echo "$as_me: WARNING: __thread keyword is not supported on this environment. \
+Error handling of CaboCha, e.g., CaboCha::getLastError(), is not thread safe." >&2;}
+else
+$as_echo "#define HAVE_TLS_KEYWORD 1" >>confdefs.h
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if ${CXX-c++} environment provides all required features" >&5
 $as_echo_n "checking if ${CXX-c++} environment provides all required features... " >&6; }

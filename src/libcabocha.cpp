@@ -21,80 +21,113 @@
 #include "utils.h"
 
 namespace {
-const int LIBCABOCHA_ID = 5220707;
+const char kUnknownError[] = "Unknown Error";
+const size_t kErrorBufferSize = 256;
+}  // namespace
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+void mecab_attach();
+void mecab_detatch();
+
+namespace {
+DWORD g_tls_index = TLS_OUT_OF_INDEXES;
 }  // namespace
 
 namespace CaboCha {
-
-std::string *getStaticErrorString() {
-  static std::string errorStr;
-  return &errorStr;
-}
-
 const char *getGlobalError() {
-  return getStaticErrorString()->c_str();
+  LPVOID data = ::TlsGetValue(g_tls_index);
+  return data == NULL ? kUnknownError : reinterpret_cast<const char *>(data);
 }
 
 void setGlobalError(const char *str) {
-  std::string *error = getStaticErrorString();
-  *error = str;
+  char *data = reinterpret_cast<char *>(::TlsGetValue(g_tls_index));
+  if (data == NULL) {
+    return;
+  }
+  strncpy(data, str, kErrorBufferSize - 1);
+  data[kErrorBufferSize - 1] = '\0';
 }
-}
+}  // CaboCha
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#ifdef __cplusplus
-void mecab_attach();
-void mecab_detatch();
+HINSTANCE DllInstance = 0;
+
 extern "C" {
-#endif
-  HINSTANCE DllInstance = 0;
-  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, void*) {
+  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD dwReason, LPVOID) {
+    LPVOID data = 0;
     if (!DllInstance) {
       DllInstance = hinst;
     }
-    if (dwReason == DLL_PROCESS_ATTACH) {
-      mecab_attach();
-    } else if (dwReason == DLL_PROCESS_DETACH) {
-      mecab_detatch();
+    switch (dwReason) {
+      case DLL_PROCESS_ATTACH:
+        mecab_attach();
+        if ((g_tls_index = ::TlsAlloc()) == TLS_OUT_OF_INDEXES) {
+          return FALSE;
+        }
+        // Not break in order to initialize the TLS.
+      case DLL_THREAD_ATTACH:
+        data = (LPVOID)::LocalAlloc(LPTR, kErrorBufferSize);
+        if (data) {
+          ::TlsSetValue(g_tls_index, data);
+        }
+        break;
+      case DLL_THREAD_DETACH:
+        data = ::TlsGetValue(g_tls_index);
+        if (data) {
+          ::LocalFree((HLOCAL)data);
+        }
+        break;
+      case DLL_PROCESS_DETACH:
+        mecab_detatch();
+        data = ::TlsGetValue(g_tls_index);
+        if (data) {
+          ::LocalFree((HLOCAL)data);
+        }
+        ::TlsFree(g_tls_index);
+        g_tls_index = TLS_OUT_OF_INDEXES;
+        break;
+      default:
+        break;
     }
     return TRUE;
   }
-#ifdef __cplusplus
-}
+}  // extern "C"
+#else  // _WIN32
+namespace {
+#ifdef HAVE_TLS_KEYWORD
+__thread char kErrorBuffer[kErrorBufferSize];
+#else
+char kErrorBuffer[kErrorBufferSize];
 #endif
-#endif
+}  // namespace
 
-struct cabocha_t {
-  int allocated;
-  CaboCha::Parser *ptr;
-};
+namespace CaboCha {
+const char *getGlobalError() {
+  return kErrorBuffer;
+}
+
+void setGlobalError(const char *str) {
+  strncpy(kErrorBuffer, str, kErrorBufferSize - 1);
+  kErrorBuffer[kErrorBufferSize - 1] = '\0';
+}
+}  // CaboCha
+#endif  // _WIN32
 
 cabocha_t* cabocha_new(int argc, char **argv) {
-  cabocha_t *c = new cabocha_t;
   CaboCha::Parser *ptr = CaboCha::createParser(argc, argv);
-  if (!c || !ptr) {
-    delete c;
-    delete ptr;
+  if (ptr) {
     CaboCha::setGlobalError(CaboCha::getParserError());
     return 0;
   }
-  c->ptr = ptr;
-  c->allocated = LIBCABOCHA_ID;
-  return c;
+  return reinterpret_cast<cabocha_t *>(ptr);
 }
 
 cabocha_t* cabocha_new2(const char *arg) {
-  cabocha_t *c = new cabocha_t;
   CaboCha::Parser *ptr = CaboCha::createParser(arg);
-  if (!c || !ptr) {
-    delete c;
-    delete ptr;
+  if (!ptr) {
     CaboCha::setGlobalError(CaboCha::getParserError());
     return 0;
   }
-  c->ptr = ptr;
-  c->allocated = LIBCABOCHA_ID;
-  return c;
+  return reinterpret_cast<cabocha_t *>(ptr);
 }
 
 const char *cabocha_version() {
@@ -102,193 +135,164 @@ const char *cabocha_version() {
 }
 
 const char* cabocha_strerror(cabocha_t *c) {
-  if (!c || !c->allocated) return CaboCha::getGlobalError();
-  return c->ptr->what();
+  if (!c) {
+    return CaboCha::getGlobalError();
+  }
+  return reinterpret_cast<CaboCha::Parser *>(c)->what();
 }
 
 void cabocha_destroy(cabocha_t *c) {
-  if (c && c->allocated) {
-    delete c->ptr;
-    delete c;
-  }
-  c = 0;
+  CaboCha::Parser *parser = reinterpret_cast<CaboCha::Parser *>(c);
+  delete parser;
 }
 
-#define CABOCHA_CHECK_FIRST_ARG(c, t)                           \
-  if (!(c) || (c)->allocated != LIBCABOCHA_ID) {                \
-    CaboCha::setGlobalError("first argment seems invalid");     \
-    return 0;                                                   \
-  } CaboCha::Parser *(t) = (c)->ptr;
-
 const char *cabocha_sparse_tostr(cabocha_t *c, const char *s) {
-  CABOCHA_CHECK_FIRST_ARG(c, t);
-  return const_cast<char*>(t->parseToString(s));
+  return const_cast<char*>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parseToString(s));
 }
 
 const char *cabocha_sparse_tostr2(cabocha_t *c, const char *s, size_t len) {
-  CABOCHA_CHECK_FIRST_ARG(c, t);
-  return const_cast<char*>(t->parseToString(s, len));
+  return const_cast<char*>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parseToString(s, len));
 }
 
 const char *cabocha_sparse_tostr3(cabocha_t *c, const char *s, size_t len,
                                   char *s2,  size_t len2) {
-  CABOCHA_CHECK_FIRST_ARG(c, t);
-  return const_cast<char*>(t->parseToString(s, len, s2, len2));
+  return const_cast<char*>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parseToString(s, len, s2, len2));
 }
 
 const cabocha_tree_t *cabocha_sparse_totree(cabocha_t* c, const char *s) {
-  CABOCHA_CHECK_FIRST_ARG(c, t);
-  return reinterpret_cast<const cabocha_tree_t *> (t->parse(s));
+  return reinterpret_cast<const cabocha_tree_t *>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parse(s));
 }
 
 const cabocha_tree_t *cabocha_sparse_totree2(cabocha_t* c,
                                              const char *s, size_t len) {
-  CABOCHA_CHECK_FIRST_ARG(c, t);
-  return reinterpret_cast<const cabocha_tree_t *> (t->parse(s, len));
+  return reinterpret_cast<const cabocha_tree_t *>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parse(s, len));
 }
 
 cabocha_tree_t *cabocha_tree_new() {
   CaboCha::Tree *t = new CaboCha::Tree;
   return reinterpret_cast<cabocha_tree_t *>(t);
 }
+
 void cabocha_tree_destroy(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  delete t2;
-  t2 = 0;
+  CaboCha::Tree* tree = reinterpret_cast<CaboCha::Tree *>(t);
+  delete tree;
 }
 
 int cabocha_tree_empty(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return static_cast<int>(t2->empty());
+  return reinterpret_cast<CaboCha::Tree *>(t)->empty();
 }
 
 void cabocha_tree_clear(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->clear();
+  return reinterpret_cast<CaboCha::Tree *>(t)->clear();;
 }
 
 void cabocha_tree_clear_chunk(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->clear_chunk();
+  return reinterpret_cast<CaboCha::Tree *>(t)->clear_chunk();
 }
 
 size_t cabocha_tree_size(cabocha_tree_t* t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *> (t);
-  return t2->size();
+  return reinterpret_cast<CaboCha::Tree *>(t)->size();
 }
 
 size_t cabocha_tree_chunk_size(cabocha_tree_t* t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *> (t);
-  return t2->chunk_size();
+  return reinterpret_cast<CaboCha::Tree *>(t)->chunk_size();
 }
 
 size_t cabocha_tree_token_size(cabocha_tree_t* t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *> (t);
-  return t2->token_size();
+  return reinterpret_cast<CaboCha::Tree *>(t)->token_size();
 }
 
 const char *cabocha_tree_sentence(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->sentence();
+  return reinterpret_cast<CaboCha::Tree *>(t)->sentence();
 }
 
 size_t cabocha_tree_sentence_size(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->sentence_size();
+  return reinterpret_cast<CaboCha::Tree *>(t)->sentence_size();
 }
 
 void cabocha_tree_set_sentence(cabocha_tree_t *t,
                                const char *sentence,
                                size_t length) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->set_sentence(sentence, length);
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_sentence(sentence, length);
 }
 
 int cabocha_tree_read(cabocha_tree_t *t ,
                       const char *input,
                       size_t length,
                       cabocha_input_layer_t input_layer) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->read(input, length, input_layer);
+  return reinterpret_cast<CaboCha::Tree *>(t)->read(input, length, input_layer);
 }
 
 int cabocha_tree_read_from_mecab_node(cabocha_tree_t *t ,
                                       const mecab_node_t *node) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->read(node);
+  return reinterpret_cast<CaboCha::Tree *>(t)->read(node);
 }
 
 const cabocha_token_t *cabocha_tree_token(cabocha_tree_t *t, size_t i) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return reinterpret_cast<const cabocha_token_t *>(t2->token(i));
+  return reinterpret_cast<const cabocha_token_t *>(
+      reinterpret_cast<CaboCha::Tree *>(t)->token(i));
 }
 
 const cabocha_chunk_t *cabocha_tree_chunk(cabocha_tree_t *t, size_t i) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return reinterpret_cast<const cabocha_chunk_t *>(t2->chunk(i));
+  return reinterpret_cast<const cabocha_chunk_t *>(
+      reinterpret_cast<CaboCha::Tree *>(t)->chunk(i));
 }
 
 cabocha_token_t *cabocha_tree_add_token(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return reinterpret_cast<cabocha_token_t *>(t2->add_token());
+  return reinterpret_cast<cabocha_token_t *>(
+      reinterpret_cast<CaboCha::Tree *>(t)->add_token());
 }
 
 cabocha_chunk_t *cabocha_tree_add_chunk(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return reinterpret_cast<cabocha_chunk_t *>(t2->add_chunk());
+  return reinterpret_cast<cabocha_chunk_t *>(
+      reinterpret_cast<CaboCha::Tree *>(t)->add_chunk());
 }
 
 char            *cabocha_tree_strdup(cabocha_tree_t* t, const char *str) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->strdup(str);
+  return reinterpret_cast<CaboCha::Tree *>(t)->strdup(str);
 }
 
 char            *cabocha_tree_alloc(cabocha_tree_t* t, size_t size) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->alloc(size);
+  return reinterpret_cast<CaboCha::Tree *>(t)->alloc(size);
 }
 
 const char *cabocha_tree_tostr(cabocha_tree_t* t, cabocha_format_t fmt) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->toString(fmt);
+  return reinterpret_cast<CaboCha::Tree *>(t)->toString(fmt);
 }
 
 const char *cabocha_tree_tostr2(cabocha_tree_t* t, cabocha_format_t fmt,
                                 char *out, size_t len) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->toString(fmt, out, len);
+  return reinterpret_cast<CaboCha::Tree *>(t)->toString(fmt, out, len);
 }
 
 void cabocha_tree_set_charset(cabocha_tree_t* t,
                               cabocha_charset_t charset) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->set_charset(charset);
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_charset(charset);
 }
 
 cabocha_charset_t cabocha_tree_charset(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->charset();
+  return reinterpret_cast<CaboCha::Tree *>(t)->charset();
 }
 
 void cabocha_tree_set_posset(cabocha_tree_t *t,
                              cabocha_posset_t posset) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->set_posset(posset);
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_posset(posset);
 }
 
 cabocha_posset_t cabocha_tree_posset(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->posset();
+  return reinterpret_cast<CaboCha::Tree *>(t)->posset();
 }
 
 void cabocha_tree_set_output_layer(cabocha_tree_t *t,
                                    cabocha_output_layer_t output_layer) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->set_output_layer(output_layer);
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_output_layer(output_layer);
 }
 
 cabocha_output_layer_t cabocha_tree_output_layer(cabocha_tree_t *t) {
-  CaboCha::Tree* t2 = reinterpret_cast<CaboCha::Tree *>(t);
-  return t2->output_layer();
+  return reinterpret_cast<CaboCha::Tree *>(t)->output_layer();
 }
-

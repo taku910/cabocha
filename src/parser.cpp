@@ -138,7 +138,7 @@ class ParserImpl: public Parser {
   const char *what() { return what_.str(); }
   const char *version();
 
-  ParserImpl(): tree_(new Tree),
+  ParserImpl(): tree_(0),
                 output_format_(FORMAT_TREE),
                 input_layer_(INPUT_RAW_SENTENCE),
                 output_layer_(OUTPUT_DEP),
@@ -371,12 +371,18 @@ const Tree* ParserImpl::parse(const char *str, size_t len) {
   }
   // Set charset/posset, bacause Tree::read() may depend on
   // these parameters.
+  if (!tree_.get()) {
+    tree_.reset(new Tree);
+  }
+
   tree_->set_charset(charset_);
   tree_->set_posset(posset_);
+
   if (!tree_->read(str, len, input_layer_)) {
     WHAT << "format error: [" << str << "] ";
     return 0;
   }
+
   if (!parse(tree_.get())) {
     WHAT << tree_->what();
     return 0;
