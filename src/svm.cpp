@@ -284,25 +284,24 @@ bool SVM::open(const char *filename) {
   CHECK_FALSE(ptr == mmap_.end())
       << "dictionary file is broken: " << filename;
 
-  dot_buf_.reserve(8192);
-
   return true;
 }
 
-double SVM::classify(size_t argc, char **argv) {
-  dot_buf_.clear();
+double SVM::classify(size_t argc, char **argv) const {
+  std::vector<int> dot_buf;
+  dot_buf.reserve(argc);
   for (size_t i = 0; i < argc; ++i) {
     const int r =
         da_.exactMatchSearch<Darts::DoubleArray::result_type>(argv[i]);
     if (r != -1) {
-      dot_buf_.push_back(r);
+      dot_buf.push_back(r);
     }
   }
-  std::sort(dot_buf_.begin(), dot_buf_.end());
-  return classify(dot_buf_);
+  std::sort(dot_buf.begin(), dot_buf.end());
+  return classify(dot_buf);
 }
 
-double SVM::classify(const std::vector<int> &ary) {
+double SVM::classify(const std::vector<int> &ary) const {
   const size_t size = ary.size();
   size_t p = 0;
   int r = 0;
@@ -569,7 +568,7 @@ double SVMTest::classify(const std::vector<int> &ary) const {
   return result;
 }
 
-double SVMTest::classify(size_t argc, char **argv) {
+double SVMTest::classify(size_t argc, char **argv) const {
   std::vector<int> ary;
   for (size_t i = 0; i < argc; ++i) {
     std::map<std::string, int>::const_iterator it = dic_.find(argv[i]);
