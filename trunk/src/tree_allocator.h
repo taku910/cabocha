@@ -21,7 +21,7 @@ struct crfpp_t;
 namespace CaboCha {
 
 class StringBuffer;
-class DependencyParserData;
+struct DependencyParserData;
 
 class TreeAllocator {
  public:
