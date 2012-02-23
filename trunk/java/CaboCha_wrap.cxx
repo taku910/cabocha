@@ -448,7 +448,6 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_Token_1surface_1ge
   arg1 = *(cabocha_token_t **)&jarg1; 
   result = (char *) ((arg1)->surface);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
-  delete [] result;
   return jresult;
 }
 
@@ -1467,7 +1466,7 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEn
   
   (void)jenv;
   (void)jcls;
-  result = (char *) "0.61\30";
+  result = (char *) "0.61";
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }

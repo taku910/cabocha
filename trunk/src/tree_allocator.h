@@ -12,6 +12,7 @@
 #include "common.h"
 #include "freelist.h"
 #include "morph.h"
+#include "scoped_ptr.h"
 #include "string_buffer.h"
 
 struct mecab_lattice_t;
@@ -19,6 +20,7 @@ struct crfpp_t;
 
 namespace CaboCha {
 
+class StringBuffer;
 class DependencyParserData;
 
 class TreeAllocator {
@@ -53,13 +55,13 @@ class TreeAllocator {
   const char *what();
 
  private:
-  FreeList<char>   char_freelist_;
-  FreeList<Token>  token_freelist_;
-  FreeList<Chunk>  chunk_freelist_;
-  FreeList<char *> char_array_freelist_;
-  StringBuffer     os_;
-  std::ostream    *stream_;
-  whatlog          what_;
+  FreeList<char>            char_freelist_;
+  FreeList<Token>           token_freelist_;
+  FreeList<Chunk>           chunk_freelist_;
+  FreeList<char *>          char_array_freelist_;
+  scoped_ptr<StringBuffer>  os_;
+  std::ostream             *stream_;
+  whatlog                   what_;
 };
 }
 #endif

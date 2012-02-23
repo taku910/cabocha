@@ -50,7 +50,9 @@ void TreeAllocator::free() {
   token_freelist_.free();
   chunk_freelist_.free();
   char_array_freelist_.free();
-  os_.clear();
+  if (os_.get()) {
+    os_->clear();
+  }
   if (mecab_lattice) {
     MorphAnalyzer::clearMeCabLattice(mecab_lattice);
   }
@@ -95,7 +97,10 @@ Token* TreeAllocator::allocToken() {
 }
 
 StringBuffer *TreeAllocator::mutable_string_buffer() {
-  return &os_;
+  if (!os_.get()) {
+    os_.reset(new StringBuffer);
+  }
+  return os_.get();
 }
 
 std::ostream *TreeAllocator::stream() const {

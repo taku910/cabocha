@@ -19,7 +19,6 @@ int main (int argc, char **argv) {
   const CaboCha::Tree *tree = parser->parse (p);
   CHECK(tree);
 
-  std::cout << tree->toString(FORMAT_TREE);
 
   size_t cid = 0;
   for (size_t i = 0; i < tree->token_size(); ++i) {

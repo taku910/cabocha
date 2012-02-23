@@ -3418,7 +3418,6 @@ SWIGINTERN PyObject *_wrap_Token_surface_get(PyObject *SWIGUNUSEDPARM(self), PyO
   arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
   result = (char *) ((arg1)->surface);
   resultobj = SWIG_FromCharPtr((const char *)result);
-  delete[] result;
   return resultobj;
 fail:
   return NULL;
@@ -5482,7 +5481,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(TRAIN_NE)));
   SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(TRAIN_CHUNK)));
   SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(TRAIN_DEP)));
-  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.61\30"));
+  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.61"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else
