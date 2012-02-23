@@ -4,8 +4,6 @@
 #include "cabocha.h"
 %}
 
-%newobject surface;
-
 %exception {
   try { $action }
   catch (char *e) { SWIG_exception (SWIG_RuntimeError, e); }

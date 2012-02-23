@@ -2344,7 +2344,6 @@ _wrap_Token_surface_get(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
   result = (char *) ((arg1)->surface);
   vresult = SWIG_FromCharPtr((const char *)result);
-  delete[] result;
   return vresult;
 fail:
   return Qnil;
@@ -4120,6 +4119,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
   rb_define_module_function(mCaboCha, "getLastError", VALUEFUNC(_wrap_getLastError), -1);
-  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.61\30"));
+  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.61"));
 }
 

@@ -2217,7 +2217,6 @@ XS(_wrap_Token_surface_get) {
     result = (char *) ((arg1)->surface);
     ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
     
-    delete[] result;
     XSRETURN(argvi);
   fail:
     
@@ -4345,7 +4344,7 @@ XS(SWIG_init) {
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Parser, (void*) "CaboCha::Parser");
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "VERSION", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_FromCharPtr("0.61\30"));
+    sv_setsv(sv, SWIG_FromCharPtr("0.61"));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   ST(0) = &PL_sv_yes;
