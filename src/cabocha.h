@@ -107,6 +107,8 @@ extern "C" {
   CABOCHA_DLL_EXTERN cabocha_t             *cabocha_new(int argc, char **argv);
   CABOCHA_DLL_EXTERN cabocha_t             *cabocha_new2(const char *arg);
   CABOCHA_DLL_EXTERN const char            *cabocha_strerror(cabocha_t* cabocha);
+  CABOCHA_DLL_EXTERN const cabocha_tree_t  *cabocha_parse_tree(cabocha_t *cabocha,
+                                                               cabocha_tree_t *tree);
   CABOCHA_DLL_EXTERN const char            *cabocha_sparse_tostr(cabocha_t* cabocha,
                                                                  const char* str);
   CABOCHA_DLL_EXTERN const char            *cabocha_sparse_tostr2(cabocha_t* cabocha,
