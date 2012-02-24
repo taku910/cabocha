@@ -89,7 +89,7 @@ CABOCHA_USE_UTF8_ONLY =
 CC = gcc
 CCDEPMODE = depmode=none
 CFLAGS = -O3  -Wno-deprecated -Wall
-CHARSET = utf8
+CHARSET = EUC-JP
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
@@ -125,7 +125,7 @@ LN_S = ln -s
 LTLIBICONV = 
 LTLIBOBJS = 
 LTVERSION = 4:0:0
-MAINT = #
+MAINT = 
 MAKEINFO = ${SHELL} /home/taku/proj/cabocha/missing --run makeinfo
 MANIFEST_TOOL = :
 MECAB_CFLAGS = 
@@ -212,7 +212,7 @@ EXTRA_DIST = $(man_MANS)
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -237,9 +237,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure: # $(am__configure_deps)
+$(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
