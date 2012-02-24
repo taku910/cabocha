@@ -151,6 +151,13 @@ const char *cabocha_sparse_tostr(cabocha_t *c, const char *s) {
       reinterpret_cast<CaboCha::Parser *>(c)->parseToString(s));
 }
 
+const cabocha_tree_t  *cabocha_parse_tree(cabocha_t *c,
+                                          cabocha_tree_t *tree) {
+  return reinterpret_cast<const cabocha_tree_t *>(
+      reinterpret_cast<CaboCha::Parser *>(c)->parse(
+          reinterpret_cast<CaboCha::Tree *>(tree)));
+}
+
 const char *cabocha_sparse_tostr2(cabocha_t *c, const char *s, size_t len) {
   return const_cast<char*>(
       reinterpret_cast<CaboCha::Parser *>(c)->parseToString(s, len));
