@@ -1466,7 +1466,7 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEn
   
   (void)jenv;
   (void)jcls;
-  result = (char *) "0.61";
+  result = (char *) "0.62";
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }

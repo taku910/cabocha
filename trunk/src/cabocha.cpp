@@ -4,6 +4,7 @@
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
 #include "cabocha.h"
+#include "winmain.h"
 
 int main(int argc, char**argv) {
   return cabocha_do (argc, argv);

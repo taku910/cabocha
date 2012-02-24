@@ -11,7 +11,7 @@ libcabocha_la_SOURCES = analyzer.h cabocha.h char_category.h chunk_learner.cpp c
 	selector.cpp tree_allocator.cpp \
 	selector.h selector_pat.h stream_wrapper.h string_buffer.cpp string_buffer.h svm.cpp \
 	svm.h svm_learn.cpp svm_learn.h  timer.h  tree.cpp  tree_allocator.h ucs.cpp ucs.h \
-	ucstable.h utils.cpp utils.h
+	ucstable.h utils.cpp utils.h winmain.h
 
 include_HEADERS = cabocha.h
 bin_PROGRAMS    = cabocha
