@@ -9,11 +9,11 @@
 package org.chasen.cabocha;
 
 public final class InputLayerType {
-  public final static InputLayerType INPUT_RAW_SENTENCE = new InputLayerType("INPUT_RAW_SENTENCE");
-  public final static InputLayerType INPUT_POS = new InputLayerType("INPUT_POS");
-  public final static InputLayerType INPUT_CHUNK = new InputLayerType("INPUT_CHUNK");
-  public final static InputLayerType INPUT_SELECTION = new InputLayerType("INPUT_SELECTION");
-  public final static InputLayerType INPUT_DEP = new InputLayerType("INPUT_DEP");
+  public final static InputLayerType INPUT_RAW_SENTENCE = new InputLayerType("INPUT_RAW_SENTENCE", CaboChaJNI.INPUT_RAW_SENTENCE_get());
+  public final static InputLayerType INPUT_POS = new InputLayerType("INPUT_POS", CaboChaJNI.INPUT_POS_get());
+  public final static InputLayerType INPUT_CHUNK = new InputLayerType("INPUT_CHUNK", CaboChaJNI.INPUT_CHUNK_get());
+  public final static InputLayerType INPUT_SELECTION = new InputLayerType("INPUT_SELECTION", CaboChaJNI.INPUT_SELECTION_get());
+  public final static InputLayerType INPUT_DEP = new InputLayerType("INPUT_DEP", CaboChaJNI.INPUT_DEP_get());
 
   public final int swigValue() {
     return swigValue;

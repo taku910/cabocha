@@ -9,11 +9,11 @@
 package org.chasen.cabocha;
 
 public final class OutputLayerType {
-  public final static OutputLayerType OUTPUT_RAW_SENTENCE = new OutputLayerType("OUTPUT_RAW_SENTENCE");
-  public final static OutputLayerType OUTPUT_POS = new OutputLayerType("OUTPUT_POS");
-  public final static OutputLayerType OUTPUT_CHUNK = new OutputLayerType("OUTPUT_CHUNK");
-  public final static OutputLayerType OUTPUT_SELECTION = new OutputLayerType("OUTPUT_SELECTION");
-  public final static OutputLayerType OUTPUT_DEP = new OutputLayerType("OUTPUT_DEP");
+  public final static OutputLayerType OUTPUT_RAW_SENTENCE = new OutputLayerType("OUTPUT_RAW_SENTENCE", CaboChaJNI.OUTPUT_RAW_SENTENCE_get());
+  public final static OutputLayerType OUTPUT_POS = new OutputLayerType("OUTPUT_POS", CaboChaJNI.OUTPUT_POS_get());
+  public final static OutputLayerType OUTPUT_CHUNK = new OutputLayerType("OUTPUT_CHUNK", CaboChaJNI.OUTPUT_CHUNK_get());
+  public final static OutputLayerType OUTPUT_SELECTION = new OutputLayerType("OUTPUT_SELECTION", CaboChaJNI.OUTPUT_SELECTION_get());
+  public final static OutputLayerType OUTPUT_DEP = new OutputLayerType("OUTPUT_DEP", CaboChaJNI.OUTPUT_DEP_get());
 
   public final int swigValue() {
     return swigValue;

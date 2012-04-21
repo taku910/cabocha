@@ -2688,20 +2688,14 @@ SWIG_Python_MustGetPtr(PyObject *obj, swig_type_info *ty, int argnum, int flags)
 
 #define SWIGTYPE_p_CaboCha__Parser swig_types[0]
 #define SWIGTYPE_p_CaboCha__Tree swig_types[1]
-#define SWIGTYPE_p_cabocha_charset_t swig_types[2]
-#define SWIGTYPE_p_cabocha_chunk_t swig_types[3]
-#define SWIGTYPE_p_cabocha_format_t swig_types[4]
-#define SWIGTYPE_p_cabocha_input_layer_t swig_types[5]
-#define SWIGTYPE_p_cabocha_output_layer_t swig_types[6]
-#define SWIGTYPE_p_cabocha_parser_t swig_types[7]
-#define SWIGTYPE_p_cabocha_posset_t swig_types[8]
-#define SWIGTYPE_p_cabocha_t swig_types[9]
-#define SWIGTYPE_p_cabocha_token_t swig_types[10]
-#define SWIGTYPE_p_cabocha_tree_t swig_types[11]
-#define SWIGTYPE_p_char swig_types[12]
-#define SWIGTYPE_p_mecab_node_t swig_types[13]
-static swig_type_info *swig_types[15];
-static swig_module_info swig_module = {swig_types, 14, 0, 0, 0, 0};
+#define SWIGTYPE_p_cabocha_chunk_t swig_types[2]
+#define SWIGTYPE_p_cabocha_t swig_types[3]
+#define SWIGTYPE_p_cabocha_token_t swig_types[4]
+#define SWIGTYPE_p_cabocha_tree_t swig_types[5]
+#define SWIGTYPE_p_char swig_types[6]
+#define SWIGTYPE_p_mecab_node_t swig_types[7]
+static swig_type_info *swig_types[9];
+static swig_module_info swig_module = {swig_types, 8, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4803,13 +4797,7 @@ static PyMethodDef SwigMethods[] = {
 
 static swig_type_info _swigt__p_CaboCha__Parser = {"_p_CaboCha__Parser", "CaboCha::Parser *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_CaboCha__Tree = {"_p_CaboCha__Tree", "CaboCha::Tree *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_charset_t = {"_p_cabocha_charset_t", "CaboCha::CharsetType *|enum cabocha_charset_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_chunk_t = {"_p_cabocha_chunk_t", "cabocha_chunk_t *|CaboCha::Chunk *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_format_t = {"_p_cabocha_format_t", "CaboCha::FormatType *|enum cabocha_format_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_input_layer_t = {"_p_cabocha_input_layer_t", "CaboCha::InputLayerType *|enum cabocha_input_layer_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_output_layer_t = {"_p_cabocha_output_layer_t", "CaboCha::OutputLayerType *|enum cabocha_output_layer_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_parser_t = {"_p_cabocha_parser_t", "CaboCha::ParserType *|enum cabocha_parser_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_posset_t = {"_p_cabocha_posset_t", "CaboCha::PossetType *|enum cabocha_posset_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_t = {"_p_cabocha_t", "cabocha_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_token_t = {"_p_cabocha_token_t", "cabocha_token_t *|CaboCha::Token *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_tree_t = {"_p_cabocha_tree_t", "cabocha_tree_t *", 0, 0, (void*)0, 0};
@@ -4819,13 +4807,7 @@ static swig_type_info _swigt__p_mecab_node_t = {"_p_mecab_node_t", "mecab_node_t
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_CaboCha__Parser,
   &_swigt__p_CaboCha__Tree,
-  &_swigt__p_cabocha_charset_t,
   &_swigt__p_cabocha_chunk_t,
-  &_swigt__p_cabocha_format_t,
-  &_swigt__p_cabocha_input_layer_t,
-  &_swigt__p_cabocha_output_layer_t,
-  &_swigt__p_cabocha_parser_t,
-  &_swigt__p_cabocha_posset_t,
   &_swigt__p_cabocha_t,
   &_swigt__p_cabocha_token_t,
   &_swigt__p_cabocha_tree_t,
@@ -4835,13 +4817,7 @@ static swig_type_info *swig_type_initial[] = {
 
 static swig_cast_info _swigc__p_CaboCha__Parser[] = {  {&_swigt__p_CaboCha__Parser, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CaboCha__Tree[] = {  {&_swigt__p_CaboCha__Tree, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_charset_t[] = {  {&_swigt__p_cabocha_charset_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_chunk_t[] = {  {&_swigt__p_cabocha_chunk_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_format_t[] = {  {&_swigt__p_cabocha_format_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_input_layer_t[] = {  {&_swigt__p_cabocha_input_layer_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_output_layer_t[] = {  {&_swigt__p_cabocha_output_layer_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_parser_t[] = {  {&_swigt__p_cabocha_parser_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_posset_t[] = {  {&_swigt__p_cabocha_posset_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_t[] = {  {&_swigt__p_cabocha_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_token_t[] = {  {&_swigt__p_cabocha_token_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_tree_t[] = {  {&_swigt__p_cabocha_tree_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -4851,13 +4827,7 @@ static swig_cast_info _swigc__p_mecab_node_t[] = {  {&_swigt__p_mecab_node_t, 0,
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_CaboCha__Parser,
   _swigc__p_CaboCha__Tree,
-  _swigc__p_cabocha_charset_t,
   _swigc__p_cabocha_chunk_t,
-  _swigc__p_cabocha_format_t,
-  _swigc__p_cabocha_input_layer_t,
-  _swigc__p_cabocha_output_layer_t,
-  _swigc__p_cabocha_parser_t,
-  _swigc__p_cabocha_posset_t,
   _swigc__p_cabocha_t,
   _swigc__p_cabocha_token_t,
   _swigc__p_cabocha_tree_t,
@@ -5456,31 +5426,56 @@ SWIG_init(void) {
   SWIG_InstallConstants(d,swig_const_table);
   
   
-  SWIG_Python_SetConstant(d, "EUC_JP",SWIG_From_int(static_cast< int >(EUC_JP)));
-  SWIG_Python_SetConstant(d, "CP932",SWIG_From_int(static_cast< int >(CP932)));
-  SWIG_Python_SetConstant(d, "UTF8",SWIG_From_int(static_cast< int >(UTF8)));
-  SWIG_Python_SetConstant(d, "ASCII",SWIG_From_int(static_cast< int >(ASCII)));
-  SWIG_Python_SetConstant(d, "IPA",SWIG_From_int(static_cast< int >(IPA)));
-  SWIG_Python_SetConstant(d, "JUMAN",SWIG_From_int(static_cast< int >(JUMAN)));
-  SWIG_Python_SetConstant(d, "UNIDIC",SWIG_From_int(static_cast< int >(UNIDIC)));
-  SWIG_Python_SetConstant(d, "FORMAT_TREE",SWIG_From_int(static_cast< int >(FORMAT_TREE)));
-  SWIG_Python_SetConstant(d, "FORMAT_LATTICE",SWIG_From_int(static_cast< int >(FORMAT_LATTICE)));
-  SWIG_Python_SetConstant(d, "FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(FORMAT_TREE_LATTICE)));
-  SWIG_Python_SetConstant(d, "FORMAT_XML",SWIG_From_int(static_cast< int >(FORMAT_XML)));
-  SWIG_Python_SetConstant(d, "FORMAT_NONE",SWIG_From_int(static_cast< int >(FORMAT_NONE)));
-  SWIG_Python_SetConstant(d, "INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(INPUT_RAW_SENTENCE)));
-  SWIG_Python_SetConstant(d, "INPUT_POS",SWIG_From_int(static_cast< int >(INPUT_POS)));
-  SWIG_Python_SetConstant(d, "INPUT_CHUNK",SWIG_From_int(static_cast< int >(INPUT_CHUNK)));
-  SWIG_Python_SetConstant(d, "INPUT_SELECTION",SWIG_From_int(static_cast< int >(INPUT_SELECTION)));
-  SWIG_Python_SetConstant(d, "INPUT_DEP",SWIG_From_int(static_cast< int >(INPUT_DEP)));
-  SWIG_Python_SetConstant(d, "OUTPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(OUTPUT_RAW_SENTENCE)));
-  SWIG_Python_SetConstant(d, "OUTPUT_POS",SWIG_From_int(static_cast< int >(OUTPUT_POS)));
-  SWIG_Python_SetConstant(d, "OUTPUT_CHUNK",SWIG_From_int(static_cast< int >(OUTPUT_CHUNK)));
-  SWIG_Python_SetConstant(d, "OUTPUT_SELECTION",SWIG_From_int(static_cast< int >(OUTPUT_SELECTION)));
-  SWIG_Python_SetConstant(d, "OUTPUT_DEP",SWIG_From_int(static_cast< int >(OUTPUT_DEP)));
-  SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(TRAIN_NE)));
-  SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(TRAIN_CHUNK)));
-  SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(TRAIN_DEP)));
+  SWIG_Python_SetConstant(d, "CABOCHA_EUC_JP",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_CP932",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_UTF8",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_ASCII",SWIG_From_int(static_cast< int >(3)));
+  SWIG_Python_SetConstant(d, "CABOCHA_IPA",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_JUMAN",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_UNIDIC",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_LATTICE",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_XML",SWIG_From_int(static_cast< int >(3)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_NONE",SWIG_From_int(static_cast< int >(4)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_POS",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_CHUNK",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_SELECTION",SWIG_From_int(static_cast< int >(3)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_DEP",SWIG_From_int(static_cast< int >(4)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_POS",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_CHUNK",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_SELECTION",SWIG_From_int(static_cast< int >(3)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_DEP",SWIG_From_int(static_cast< int >(4)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_NE",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_CHUNK",SWIG_From_int(static_cast< int >(1)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_DEP",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "EUC_JP",SWIG_From_int(static_cast< int >(CaboCha::EUC_JP)));
+  SWIG_Python_SetConstant(d, "CP932",SWIG_From_int(static_cast< int >(CaboCha::CP932)));
+  SWIG_Python_SetConstant(d, "UTF8",SWIG_From_int(static_cast< int >(CaboCha::UTF8)));
+  SWIG_Python_SetConstant(d, "ASCII",SWIG_From_int(static_cast< int >(CaboCha::ASCII)));
+  SWIG_Python_SetConstant(d, "IPA",SWIG_From_int(static_cast< int >(CaboCha::IPA)));
+  SWIG_Python_SetConstant(d, "JUMAN",SWIG_From_int(static_cast< int >(CaboCha::JUMAN)));
+  SWIG_Python_SetConstant(d, "UNIDIC",SWIG_From_int(static_cast< int >(CaboCha::UNIDIC)));
+  SWIG_Python_SetConstant(d, "FORMAT_TREE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_TREE)));
+  SWIG_Python_SetConstant(d, "FORMAT_LATTICE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_LATTICE)));
+  SWIG_Python_SetConstant(d, "FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_TREE_LATTICE)));
+  SWIG_Python_SetConstant(d, "FORMAT_XML",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_XML)));
+  SWIG_Python_SetConstant(d, "FORMAT_NONE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_NONE)));
+  SWIG_Python_SetConstant(d, "INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CaboCha::INPUT_RAW_SENTENCE)));
+  SWIG_Python_SetConstant(d, "INPUT_POS",SWIG_From_int(static_cast< int >(CaboCha::INPUT_POS)));
+  SWIG_Python_SetConstant(d, "INPUT_CHUNK",SWIG_From_int(static_cast< int >(CaboCha::INPUT_CHUNK)));
+  SWIG_Python_SetConstant(d, "INPUT_SELECTION",SWIG_From_int(static_cast< int >(CaboCha::INPUT_SELECTION)));
+  SWIG_Python_SetConstant(d, "INPUT_DEP",SWIG_From_int(static_cast< int >(CaboCha::INPUT_DEP)));
+  SWIG_Python_SetConstant(d, "OUTPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CaboCha::OUTPUT_RAW_SENTENCE)));
+  SWIG_Python_SetConstant(d, "OUTPUT_POS",SWIG_From_int(static_cast< int >(CaboCha::OUTPUT_POS)));
+  SWIG_Python_SetConstant(d, "OUTPUT_CHUNK",SWIG_From_int(static_cast< int >(CaboCha::OUTPUT_CHUNK)));
+  SWIG_Python_SetConstant(d, "OUTPUT_SELECTION",SWIG_From_int(static_cast< int >(CaboCha::OUTPUT_SELECTION)));
+  SWIG_Python_SetConstant(d, "OUTPUT_DEP",SWIG_From_int(static_cast< int >(CaboCha::OUTPUT_DEP)));
+  SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_NE)));
+  SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_CHUNK)));
+  SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
   SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.62"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;

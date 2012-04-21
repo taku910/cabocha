@@ -25,41 +25,47 @@ extern "C" {
 #  define CABOCHA_DLL_EXTERN extern
 #endif
 
-  enum cabocha_charset_t {
-    EUC_JP, CP932, UTF8, ASCII
-  };
-  enum cabocha_posset_t  {
-    IPA, JUMAN, UNIDIC
-  };
-
-  enum cabocha_format_t {
-    FORMAT_TREE,
-    FORMAT_LATTICE,
-    FORMAT_TREE_LATTICE,
-    FORMAT_XML,
-    FORMAT_NONE
+  enum {
+    CABOCHA_EUC_JP = 0,
+    CABOCHA_CP932  = 1,
+    CABOCHA_UTF8   = 2,
+    CABOCHA_ASCII  = 3
   };
 
-  enum cabocha_input_layer_t {
-    INPUT_RAW_SENTENCE,
-    INPUT_POS,
-    INPUT_CHUNK,
-    INPUT_SELECTION,
-    INPUT_DEP
+  enum {
+    CABOCHA_IPA    = 0,
+    CABOCHA_JUMAN  = 1,
+    CABOCHA_UNIDIC = 2
   };
 
-  enum cabocha_output_layer_t {
-    OUTPUT_RAW_SENTENCE,
-    OUTPUT_POS,
-    OUTPUT_CHUNK,
-    OUTPUT_SELECTION,
-    OUTPUT_DEP
+  enum {
+    CABOCHA_FORMAT_TREE         = 0,
+    CABOCHA_FORMAT_LATTICE      = 1,
+    CABOCHA_FORMAT_TREE_LATTICE = 2,
+    CABOCHA_FORMAT_XML          = 3,
+    CABOCHA_FORMAT_NONE         = 4
   };
 
-  enum cabocha_parser_t {
-    TRAIN_NE,
-    TRAIN_CHUNK,
-    TRAIN_DEP
+  enum {
+    CABOCHA_INPUT_RAW_SENTENCE  = 0,
+    CABOCHA_INPUT_POS           = 1,
+    CABOCHA_INPUT_CHUNK         = 2,
+    CABOCHA_INPUT_SELECTION     = 3,
+    CABOCHA_INPUT_DEP           = 4
+  };
+
+  enum {
+    CABOCHA_OUTPUT_RAW_SENTENCE = 0,
+    CABOCHA_OUTPUT_POS          = 1,
+    CABOCHA_OUTPUT_CHUNK        = 2,
+    CABOCHA_OUTPUT_SELECTION    = 3,
+    CABOCHA_OUTPUT_DEP          = 4
+  };
+
+  enum {
+    CABOCHA_TRAIN_NE    = 0,
+    CABOCHA_TRAIN_CHUNK = 1,
+    CABOCHA_TRAIN_DEP   = 2,
   };
 
   typedef struct cabocha_t cabocha_t;
@@ -92,13 +98,6 @@ extern "C" {
   typedef struct cabocha_chunk_t cabocha_chunk_t;
   typedef struct cabocha_token_t cabocha_token_t;
   typedef struct mecab_node_t mecab_node_t;
-
-  typedef enum cabocha_charset_t cabocha_charset_t;
-  typedef enum cabocha_posset_t cabocha_posset_t;
-  typedef enum cabocha_format_t cabocha_format_t;
-  typedef enum cabocha_input_layer_t cabocha_input_layer_t;
-  typedef enum cabocha_output_layer_t cabocha_output_layer_t;
-  typedef enum cabocha_parser_t cabocha_parser_t;
 
 #ifndef SWIG
   CABOCHA_DLL_EXTERN int                    cabocha_do(int argc, char **argv);
@@ -136,7 +135,7 @@ extern "C" {
   CABOCHA_DLL_EXTERN int                   cabocha_tree_read(cabocha_tree_t* tree,
                                                              const char *input,
                                                              size_t length,
-                                                             cabocha_input_layer_t input_layer);
+                                                             int input_layer);
   CABOCHA_DLL_EXTERN int                   cabocha_tree_read_from_mecab_node(cabocha_tree_t* tree,
                                                                              const mecab_node_t *node);
 
@@ -149,19 +148,19 @@ extern "C" {
   CABOCHA_DLL_EXTERN char                  *cabocha_tree_strdup(cabocha_tree_t* tree, const char *str);
   CABOCHA_DLL_EXTERN char                  *cabocha_tree_alloc(cabocha_tree_t* tree, size_t size);
 
-  CABOCHA_DLL_EXTERN const char            *cabocha_tree_tostr(cabocha_tree_t* tree, cabocha_format_t format);
-  CABOCHA_DLL_EXTERN const char            *cabocha_tree_tostr2(cabocha_tree_t* tree, cabocha_format_t format,
+  CABOCHA_DLL_EXTERN const char            *cabocha_tree_tostr(cabocha_tree_t* tree, int format);
+  CABOCHA_DLL_EXTERN const char            *cabocha_tree_tostr2(cabocha_tree_t* tree, int format,
                                                                 char *str, size_t length);
 
   CABOCHA_DLL_EXTERN void                   cabocha_tree_set_charset(cabocha_tree_t* tree,
-                                                                     cabocha_charset_t charset);
-  CABOCHA_DLL_EXTERN cabocha_charset_t      cabocha_tree_charset(cabocha_tree_t* tree);
+                                                                     int charset);
+  CABOCHA_DLL_EXTERN int                    cabocha_tree_charset(cabocha_tree_t* tree);
   CABOCHA_DLL_EXTERN void                   cabocha_tree_set_posset(cabocha_tree_t* tree,
-                                                                    cabocha_posset_t posset);
-  CABOCHA_DLL_EXTERN cabocha_posset_t       cabocha_tree_posset(cabocha_tree_t* tree);
+                                                                    int posset);
+  CABOCHA_DLL_EXTERN int                    cabocha_tree_posset(cabocha_tree_t* tree);
   CABOCHA_DLL_EXTERN void                   cabocha_tree_set_output_layer(cabocha_tree_t* tree,
-                                                                          cabocha_output_layer_t output_layer);
-  CABOCHA_DLL_EXTERN cabocha_output_layer_t cabocha_tree_output_layer(cabocha_tree_t* tree);
+                                                                          int output_layer);
+  CABOCHA_DLL_EXTERN int                    cabocha_tree_output_layer(cabocha_tree_t* tree);
 
   CABOCHA_DLL_EXTERN int                    cabocha_learn(int argc, char **argv);
   CABOCHA_DLL_EXTERN int                    cabocha_system_eval(int argc, char **argv);
@@ -181,12 +180,48 @@ class Tree;
 typedef struct cabocha_chunk_t Chunk;
 typedef struct cabocha_token_t Token;
 
-typedef enum cabocha_charset_t CharsetType;
-typedef enum cabocha_posset_t PossetType;
-typedef enum cabocha_format_t FormatType;
-typedef enum cabocha_input_layer_t InputLayerType;
-typedef enum cabocha_output_layer_t OutputLayerType;
-typedef enum cabocha_parser_t ParserType;
+enum CharsetType {
+  EUC_JP = CABOCHA_EUC_JP,
+  CP932  = CABOCHA_CP932,
+  UTF8   = CABOCHA_UTF8,
+  ASCII  = CABOCHA_ASCII
+};
+
+enum PossetType  {
+  IPA    = CABOCHA_IPA,
+  JUMAN  = CABOCHA_JUMAN,
+  UNIDIC = CABOCHA_UNIDIC
+};
+
+enum FormatType {
+  FORMAT_TREE         = CABOCHA_FORMAT_TREE,
+  FORMAT_LATTICE      = CABOCHA_FORMAT_LATTICE,
+  FORMAT_TREE_LATTICE = CABOCHA_FORMAT_TREE_LATTICE,
+  FORMAT_XML          = CABOCHA_FORMAT_XML,
+  FORMAT_NONE         = CABOCHA_FORMAT_NONE
+};
+
+enum InputLayerType {
+  INPUT_RAW_SENTENCE = CABOCHA_INPUT_RAW_SENTENCE,
+  INPUT_POS          = CABOCHA_INPUT_POS,
+  INPUT_CHUNK        = CABOCHA_INPUT_CHUNK,
+  INPUT_SELECTION    = CABOCHA_INPUT_SELECTION,
+  INPUT_DEP          = CABOCHA_INPUT_DEP
+};
+
+enum OutputLayerType {
+  OUTPUT_RAW_SENTENCE = CABOCHA_OUTPUT_RAW_SENTENCE,
+  OUTPUT_POS          = CABOCHA_OUTPUT_POS,
+  OUTPUT_CHUNK        = CABOCHA_OUTPUT_CHUNK,
+  OUTPUT_SELECTION    = CABOCHA_OUTPUT_SELECTION,
+  OUTPUT_DEP          = CABOCHA_OUTPUT_DEP
+};
+
+enum ParserType {
+  TRAIN_NE    = CABOCHA_TRAIN_NE,
+  TRAIN_CHUNK = CABOCHA_TRAIN_CHUNK,
+  TRAIN_DEP   = CABOCHA_TRAIN_DEP
+};
 
 class TreeAllocator;
 
