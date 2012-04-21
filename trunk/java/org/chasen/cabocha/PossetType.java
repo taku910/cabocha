@@ -9,9 +9,9 @@
 package org.chasen.cabocha;
 
 public final class PossetType {
-  public final static PossetType IPA = new PossetType("IPA");
-  public final static PossetType JUMAN = new PossetType("JUMAN");
-  public final static PossetType UNIDIC = new PossetType("UNIDIC");
+  public final static PossetType IPA = new PossetType("IPA", CaboChaJNI.IPA_get());
+  public final static PossetType JUMAN = new PossetType("JUMAN", CaboChaJNI.JUMAN_get());
+  public final static PossetType UNIDIC = new PossetType("UNIDIC", CaboChaJNI.UNIDIC_get());
 
   public final int swigValue() {
     return swigValue;

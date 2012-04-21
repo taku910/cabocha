@@ -9,9 +9,9 @@
 package org.chasen.cabocha;
 
 public final class ParserType {
-  public final static ParserType TRAIN_NE = new ParserType("TRAIN_NE");
-  public final static ParserType TRAIN_CHUNK = new ParserType("TRAIN_CHUNK");
-  public final static ParserType TRAIN_DEP = new ParserType("TRAIN_DEP");
+  public final static ParserType TRAIN_NE = new ParserType("TRAIN_NE", CaboChaJNI.TRAIN_NE_get());
+  public final static ParserType TRAIN_CHUNK = new ParserType("TRAIN_CHUNK", CaboChaJNI.TRAIN_CHUNK_get());
+  public final static ParserType TRAIN_DEP = new ParserType("TRAIN_DEP", CaboChaJNI.TRAIN_DEP_get());
 
   public final int swigValue() {
     return swigValue;

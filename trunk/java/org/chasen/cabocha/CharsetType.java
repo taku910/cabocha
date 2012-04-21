@@ -9,10 +9,10 @@
 package org.chasen.cabocha;
 
 public final class CharsetType {
-  public final static CharsetType EUC_JP = new CharsetType("EUC_JP");
-  public final static CharsetType CP932 = new CharsetType("CP932");
-  public final static CharsetType UTF8 = new CharsetType("UTF8");
-  public final static CharsetType ASCII = new CharsetType("ASCII");
+  public final static CharsetType EUC_JP = new CharsetType("EUC_JP", CaboChaJNI.EUC_JP_get());
+  public final static CharsetType CP932 = new CharsetType("CP932", CaboChaJNI.CP932_get());
+  public final static CharsetType UTF8 = new CharsetType("UTF8", CaboChaJNI.UTF8_get());
+  public final static CharsetType ASCII = new CharsetType("ASCII", CaboChaJNI.ASCII_get());
 
   public final int swigValue() {
     return swigValue;

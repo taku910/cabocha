@@ -9,11 +9,11 @@
 package org.chasen.cabocha;
 
 public final class FormatType {
-  public final static FormatType FORMAT_TREE = new FormatType("FORMAT_TREE");
-  public final static FormatType FORMAT_LATTICE = new FormatType("FORMAT_LATTICE");
-  public final static FormatType FORMAT_TREE_LATTICE = new FormatType("FORMAT_TREE_LATTICE");
-  public final static FormatType FORMAT_XML = new FormatType("FORMAT_XML");
-  public final static FormatType FORMAT_NONE = new FormatType("FORMAT_NONE");
+  public final static FormatType FORMAT_TREE = new FormatType("FORMAT_TREE", CaboChaJNI.FORMAT_TREE_get());
+  public final static FormatType FORMAT_LATTICE = new FormatType("FORMAT_LATTICE", CaboChaJNI.FORMAT_LATTICE_get());
+  public final static FormatType FORMAT_TREE_LATTICE = new FormatType("FORMAT_TREE_LATTICE", CaboChaJNI.FORMAT_TREE_LATTICE_get());
+  public final static FormatType FORMAT_XML = new FormatType("FORMAT_XML", CaboChaJNI.FORMAT_XML_get());
+  public final static FormatType FORMAT_NONE = new FormatType("FORMAT_NONE", CaboChaJNI.FORMAT_NONE_get());
 
   public final int swigValue() {
     return swigValue;

@@ -1517,20 +1517,14 @@ SWIG_Perl_SetModule(swig_module_info *module) {
 
 #define SWIGTYPE_p_CaboCha__Parser swig_types[0]
 #define SWIGTYPE_p_CaboCha__Tree swig_types[1]
-#define SWIGTYPE_p_cabocha_charset_t swig_types[2]
-#define SWIGTYPE_p_cabocha_chunk_t swig_types[3]
-#define SWIGTYPE_p_cabocha_format_t swig_types[4]
-#define SWIGTYPE_p_cabocha_input_layer_t swig_types[5]
-#define SWIGTYPE_p_cabocha_output_layer_t swig_types[6]
-#define SWIGTYPE_p_cabocha_parser_t swig_types[7]
-#define SWIGTYPE_p_cabocha_posset_t swig_types[8]
-#define SWIGTYPE_p_cabocha_t swig_types[9]
-#define SWIGTYPE_p_cabocha_token_t swig_types[10]
-#define SWIGTYPE_p_cabocha_tree_t swig_types[11]
-#define SWIGTYPE_p_char swig_types[12]
-#define SWIGTYPE_p_mecab_node_t swig_types[13]
-static swig_type_info *swig_types[15];
-static swig_module_info swig_module = {swig_types, 14, 0, 0, 0, 0};
+#define SWIGTYPE_p_cabocha_chunk_t swig_types[2]
+#define SWIGTYPE_p_cabocha_t swig_types[3]
+#define SWIGTYPE_p_cabocha_token_t swig_types[4]
+#define SWIGTYPE_p_cabocha_tree_t swig_types[5]
+#define SWIGTYPE_p_char swig_types[6]
+#define SWIGTYPE_p_mecab_node_t swig_types[7]
+static swig_type_info *swig_types[9];
+static swig_module_info swig_module = {swig_types, 8, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3800,13 +3794,7 @@ XS(_wrap_getLastError) {
 
 static swig_type_info _swigt__p_CaboCha__Parser = {"_p_CaboCha__Parser", "CaboCha::Parser *", 0, 0, (void*)"CaboCha::Parser", 0};
 static swig_type_info _swigt__p_CaboCha__Tree = {"_p_CaboCha__Tree", "CaboCha::Tree *", 0, 0, (void*)"CaboCha::Tree", 0};
-static swig_type_info _swigt__p_cabocha_charset_t = {"_p_cabocha_charset_t", "CaboCha::CharsetType *|enum cabocha_charset_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_chunk_t = {"_p_cabocha_chunk_t", "cabocha_chunk_t *|CaboCha::Chunk *", 0, 0, (void*)"CaboCha::Chunk", 0};
-static swig_type_info _swigt__p_cabocha_format_t = {"_p_cabocha_format_t", "CaboCha::FormatType *|enum cabocha_format_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_input_layer_t = {"_p_cabocha_input_layer_t", "CaboCha::InputLayerType *|enum cabocha_input_layer_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_output_layer_t = {"_p_cabocha_output_layer_t", "CaboCha::OutputLayerType *|enum cabocha_output_layer_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_parser_t = {"_p_cabocha_parser_t", "CaboCha::ParserType *|enum cabocha_parser_t *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_cabocha_posset_t = {"_p_cabocha_posset_t", "CaboCha::PossetType *|enum cabocha_posset_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_t = {"_p_cabocha_t", "cabocha_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_cabocha_token_t = {"_p_cabocha_token_t", "cabocha_token_t *|CaboCha::Token *", 0, 0, (void*)"CaboCha::Token", 0};
 static swig_type_info _swigt__p_cabocha_tree_t = {"_p_cabocha_tree_t", "cabocha_tree_t *", 0, 0, (void*)0, 0};
@@ -3816,13 +3804,7 @@ static swig_type_info _swigt__p_mecab_node_t = {"_p_mecab_node_t", "mecab_node_t
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_CaboCha__Parser,
   &_swigt__p_CaboCha__Tree,
-  &_swigt__p_cabocha_charset_t,
   &_swigt__p_cabocha_chunk_t,
-  &_swigt__p_cabocha_format_t,
-  &_swigt__p_cabocha_input_layer_t,
-  &_swigt__p_cabocha_output_layer_t,
-  &_swigt__p_cabocha_parser_t,
-  &_swigt__p_cabocha_posset_t,
   &_swigt__p_cabocha_t,
   &_swigt__p_cabocha_token_t,
   &_swigt__p_cabocha_tree_t,
@@ -3832,13 +3814,7 @@ static swig_type_info *swig_type_initial[] = {
 
 static swig_cast_info _swigc__p_CaboCha__Parser[] = {  {&_swigt__p_CaboCha__Parser, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_CaboCha__Tree[] = {  {&_swigt__p_CaboCha__Tree, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_charset_t[] = {  {&_swigt__p_cabocha_charset_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_chunk_t[] = {  {&_swigt__p_cabocha_chunk_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_format_t[] = {  {&_swigt__p_cabocha_format_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_input_layer_t[] = {  {&_swigt__p_cabocha_input_layer_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_output_layer_t[] = {  {&_swigt__p_cabocha_output_layer_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_parser_t[] = {  {&_swigt__p_cabocha_parser_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_cabocha_posset_t[] = {  {&_swigt__p_cabocha_posset_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_t[] = {  {&_swigt__p_cabocha_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_token_t[] = {  {&_swigt__p_cabocha_token_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_cabocha_tree_t[] = {  {&_swigt__p_cabocha_tree_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -3848,13 +3824,7 @@ static swig_cast_info _swigc__p_mecab_node_t[] = {  {&_swigt__p_mecab_node_t, 0,
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_CaboCha__Parser,
   _swigc__p_CaboCha__Tree,
-  _swigc__p_cabocha_charset_t,
   _swigc__p_cabocha_chunk_t,
-  _swigc__p_cabocha_format_t,
-  _swigc__p_cabocha_input_layer_t,
-  _swigc__p_cabocha_output_layer_t,
-  _swigc__p_cabocha_parser_t,
-  _swigc__p_cabocha_posset_t,
   _swigc__p_cabocha_t,
   _swigc__p_cabocha_token_t,
   _swigc__p_cabocha_tree_t,
@@ -4214,132 +4184,257 @@ XS(SWIG_init) {
   }
   
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "EUC_JP", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(EUC_JP)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_EUC_JP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "CP932", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CP932)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_CP932", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "UTF8", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(UTF8)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_UTF8", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "ASCII", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(ASCII)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_ASCII", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(3)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "IPA", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(IPA)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_IPA", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "JUMAN", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(JUMAN)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_JUMAN", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "UNIDIC", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(UNIDIC)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_UNIDIC", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_TREE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(FORMAT_TREE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_FORMAT_TREE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(FORMAT_LATTICE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_FORMAT_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_TREE_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(FORMAT_TREE_LATTICE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_FORMAT_TREE_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_XML", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(FORMAT_XML)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_FORMAT_XML", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(3)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_NONE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(FORMAT_NONE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_FORMAT_NONE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(4)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "INPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(INPUT_RAW_SENTENCE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_INPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "INPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(INPUT_POS)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_INPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "INPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(INPUT_CHUNK)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_INPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "INPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(INPUT_SELECTION)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_INPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(3)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "INPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(INPUT_DEP)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_INPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(4)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OUTPUT_RAW_SENTENCE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_OUTPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OUTPUT_POS)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_OUTPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OUTPUT_CHUNK)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_OUTPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OUTPUT_SELECTION)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_OUTPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(3)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OUTPUT_DEP)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_OUTPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(4)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_NE", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(TRAIN_NE)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_TRAIN_NE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(0)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(TRAIN_CHUNK)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_TRAIN_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(1)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
-    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_DEP", TRUE | 0x2 | GV_ADDMULTI);
-    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(TRAIN_DEP)));
+    SV *sv = get_sv((char*) SWIG_prefix "CABOCHA_TRAIN_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(2)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   SWIG_TypeClientData(SWIGTYPE_p_cabocha_chunk_t, (void*) "CaboCha::Chunk");
   SWIG_TypeClientData(SWIGTYPE_p_cabocha_token_t, (void*) "CaboCha::Token");
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "EUC_JP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::EUC_JP)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "CP932", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::CP932)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "UTF8", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::UTF8)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "ASCII", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::ASCII)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "IPA", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::IPA)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "JUMAN", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::JUMAN)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "UNIDIC", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::UNIDIC)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_TREE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::FORMAT_TREE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::FORMAT_LATTICE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_TREE_LATTICE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::FORMAT_TREE_LATTICE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_XML", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::FORMAT_XML)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "FORMAT_NONE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::FORMAT_NONE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "INPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::INPUT_RAW_SENTENCE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "INPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::INPUT_POS)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "INPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::INPUT_CHUNK)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "INPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::INPUT_SELECTION)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "INPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::INPUT_DEP)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_RAW_SENTENCE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::OUTPUT_RAW_SENTENCE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_POS", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::OUTPUT_POS)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::OUTPUT_CHUNK)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_SELECTION", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::OUTPUT_SELECTION)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "OUTPUT_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::OUTPUT_DEP)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_NE", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::TRAIN_NE)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_CHUNK", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::TRAIN_CHUNK)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
+  /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+    SV *sv = get_sv((char*) SWIG_prefix "TRAIN_DEP", TRUE | 0x2 | GV_ADDMULTI);
+    sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(CaboCha::TRAIN_DEP)));
+    SvREADONLY_on(sv);
+  } while(0) /*@SWIG@*/;
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Tree, (void*) "CaboCha::Tree");
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Parser, (void*) "CaboCha::Parser");
   /*@SWIG:/usr/share/swig1.3/perl5/perltypemaps.swg,65,%set_constant@*/ do {

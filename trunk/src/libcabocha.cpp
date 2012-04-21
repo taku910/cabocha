@@ -231,8 +231,10 @@ void cabocha_tree_set_sentence(cabocha_tree_t *t,
 int cabocha_tree_read(cabocha_tree_t *t ,
                       const char *input,
                       size_t length,
-                      cabocha_input_layer_t input_layer) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->read(input, length, input_layer);
+                      int input_layer) {
+  return reinterpret_cast<
+      CaboCha::Tree *>(t)->read(input, length,
+                                static_cast<CaboCha::InputLayerType>(input_layer));
 }
 
 int cabocha_tree_read_from_mecab_node(cabocha_tree_t *t ,
@@ -268,38 +270,43 @@ char            *cabocha_tree_alloc(cabocha_tree_t* t, size_t size) {
   return reinterpret_cast<CaboCha::Tree *>(t)->alloc(size);
 }
 
-const char *cabocha_tree_tostr(cabocha_tree_t* t, cabocha_format_t fmt) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->toString(fmt);
+const char *cabocha_tree_tostr(cabocha_tree_t* t, int fmt) {
+  return reinterpret_cast<CaboCha::Tree *>(t)->toString(
+      static_cast<CaboCha::FormatType>(fmt));
 }
 
-const char *cabocha_tree_tostr2(cabocha_tree_t* t, cabocha_format_t fmt,
+const char *cabocha_tree_tostr2(cabocha_tree_t* t, int fmt,
                                 char *out, size_t len) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->toString(fmt, out, len);
+  return reinterpret_cast<CaboCha::Tree *>(t)->toString(
+      static_cast<CaboCha::FormatType>(fmt), out, len);
 }
 
 void cabocha_tree_set_charset(cabocha_tree_t* t,
-                              cabocha_charset_t charset) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->set_charset(charset);
+                              int charset) {
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_charset(
+      static_cast<CaboCha::CharsetType>(charset));
 }
 
-cabocha_charset_t cabocha_tree_charset(cabocha_tree_t *t) {
+int cabocha_tree_charset(cabocha_tree_t *t) {
   return reinterpret_cast<CaboCha::Tree *>(t)->charset();
 }
 
 void cabocha_tree_set_posset(cabocha_tree_t *t,
-                             cabocha_posset_t posset) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->set_posset(posset);
+                             int posset) {
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_posset(
+      static_cast<CaboCha::PossetType>(posset));
 }
 
-cabocha_posset_t cabocha_tree_posset(cabocha_tree_t *t) {
+int cabocha_tree_posset(cabocha_tree_t *t) {
   return reinterpret_cast<CaboCha::Tree *>(t)->posset();
 }
 
 void cabocha_tree_set_output_layer(cabocha_tree_t *t,
-                                   cabocha_output_layer_t output_layer) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->set_output_layer(output_layer);
+                                   int output_layer) {
+  return reinterpret_cast<CaboCha::Tree *>(t)->set_output_layer(
+      static_cast<CaboCha::OutputLayerType>(output_layer));
 }
 
-cabocha_output_layer_t cabocha_tree_output_layer(cabocha_tree_t *t) {
+int cabocha_tree_output_layer(cabocha_tree_t *t) {
   return reinterpret_cast<CaboCha::Tree *>(t)->output_layer();
 }
