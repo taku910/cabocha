@@ -54,4 +54,4 @@ ne-model = @prefix@/lib/cabocha/model/ne.@POSSET2@.model
 # ne-model = @prefix@/lib/cabocha/model/ne.unidic.model
 
 # mecabrc
-# mecabrc = somwhere/mecabrc
+# mecabrc = somewhere/mecabrc
