@@ -110,6 +110,8 @@ class Chunk(_object):
     if _newclass:token_pos = _swig_property(_CaboCha.Chunk_token_pos_get)
     __swig_getmethods__["score"] = _CaboCha.Chunk_score_get
     if _newclass:score = _swig_property(_CaboCha.Chunk_score_get)
+    __swig_getmethods__["additional_info"] = _CaboCha.Chunk_additional_info_get
+    if _newclass:additional_info = _swig_property(_CaboCha.Chunk_additional_info_get)
     __swig_getmethods__["feature_list_size"] = _CaboCha.Chunk_feature_list_size_get
     if _newclass:feature_list_size = _swig_property(_CaboCha.Chunk_feature_list_size_get)
     def feature_list(self, *args): return _CaboCha.Chunk_feature_list(self, *args)
@@ -133,6 +135,8 @@ class Token(_object):
     if _newclass:feature_list_size = _swig_property(_CaboCha.Token_feature_list_size_get)
     __swig_getmethods__["ne"] = _CaboCha.Token_ne_get
     if _newclass:ne = _swig_property(_CaboCha.Token_ne_get)
+    __swig_getmethods__["additional_info"] = _CaboCha.Token_additional_info_get
+    if _newclass:additional_info = _swig_property(_CaboCha.Token_additional_info_get)
     __swig_getmethods__["chunk"] = _CaboCha.Token_chunk_get
     if _newclass:chunk = _swig_property(_CaboCha.Token_chunk_get)
     def feature_list(self, *args): return _CaboCha.Token_feature_list(self, *args)

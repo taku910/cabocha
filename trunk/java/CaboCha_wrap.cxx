@@ -275,13 +275,13 @@ void delete_CaboCha_Parser(CaboCha::Parser *t) {
 
 CaboCha::Parser* new_CaboCha_Parser(const char *arg) {
   CaboCha::Parser *parser = CaboCha::createParser(arg);
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
 CaboCha::Parser* new_CaboCha_Parser() {
   CaboCha::Parser *parser = CaboCha::createParser("");
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
@@ -307,7 +307,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1EUC_1JP_1get
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_EUC_JP; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -319,7 +333,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1CP932_1get(J
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_CP932; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -331,7 +359,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1UTF8_1get(JN
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_UTF8; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -343,7 +385,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1ASCII_1get(J
   
   (void)jenv;
   (void)jcls;
-  result = (int) 3;
+  {
+    try {
+      result = (int)CABOCHA_ASCII; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -355,7 +411,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1IPA_1get(JNI
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_IPA; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -367,7 +437,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1JUMAN_1get(J
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_JUMAN; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -379,7 +463,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1UNIDIC_1get(
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_UNIDIC; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -391,7 +489,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1TREE
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_TREE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -403,7 +515,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1LATT
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_LATTICE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -415,7 +541,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1TREE
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_TREE_LATTICE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -427,7 +567,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1XML_
   
   (void)jenv;
   (void)jcls;
-  result = (int) 3;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_XML; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -439,7 +593,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1NONE
   
   (void)jenv;
   (void)jcls;
-  result = (int) 4;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_NONE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -451,7 +619,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1INPUT_1RAW_1
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_INPUT_RAW_SENTENCE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -463,7 +645,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1INPUT_1POS_1
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_INPUT_POS; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -475,7 +671,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1INPUT_1CHUNK
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_INPUT_CHUNK; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -487,7 +697,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1INPUT_1SELEC
   
   (void)jenv;
   (void)jcls;
-  result = (int) 3;
+  {
+    try {
+      result = (int)CABOCHA_INPUT_SELECTION; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -499,7 +723,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1INPUT_1DEP_1
   
   (void)jenv;
   (void)jcls;
-  result = (int) 4;
+  {
+    try {
+      result = (int)CABOCHA_INPUT_DEP; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -511,7 +749,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1OUTPUT_1RAW_
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_OUTPUT_RAW_SENTENCE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -523,7 +775,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1OUTPUT_1POS_
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_OUTPUT_POS; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -535,7 +801,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1OUTPUT_1CHUN
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_OUTPUT_CHUNK; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -547,7 +827,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1OUTPUT_1SELE
   
   (void)jenv;
   (void)jcls;
-  result = (int) 3;
+  {
+    try {
+      result = (int)CABOCHA_OUTPUT_SELECTION; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -559,7 +853,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1OUTPUT_1DEP_
   
   (void)jenv;
   (void)jcls;
-  result = (int) 4;
+  {
+    try {
+      result = (int)CABOCHA_OUTPUT_DEP; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -571,7 +879,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TRAIN_1NE_1g
   
   (void)jenv;
   (void)jcls;
-  result = (int) 0;
+  {
+    try {
+      result = (int)CABOCHA_TRAIN_NE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -583,7 +905,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TRAIN_1CHUNK
   
   (void)jenv;
   (void)jcls;
-  result = (int) 1;
+  {
+    try {
+      result = (int)CABOCHA_TRAIN_CHUNK; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -595,7 +931,21 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TRAIN_1DEP_1
   
   (void)jenv;
   (void)jcls;
-  result = (int) 2;
+  {
+    try {
+      result = (int)CABOCHA_TRAIN_DEP; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
   jresult = (jint)result; 
   return jresult;
 }
@@ -687,6 +1037,21 @@ SWIGEXPORT jfloat JNICALL Java_org_chasen_cabocha_CaboChaJNI_Chunk_1score_1get(J
   arg1 = *(cabocha_chunk_t **)&jarg1; 
   result = (float) ((arg1)->score);
   jresult = (jfloat)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_Chunk_1additional_1info_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(cabocha_chunk_t **)&jarg1; 
+  result = (char *) ((arg1)->additional_info);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
 
@@ -807,6 +1172,21 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_Token_1ne_1get(JNI
   (void)jarg1_;
   arg1 = *(cabocha_token_t **)&jarg1; 
   result = (char *) ((arg1)->ne);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_Token_1additional_1info_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  cabocha_token_t *arg1 = (cabocha_token_t *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(cabocha_token_t **)&jarg1; 
+  result = (char *) ((arg1)->additional_info);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }

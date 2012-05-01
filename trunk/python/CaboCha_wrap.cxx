@@ -2802,13 +2802,13 @@ void delete_CaboCha_Parser(CaboCha::Parser *t) {
 
 CaboCha::Parser* new_CaboCha_Parser(const char *arg) {
   CaboCha::Parser *parser = CaboCha::createParser(arg);
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
 CaboCha::Parser* new_CaboCha_Parser() {
   CaboCha::Parser *parser = CaboCha::createParser("");
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
@@ -2853,6 +2853,47 @@ SWIGINTERNINLINE PyObject *
 SWIG_From_float  (float value)
 {    
   return SWIG_From_double  (value);
+}
+
+
+SWIGINTERN swig_type_info*
+SWIG_pchar_descriptor(void)
+{
+  static int init = 0;
+  static swig_type_info* info = 0;
+  if (!init) {
+    info = SWIG_TypeQuery("_p_char");
+    init = 1;
+  }
+  return info;
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_FromCharPtrAndSize(const char* carray, size_t size)
+{
+  if (carray) {
+    if (size > INT_MAX) {
+      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+      return pchar_descriptor ? 
+	SWIG_NewPointerObj(const_cast< char * >(carray), pchar_descriptor, 0) : SWIG_Py_Void();
+    } else {
+#if PY_VERSION_HEX >= 0x03000000
+      return PyUnicode_FromStringAndSize(carray, static_cast< int >(size));
+#else
+      return PyString_FromStringAndSize(carray, static_cast< int >(size));
+#endif
+    }
+  } else {
+    return SWIG_Py_Void();
+  }
+}
+
+
+SWIGINTERNINLINE PyObject * 
+SWIG_FromCharPtr(const char *cptr)
+{ 
+  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
 }
 
 
@@ -2994,47 +3035,6 @@ SWIGINTERN char const *cabocha_chunk_t_feature_list(cabocha_chunk_t *self,size_t
      throw "index is out of range";
     return self->feature_list[i];
   }
-
-SWIGINTERN swig_type_info*
-SWIG_pchar_descriptor(void)
-{
-  static int init = 0;
-  static swig_type_info* info = 0;
-  if (!init) {
-    info = SWIG_TypeQuery("_p_char");
-    init = 1;
-  }
-  return info;
-}
-
-
-SWIGINTERNINLINE PyObject *
-SWIG_FromCharPtrAndSize(const char* carray, size_t size)
-{
-  if (carray) {
-    if (size > INT_MAX) {
-      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
-      return pchar_descriptor ? 
-	SWIG_NewPointerObj(const_cast< char * >(carray), pchar_descriptor, 0) : SWIG_Py_Void();
-    } else {
-#if PY_VERSION_HEX >= 0x03000000
-      return PyUnicode_FromStringAndSize(carray, static_cast< int >(size));
-#else
-      return PyString_FromStringAndSize(carray, static_cast< int >(size));
-#endif
-    }
-  } else {
-    return SWIG_Py_Void();
-  }
-}
-
-
-SWIGINTERNINLINE PyObject * 
-SWIG_FromCharPtr(const char *cptr)
-{ 
-  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
-}
-
 SWIGINTERN char const *cabocha_token_t_feature_list(cabocha_token_t *self,size_t i){
     if (self->feature_list_size < i)
      throw "index is out of range";
@@ -3326,6 +3326,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Chunk_additional_info_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Chunk_additional_info_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_cabocha_chunk_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Chunk_additional_info_get" "', argument " "1"" of type '" "cabocha_chunk_t *""'"); 
+  }
+  arg1 = reinterpret_cast< cabocha_chunk_t * >(argp1);
+  result = (char *) ((arg1)->additional_info);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Chunk_feature_list_size_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
@@ -3499,6 +3521,28 @@ SWIGINTERN PyObject *_wrap_Token_ne_get(PyObject *SWIGUNUSEDPARM(self), PyObject
   }
   arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
   result = (char *) ((arg1)->ne);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Token_additional_info_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  cabocha_token_t *arg1 = (cabocha_token_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:Token_additional_info_get",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_cabocha_token_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Token_additional_info_get" "', argument " "1"" of type '" "cabocha_token_t *""'"); 
+  }
+  arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
+  result = (char *) ((arg1)->additional_info);
   resultobj = SWIG_FromCharPtr((const char *)result);
   return resultobj;
 fail:
@@ -4747,6 +4791,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Chunk_token_size_get", _wrap_Chunk_token_size_get, METH_VARARGS, NULL},
 	 { (char *)"Chunk_token_pos_get", _wrap_Chunk_token_pos_get, METH_VARARGS, NULL},
 	 { (char *)"Chunk_score_get", _wrap_Chunk_score_get, METH_VARARGS, NULL},
+	 { (char *)"Chunk_additional_info_get", _wrap_Chunk_additional_info_get, METH_VARARGS, NULL},
 	 { (char *)"Chunk_feature_list_size_get", _wrap_Chunk_feature_list_size_get, METH_VARARGS, NULL},
 	 { (char *)"Chunk_feature_list", _wrap_Chunk_feature_list, METH_VARARGS, NULL},
 	 { (char *)"Chunk_swigregister", Chunk_swigregister, METH_VARARGS, NULL},
@@ -4755,6 +4800,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Token_feature_get", _wrap_Token_feature_get, METH_VARARGS, NULL},
 	 { (char *)"Token_feature_list_size_get", _wrap_Token_feature_list_size_get, METH_VARARGS, NULL},
 	 { (char *)"Token_ne_get", _wrap_Token_ne_get, METH_VARARGS, NULL},
+	 { (char *)"Token_additional_info_get", _wrap_Token_additional_info_get, METH_VARARGS, NULL},
 	 { (char *)"Token_chunk_get", _wrap_Token_chunk_get, METH_VARARGS, NULL},
 	 { (char *)"Token_feature_list", _wrap_Token_feature_list, METH_VARARGS, NULL},
 	 { (char *)"Token_swigregister", Token_swigregister, METH_VARARGS, NULL},
@@ -5426,31 +5472,31 @@ SWIG_init(void) {
   SWIG_InstallConstants(d,swig_const_table);
   
   
-  SWIG_Python_SetConstant(d, "CABOCHA_EUC_JP",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_CP932",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_UTF8",SWIG_From_int(static_cast< int >(2)));
-  SWIG_Python_SetConstant(d, "CABOCHA_ASCII",SWIG_From_int(static_cast< int >(3)));
-  SWIG_Python_SetConstant(d, "CABOCHA_IPA",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_JUMAN",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_UNIDIC",SWIG_From_int(static_cast< int >(2)));
-  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_LATTICE",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(2)));
-  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_XML",SWIG_From_int(static_cast< int >(3)));
-  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_NONE",SWIG_From_int(static_cast< int >(4)));
-  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_POS",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_CHUNK",SWIG_From_int(static_cast< int >(2)));
-  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_SELECTION",SWIG_From_int(static_cast< int >(3)));
-  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_DEP",SWIG_From_int(static_cast< int >(4)));
-  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_POS",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_CHUNK",SWIG_From_int(static_cast< int >(2)));
-  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_SELECTION",SWIG_From_int(static_cast< int >(3)));
-  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_DEP",SWIG_From_int(static_cast< int >(4)));
-  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_NE",SWIG_From_int(static_cast< int >(0)));
-  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_CHUNK",SWIG_From_int(static_cast< int >(1)));
-  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_DEP",SWIG_From_int(static_cast< int >(2)));
+  SWIG_Python_SetConstant(d, "CABOCHA_EUC_JP",SWIG_From_int(static_cast< int >(CABOCHA_EUC_JP)));
+  SWIG_Python_SetConstant(d, "CABOCHA_CP932",SWIG_From_int(static_cast< int >(CABOCHA_CP932)));
+  SWIG_Python_SetConstant(d, "CABOCHA_UTF8",SWIG_From_int(static_cast< int >(CABOCHA_UTF8)));
+  SWIG_Python_SetConstant(d, "CABOCHA_ASCII",SWIG_From_int(static_cast< int >(CABOCHA_ASCII)));
+  SWIG_Python_SetConstant(d, "CABOCHA_IPA",SWIG_From_int(static_cast< int >(CABOCHA_IPA)));
+  SWIG_Python_SetConstant(d, "CABOCHA_JUMAN",SWIG_From_int(static_cast< int >(CABOCHA_JUMAN)));
+  SWIG_Python_SetConstant(d, "CABOCHA_UNIDIC",SWIG_From_int(static_cast< int >(CABOCHA_UNIDIC)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_LATTICE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_LATTICE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE_LATTICE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_XML",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_XML)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_NONE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_NONE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_RAW_SENTENCE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_POS",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_POS)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_CHUNK",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_CHUNK)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_SELECTION",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_SELECTION)));
+  SWIG_Python_SetConstant(d, "CABOCHA_INPUT_DEP",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_DEP)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_RAW_SENTENCE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_POS",SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_POS)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_CHUNK",SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_CHUNK)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_SELECTION",SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_SELECTION)));
+  SWIG_Python_SetConstant(d, "CABOCHA_OUTPUT_DEP",SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_DEP)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_NE",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_NE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_CHUNK",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_CHUNK)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_DEP",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_DEP)));
   SWIG_Python_SetConstant(d, "EUC_JP",SWIG_From_int(static_cast< int >(CaboCha::EUC_JP)));
   SWIG_Python_SetConstant(d, "CP932",SWIG_From_int(static_cast< int >(CaboCha::CP932)));
   SWIG_Python_SetConstant(d, "UTF8",SWIG_From_int(static_cast< int >(CaboCha::UTF8)));

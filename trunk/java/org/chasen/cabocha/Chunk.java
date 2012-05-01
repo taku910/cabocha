@@ -55,6 +55,10 @@ public class Chunk {
     return CaboChaJNI.Chunk_score_get(swigCPtr, this);
   }
 
+  public String getAdditional_info() {
+    return CaboChaJNI.Chunk_additional_info_get(swigCPtr, this);
+  }
+
   public int getFeature_list_size() {
     return CaboChaJNI.Chunk_feature_list_size_get(swigCPtr, this);
   }
