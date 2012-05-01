@@ -22,7 +22,6 @@
 
 // tricky macro for MSVC
 #ifdef _MSC_VER
-#define for if (0); else for
 #define NOMINMAX
 #define snprintf _snprintf
 #include <windows.h>

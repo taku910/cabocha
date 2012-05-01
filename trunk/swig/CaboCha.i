@@ -31,6 +31,7 @@
 %immutable cabocha_chunk_t::score;
 %immutable cabocha_chunk_t::feature_list;
 %immutable cabocha_chunk_t::feature_list_size;
+%immutable cabocha_chunk_t::additional_info;
 
 %immutable cabocha_token_t::surface;
 %immutable cabocha_token_t::normalized_surface;
@@ -39,6 +40,7 @@
 %immutable cabocha_token_t::ne;
 %immutable cabocha_token_t::feature_list_size;
 %immutable cabocha_token_t::chunk;
+%immutable cabocha_token_t::additional_info;
 
 %ignore CaboCha::createParser;
 %ignore CaboCha::getParserError;
@@ -72,13 +74,13 @@ void delete_CaboCha_Parser(CaboCha::Parser *t) {
 
 CaboCha::Parser* new_CaboCha_Parser(const char *arg) {
   CaboCha::Parser *parser = CaboCha::createParser(arg);
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
 CaboCha::Parser* new_CaboCha_Parser() {
   CaboCha::Parser *parser = CaboCha::createParser("");
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 

@@ -80,6 +80,7 @@ extern "C" {
     size_t                 token_pos;
     float                  score;
     const char             **feature_list;
+    const char             *additional_info;
     unsigned short int     feature_list_size;
   };
 
@@ -90,6 +91,7 @@ extern "C" {
     const char             **feature_list;
     unsigned short int      feature_list_size;
     const char              *ne;
+    const char              *additional_info;
     struct cabocha_chunk_t  *chunk;
   };
 
