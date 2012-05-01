@@ -51,6 +51,10 @@ public class Token {
     return CaboChaJNI.Token_ne_get(swigCPtr, this);
   }
 
+  public String getAdditional_info() {
+    return CaboChaJNI.Token_additional_info_get(swigCPtr, this);
+  }
+
   public Chunk getChunk() {
     long cPtr = CaboChaJNI.Token_chunk_get(swigCPtr, this);
     return (cPtr == 0) ? null : new Chunk(cPtr, false);

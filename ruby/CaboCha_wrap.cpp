@@ -1858,13 +1858,13 @@ void delete_CaboCha_Parser(CaboCha::Parser *t) {
 
 CaboCha::Parser* new_CaboCha_Parser(const char *arg) {
   CaboCha::Parser *parser = CaboCha::createParser(arg);
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
 CaboCha::Parser* new_CaboCha_Parser() {
   CaboCha::Parser *parser = CaboCha::createParser("");
-  if (! parser) throw CaboCha::getParserError();
+  if (!parser) throw CaboCha::getParserError();
   return parser;
 }
 
@@ -1921,6 +1921,43 @@ SWIG_From_float  (float value)
 }
 
 
+SWIGINTERN swig_type_info*
+SWIG_pchar_descriptor(void)
+{
+  static int init = 0;
+  static swig_type_info* info = 0;
+  if (!init) {
+    info = SWIG_TypeQuery("_p_char");
+    init = 1;
+  }
+  return info;
+}
+
+
+SWIGINTERNINLINE VALUE 
+SWIG_FromCharPtrAndSize(const char* carray, size_t size)
+{
+  if (carray) {
+    if (size > LONG_MAX) {
+      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+      return pchar_descriptor ? 
+	SWIG_NewPointerObj(const_cast< char * >(carray), pchar_descriptor, 0) : Qnil;
+    } else {
+      return rb_str_new(carray, static_cast< long >(size));
+    }
+  } else {
+    return Qnil;
+  }
+}
+
+
+SWIGINTERNINLINE VALUE 
+SWIG_FromCharPtr(const char *cptr)
+{ 
+  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
+}
+
+
 SWIGINTERN VALUE
 SWIG_ruby_failed(void)
 {
@@ -1971,43 +2008,6 @@ SWIGINTERN char const *cabocha_chunk_t_feature_list(cabocha_chunk_t *self,size_t
      throw "index is out of range";
     return self->feature_list[i];
   }
-
-SWIGINTERN swig_type_info*
-SWIG_pchar_descriptor(void)
-{
-  static int init = 0;
-  static swig_type_info* info = 0;
-  if (!init) {
-    info = SWIG_TypeQuery("_p_char");
-    init = 1;
-  }
-  return info;
-}
-
-
-SWIGINTERNINLINE VALUE 
-SWIG_FromCharPtrAndSize(const char* carray, size_t size)
-{
-  if (carray) {
-    if (size > LONG_MAX) {
-      swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
-      return pchar_descriptor ? 
-	SWIG_NewPointerObj(const_cast< char * >(carray), pchar_descriptor, 0) : Qnil;
-    } else {
-      return rb_str_new(carray, static_cast< long >(size));
-    }
-  } else {
-    return Qnil;
-  }
-}
-
-
-SWIGINTERNINLINE VALUE 
-SWIG_FromCharPtr(const char *cptr)
-{ 
-  return SWIG_FromCharPtrAndSize(cptr, (cptr ? strlen(cptr) : 0));
-}
-
 SWIGINTERN char const *cabocha_token_t_feature_list(cabocha_token_t *self,size_t i){
     if (self->feature_list_size < i)
      throw "index is out of range";
@@ -2253,6 +2253,30 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_Chunk_additional_info_get(int argc, VALUE *argv, VALUE self) {
+  cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_cabocha_chunk_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "cabocha_chunk_t *","additional_info", 1, self )); 
+  }
+  arg1 = reinterpret_cast< cabocha_chunk_t * >(argp1);
+  result = (char *) ((arg1)->additional_info);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_Chunk_feature_list_size_get(int argc, VALUE *argv, VALUE self) {
   cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
   void *argp1 = 0 ;
@@ -2433,6 +2457,30 @@ _wrap_Token_ne_get(int argc, VALUE *argv, VALUE self) {
   }
   arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
   result = (char *) ((arg1)->ne);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Token_additional_info_get(int argc, VALUE *argv, VALUE self) {
+  cabocha_token_t *arg1 = (cabocha_token_t *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_cabocha_token_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "cabocha_token_t *","additional_info", 1, self )); 
+  }
+  arg1 = reinterpret_cast< cabocha_token_t * >(argp1);
+  result = (char *) ((arg1)->additional_info);
   vresult = SWIG_FromCharPtr((const char *)result);
   return vresult;
 fail:
@@ -3996,31 +4044,31 @@ SWIGEXPORT void Init_CaboCha(void) {
   }
   
   SWIG_RubyInitializeTrackings();
-  rb_define_const(mCaboCha, "CABOCHA_EUC_JP", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_CP932", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_UTF8", SWIG_From_int(static_cast< int >(2)));
-  rb_define_const(mCaboCha, "CABOCHA_ASCII", SWIG_From_int(static_cast< int >(3)));
-  rb_define_const(mCaboCha, "CABOCHA_IPA", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_JUMAN", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_UNIDIC", SWIG_From_int(static_cast< int >(2)));
-  rb_define_const(mCaboCha, "CABOCHA_FORMAT_TREE", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_FORMAT_LATTICE", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_FORMAT_TREE_LATTICE", SWIG_From_int(static_cast< int >(2)));
-  rb_define_const(mCaboCha, "CABOCHA_FORMAT_XML", SWIG_From_int(static_cast< int >(3)));
-  rb_define_const(mCaboCha, "CABOCHA_FORMAT_NONE", SWIG_From_int(static_cast< int >(4)));
-  rb_define_const(mCaboCha, "CABOCHA_INPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_INPUT_POS", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_INPUT_CHUNK", SWIG_From_int(static_cast< int >(2)));
-  rb_define_const(mCaboCha, "CABOCHA_INPUT_SELECTION", SWIG_From_int(static_cast< int >(3)));
-  rb_define_const(mCaboCha, "CABOCHA_INPUT_DEP", SWIG_From_int(static_cast< int >(4)));
-  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_POS", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_CHUNK", SWIG_From_int(static_cast< int >(2)));
-  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_SELECTION", SWIG_From_int(static_cast< int >(3)));
-  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_DEP", SWIG_From_int(static_cast< int >(4)));
-  rb_define_const(mCaboCha, "CABOCHA_TRAIN_NE", SWIG_From_int(static_cast< int >(0)));
-  rb_define_const(mCaboCha, "CABOCHA_TRAIN_CHUNK", SWIG_From_int(static_cast< int >(1)));
-  rb_define_const(mCaboCha, "CABOCHA_TRAIN_DEP", SWIG_From_int(static_cast< int >(2)));
+  rb_define_const(mCaboCha, "CABOCHA_EUC_JP", SWIG_From_int(static_cast< int >(CABOCHA_EUC_JP)));
+  rb_define_const(mCaboCha, "CABOCHA_CP932", SWIG_From_int(static_cast< int >(CABOCHA_CP932)));
+  rb_define_const(mCaboCha, "CABOCHA_UTF8", SWIG_From_int(static_cast< int >(CABOCHA_UTF8)));
+  rb_define_const(mCaboCha, "CABOCHA_ASCII", SWIG_From_int(static_cast< int >(CABOCHA_ASCII)));
+  rb_define_const(mCaboCha, "CABOCHA_IPA", SWIG_From_int(static_cast< int >(CABOCHA_IPA)));
+  rb_define_const(mCaboCha, "CABOCHA_JUMAN", SWIG_From_int(static_cast< int >(CABOCHA_JUMAN)));
+  rb_define_const(mCaboCha, "CABOCHA_UNIDIC", SWIG_From_int(static_cast< int >(CABOCHA_UNIDIC)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_TREE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_LATTICE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_LATTICE)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_TREE_LATTICE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE_LATTICE)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_XML", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_XML)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_NONE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_NONE)));
+  rb_define_const(mCaboCha, "CABOCHA_INPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_RAW_SENTENCE)));
+  rb_define_const(mCaboCha, "CABOCHA_INPUT_POS", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_POS)));
+  rb_define_const(mCaboCha, "CABOCHA_INPUT_CHUNK", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_CHUNK)));
+  rb_define_const(mCaboCha, "CABOCHA_INPUT_SELECTION", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_SELECTION)));
+  rb_define_const(mCaboCha, "CABOCHA_INPUT_DEP", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_DEP)));
+  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_RAW_SENTENCE)));
+  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_POS", SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_POS)));
+  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_CHUNK", SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_CHUNK)));
+  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_SELECTION", SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_SELECTION)));
+  rb_define_const(mCaboCha, "CABOCHA_OUTPUT_DEP", SWIG_From_int(static_cast< int >(CABOCHA_OUTPUT_DEP)));
+  rb_define_const(mCaboCha, "CABOCHA_TRAIN_NE", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_NE)));
+  rb_define_const(mCaboCha, "CABOCHA_TRAIN_CHUNK", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_CHUNK)));
+  rb_define_const(mCaboCha, "CABOCHA_TRAIN_DEP", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_DEP)));
   
   SwigClassChunk.klass = rb_define_class_under(mCaboCha, "Chunk", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_cabocha_chunk_t, (void *) &SwigClassChunk);
@@ -4031,6 +4079,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_method(SwigClassChunk.klass, "token_size", VALUEFUNC(_wrap_Chunk_token_size_get), -1);
   rb_define_method(SwigClassChunk.klass, "token_pos", VALUEFUNC(_wrap_Chunk_token_pos_get), -1);
   rb_define_method(SwigClassChunk.klass, "score", VALUEFUNC(_wrap_Chunk_score_get), -1);
+  rb_define_method(SwigClassChunk.klass, "additional_info", VALUEFUNC(_wrap_Chunk_additional_info_get), -1);
   rb_define_method(SwigClassChunk.klass, "feature_list_size", VALUEFUNC(_wrap_Chunk_feature_list_size_get), -1);
   rb_define_method(SwigClassChunk.klass, "feature_list", VALUEFUNC(_wrap_Chunk_feature_list), -1);
   SwigClassChunk.mark = 0;
@@ -4044,6 +4093,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_method(SwigClassToken.klass, "feature", VALUEFUNC(_wrap_Token_feature_get), -1);
   rb_define_method(SwigClassToken.klass, "feature_list_size", VALUEFUNC(_wrap_Token_feature_list_size_get), -1);
   rb_define_method(SwigClassToken.klass, "ne", VALUEFUNC(_wrap_Token_ne_get), -1);
+  rb_define_method(SwigClassToken.klass, "additional_info", VALUEFUNC(_wrap_Token_additional_info_get), -1);
   rb_define_method(SwigClassToken.klass, "chunk", VALUEFUNC(_wrap_Token_chunk_get), -1);
   rb_define_method(SwigClassToken.klass, "feature_list", VALUEFUNC(_wrap_Token_feature_list), -1);
   SwigClassToken.mark = 0;

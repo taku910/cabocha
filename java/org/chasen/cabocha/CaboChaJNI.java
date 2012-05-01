@@ -40,6 +40,7 @@ class CaboChaJNI {
   public final static native int Chunk_token_size_get(long jarg1, Chunk jarg1_);
   public final static native long Chunk_token_pos_get(long jarg1, Chunk jarg1_);
   public final static native float Chunk_score_get(long jarg1, Chunk jarg1_);
+  public final static native String Chunk_additional_info_get(long jarg1, Chunk jarg1_);
   public final static native int Chunk_feature_list_size_get(long jarg1, Chunk jarg1_);
   public final static native String Chunk_feature_list(long jarg1, Chunk jarg1_, long jarg2);
   public final static native String Token_surface_get(long jarg1, Token jarg1_);
@@ -47,6 +48,7 @@ class CaboChaJNI {
   public final static native String Token_feature_get(long jarg1, Token jarg1_);
   public final static native int Token_feature_list_size_get(long jarg1, Token jarg1_);
   public final static native String Token_ne_get(long jarg1, Token jarg1_);
+  public final static native String Token_additional_info_get(long jarg1, Token jarg1_);
   public final static native long Token_chunk_get(long jarg1, Token jarg1_);
   public final static native String Token_feature_list(long jarg1, Token jarg1_, long jarg2);
   public final static native int EUC_JP_get();
