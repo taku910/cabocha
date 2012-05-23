@@ -147,7 +147,6 @@ template <typename T> T SwigValueInit() {
 
 /* Python.h has to appear first */
 #include <Python.h>
-#include <stddef.h>
 
 /* -----------------------------------------------------------------------------
  * swigrun.swg
@@ -5522,7 +5521,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_NE)));
   SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_CHUNK)));
   SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
-  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.62"));
+  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.64"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

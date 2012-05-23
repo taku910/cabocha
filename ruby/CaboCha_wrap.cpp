@@ -4164,6 +4164,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
   rb_define_module_function(mCaboCha, "getLastError", VALUEFUNC(_wrap_getLastError), -1);
-  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.62"));
+  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.64"));
 }
 
