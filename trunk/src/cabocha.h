@@ -119,6 +119,7 @@ extern "C" {
   CABOCHA_DLL_EXTERN void                  cabocha_destroy(cabocha_t* cabocha);
   CABOCHA_DLL_EXTERN const cabocha_tree_t  *cabocha_sparse_totree(cabocha_t* cabocha, const char* str);
   CABOCHA_DLL_EXTERN const cabocha_tree_t  *cabocha_sparse_totree2(cabocha_t* cabocha, const char* str, size_t length);
+  CABOCHA_DLL_EXTERN const cabocha_tree_t  *cabocha_parse_tree(cabocha_t* cabocha, cabocha_tree_t *tree);
 
   /* tree */
   CABOCHA_DLL_EXTERN cabocha_tree_t        *cabocha_tree_new();
