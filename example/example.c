@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   printf("%s", result);
   tree = cabocha_sparse_totree(cabocha, p);
   CHECK(tree);
-  printf("%s", cabocha_tree_tostr(tree, FORMAT_TREE));
+  printf("%s", cabocha_tree_tostr(tree, CABOCHA_FORMAT_TREE));
 
   size = cabocha_tree_token_size(tree);
   cid = 0;
