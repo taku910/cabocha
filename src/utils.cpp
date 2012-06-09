@@ -3,6 +3,7 @@
 //  $Id: utils.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <cstring>
