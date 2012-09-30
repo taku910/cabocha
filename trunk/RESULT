@@ -1,0 +1,103 @@
+IPA (test)
+0.001
+dependency level0: 90.9999 (79968/87877)
+dependency level1: 89.9368 (70684/78593)
+dependency level2: 88.6072 (61512/69421)
+sentence         : 52.2296 (4849/9284)
+0.004
+dependency level0: 91.5552 (80456/87877)
+dependency level1: 90.5577 (71172/78593)
+dependency level2: 89.3102 (62000/69421)
+sentence         : 54.2008 (5032/9284)
+0.005
+dependency level0: 91.5734 (80472/87877)
+dependency level1: 90.5780 (71188/78593)
+dependency level2: 89.3332 (62016/69421)
+sentence         : 54.2331 (5035/9284)
+0.006
+dependency level0: 91.5837 (80481/87877)
+dependency level1: 90.5895 (71197/78593)
+dependency level2: 89.3462 (62025/69421)
+sentence         : 54.3193 (5043/9284)
+0.007
+dependency level0: 91.5860 (80483/87877)
+dependency level1: 90.5920 (71199/78593)
+dependency level2: 89.3490 (62027/69421)
+sentence         : 54.3408 (5045/9284)
+0.008
+dependency level0: 91.5643 (80464/87877)
+dependency level1: 90.5679 (71180/78593)
+dependency level2: 89.3217 (62008/69421)
+sentence         : 54.2762 (5039/9284)
+0.009
+dependency level0: 91.5450 (80447/87877)
+dependency level1: 90.5462 (71163/78593)
+dependency level2: 89.2972 (61991/69421)
+sentence         : 54.1577 (5028/9284)
+0.01
+dependency level0: 91.5461 (80448/87877)
+dependency level1: 90.5475 (71164/78593)
+dependency level2: 89.2986 (61992/69421)
+sentence         : 54.1685 (5029/9284)
+0.011
+dependency level0: 91.5439 (80446/87877)
+dependency level1: 90.5450 (71162/78593)
+dependency level2: 89.2957 (61990/69421)
+sentence         : 54.3085 (5042/9284)
+0.1
+dependency level0: 90.5743 (79594/87877)
+dependency level1: 89.4609 (70310/78593)
+dependency level2: 88.0685 (61138/69421)
+sentence         : 51.4110 (4773/9284)
+
+IPA (dev)
+0.001
+dependency level0: 90.8974 (42330/46569)
+dependency level1: 89.8433 (37497/41736)
+dependency level2: 88.5243 (32700/36939)
+sentence         : 51.1484 (2472/4833)
+0.004
+dependency level0: 91.4514 (42588/46569)
+dependency level1: 90.4615 (37755/41736)
+dependency level2: 89.2228 (32958/36939)
+sentence         : 52.7416 (2549/4833)
+0.005
+dependency level0: 91.4858 (42604/46569)
+dependency level1: 90.4998 (37771/41736)
+dependency level2: 89.2661 (32974/36939)
+sentence         : 52.8450 (2554/4833)
+0.006
+dependency level0: 91.5244 (42622/46569)
+dependency level1: 90.5429 (37789/41736)
+dependency level2: 89.3148 (32992/36939)
+sentence         : 53.2382 (2573/4833)
+0.007
+dependency level0: 91.5437 (42631/46569)
+dependency level1: 90.5645 (37798/41736)
+dependency level2: 89.3392 (33001/36939)
+sentence         : 53.3830 (2580/4833)
+0.008
+dependency level0: 91.5308 (42625/46569)
+dependency level1: 90.5501 (37792/41736)
+dependency level2: 89.3229 (32995/36939)
+sentence         : 53.3830 (2580/4833)
+0.009
+dependency level0: 91.5287 (42624/46569)
+dependency level1: 90.5477 (37791/41736)
+dependency level2: 89.3202 (32994/36939)
+sentence         : 53.5278 (2587/4833)
+0.01
+dependency level0: 91.5223 (42621/46569)
+dependency level1: 90.5405 (37788/41736)
+dependency level2: 89.3121 (32991/36939)
+sentence         : 53.5485 (2588/4833)
+0.011
+dependency level0: 91.5051 (42613/46569)
+dependency level1: 90.5214 (37780/41736)
+dependency level2: 89.2905 (32983/36939)
+sentence         : 53.3209 (2577/4833)
+0.1
+dependency level0: 90.4894 (42140/46569)
+dependency level1: 89.3881 (37307/41736)
+dependency level2: 88.0100 (32510/36939)
+sentence         : 49.7000 (2402/4833)
