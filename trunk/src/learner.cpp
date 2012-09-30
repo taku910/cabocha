@@ -143,7 +143,7 @@ int cabocha_learn(int argc, char **argv) {
      "parameter for CRF++ (default -f 2)" },
     {"freq",     'f', "1",      "INT",
      "use features that occuer no less than INT (default 1)" },
-    {"cost",     'c', "0.001",    "FLOAT",
+    {"cost",     'c', "0.007",    "FLOAT",
      "set FLOAT for cost parameter (default 0.001)" },
     {"sigma",    's', "0.001",  "FLOAT",
      "set minimum feature weight for PKE approximation (default 0.001)" },
