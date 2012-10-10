@@ -20,7 +20,7 @@ class SVMInterface {
   const char *what() { return what_.str(); }
   virtual bool open(const char *filename) = 0;
   virtual void close() = 0;
-  virtual double classify(size_t argc, char **argv) const = 0;
+  virtual double classify(const std::vector<const char *> &features) const = 0;
 
  protected:
   whatlog what_;
@@ -32,7 +32,7 @@ class SVM : public SVMInterface {
   virtual ~SVM();
   virtual bool open(const char *filename);
   virtual void close();
-  virtual double classify(size_t argc, char **argv) const;
+  virtual double classify(const std::vector<const char *> &features) const;
 
   bool static compile(const char *filename,
                       const char *output,
@@ -58,7 +58,7 @@ class SVMTest: public SVMInterface {
   virtual ~SVMTest();
   virtual bool open(const char *filename);
   virtual void close();
-  virtual double classify(size_t argc, char **argv) const;
+  virtual double classify(const std::vector<const char *> &features) const;
 
  private:
   double classify(const std::vector<int> &ary) const;

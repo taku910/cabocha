@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <set>
+#include "common.h"
 #include "analyzer.h"
 #include "scoped_ptr.h"
 
@@ -15,26 +16,22 @@ namespace CaboCha {
 
 class SVMInterface;
 
-class cmpstr {
- public:bool operator() (const char *s1, const char *s2) {
-   return (strcmp(s1, s2) < 0);}
-};
-
 struct DependencyParserData {
   struct Result {
     double score;
     int link;
   };
   std::vector<std::vector <char *> > static_feature;
+  std::vector<std::vector <char *> > left_context_feature;
+  std::vector<std::vector <char *> > right_context_feature;
+  std::vector<std::vector <char *> > gap_feature;
   std::vector<std::vector <char *> > dyn_b_feature;
   std::vector<std::vector <char *> > dyn_b;
   std::vector<std::vector <char *> > dyn_a_feature;
   std::vector<std::vector <char *> > dyn_a;
-  std::vector<std::vector <char *> > gap;
-  std::vector<std::vector <char *> > gap_list;
   std::vector<Result> results;
-  const char *fp[1024];
-  std::set<const char *, cmpstr> fpset;
+  hash_set<const char *> fpset;
+  std::vector<const char *> fp;
 };
 
 class DependencyParser: public Analyzer {

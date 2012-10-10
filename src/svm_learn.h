@@ -36,8 +36,8 @@ class SVMModel {
 class SVMSolver {
  public:
   static SVMModel *learn(size_t l,
-                         double *y,
-                         int    **x,
+                         const std::vector<double> &y,
+                         const std::vector<const int *> &x,
                          double C,
                          size_t degree,
                          double cache_size);
