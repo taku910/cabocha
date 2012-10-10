@@ -20,9 +20,10 @@
 
 namespace CaboCha {
 
-namespace {
-const size_t kMaxGapSize = 7;
-}
+class cmpstr {
+ public:bool operator() (const char *s1, const char *s2) {
+   return (strcmp(s1, s2) < 0);}
+};
 
 DependencyParser::DependencyParser() : svm_(0) {}
 DependencyParser::~DependencyParser() {}
@@ -48,6 +49,9 @@ void DependencyParser::close() {
   svm_.reset(0);
 }
 
+#define INIT_FEATURE(array) do { \
+    array.clear(); array.resize(size); } while (false)
+
 void DependencyParser::build(Tree *tree) const {
   const size_t size  = tree->chunk_size();
 
@@ -55,46 +59,29 @@ void DependencyParser::build(Tree *tree) const {
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
 
-  data->static_feature.clear();
-  data->static_feature.resize(size);
+  INIT_FEATURE(data->static_feature);
+  INIT_FEATURE(data->left_context_feature);
+  INIT_FEATURE(data->right_context_feature);
+  INIT_FEATURE(data->gap_feature);
+  INIT_FEATURE(data->dyn_a_feature);
+  //  INIT_FEATURE(data->dyn_b_feature);
+  INIT_FEATURE(data->dyn_a);
+  //  INIT_FEATURE(data->dyn_b);
 
-  data->dyn_b_feature.clear();
-  data->dyn_b_feature.resize(size);
-  data->dyn_b.clear();
-  data->dyn_b.resize(size);
-
-  data->dyn_a_feature.clear();
-  data->dyn_a_feature.resize(size);
-  data->dyn_a.clear();
-  data->dyn_a.resize(size);
-
-  data->gap.clear();
-  data->gap_list.clear();
-  data->gap_list.resize(size);
-
+  // collect all features from each chunk.
   for (size_t i = 0; i < tree->chunk_size(); ++i) {
     Chunk *chunk = tree->mutable_chunk(i);
     for (size_t k = 0; k < chunk->feature_list_size; ++k) {
       char *feature = const_cast<char *>(chunk->feature_list[k]);
       switch (feature[0]) {
         case 'F': data->static_feature[i].push_back(feature); break;
-        case 'G': data->gap_list[i].push_back(feature);       break;
+        case 'L': data->left_context_feature[i].push_back(feature); break;
+        case 'R': data->right_context_feature[i].push_back(feature); break;
+        case 'G': data->gap_feature[i].push_back(feature);    break;
         case 'A': data->dyn_a_feature[i].push_back(feature);  break;
-        case 'B': data->dyn_b_feature[i].push_back(feature);  break;
+          //        case 'B': data->dyn_b_feature[i].push_back(feature);  break;
         default:
-          break;
-      }
-    }
-  }
-
-  // make gap features
-  data->gap.resize(size * (size + 3) / 2 + 1);
-
-  for (size_t k = 0; k < size; k++) {
-    for (size_t i = 0; i < k; i++) {
-      for (size_t j = k + 1; j < size; j++) {
-        std::copy(data->gap_list[k].begin(), data->gap_list[k].end(),
-                  std::back_inserter(data->gap[j * (j + 1) / 2 + i]));
+          CHECK_DIE(true) << "Unknown feature " << feature;
       }
     }
   }
@@ -113,11 +100,6 @@ bool DependencyParser::estimate(const Tree *tree,
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
 
-  if (action_mode() == PARSING_MODE &&
-      data->results[src].link != -1) {
-    return tree->chunk(src)->link == dst;
-  }
-
   data->fpset.clear();
   const int dist = dst - src;
   if (dist == 1) {
@@ -130,55 +112,93 @@ bool DependencyParser::estimate(const Tree *tree,
 
   // static feature
   for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
-    data->static_feature[src][i][0] = 'f';
+    data->static_feature[src][i][0] = 'S';  // src
     data->fpset.insert(data->static_feature[src][i]);
   }
 
   for (size_t i = 0; i < data->static_feature[dst].size(); ++i) {
-    data->static_feature[dst][i][0] = 'F';
+    data->static_feature[dst][i][0] = 'D';  // dst
     data->fpset.insert(data->static_feature[dst][i]);
   }
 
-  size_t max_gap = 0;
-
-  // gap feature
-  const int k = dst * (dst + 1) / 2 + src;
-  max_gap = std::min(data->gap[k].size(), kMaxGapSize);
-  for (size_t i = 0; i < max_gap; ++i) {
-    data->fpset.insert(data->gap[k][i]);
+  // left context
+  if (src > 0) {
+    for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
+      data->fpset.insert(data->left_context_feature[src - 1][i]);
+    }
   }
 
-  // dynamic features
-  max_gap = std::min(data->dyn_a[dst].size(), kMaxGapSize);
-  for (size_t i = 0; i < max_gap; ++i) {
+  // right context
+  if (dst < static_cast<int>(tree->chunk_size() - 1)) {
+    for (size_t i = 0; i < data->right_context_feature[dst + 1].size(); ++i) {
+      data->fpset.insert(data->right_context_feature[dst + 1][i]);
+    }
+  }
+
+#if 0
+  // Features proposed by Iwatate
+  std::string w;
+  if (dst < static_cast<int>(tree->chunk_size() - 1)) {
+    w += "__RS:";
+    const Chunk *lchunk = tree->chunk(dst + 1);
+    for (int i = 0; i < lchunk->token_size; ++i) {
+       w.append(tree->token(lchunk->token_pos + i)->normalized_surface);
+    }
+    data->fpset.insert(w.c_str());
+  }
+#endif
+
+  int bracket_status = 0;
+  for (int k = src + 1; k <= dst - 1; ++k) {
+    for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
+      const char *gap_feature = data->gap_feature[k][i];
+      if (std::strcmp(gap_feature, "GOB:1") == 0) {
+        bracket_status |= 1;
+      } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
+        bracket_status |= 2;
+      } else {
+        data->fpset.insert(gap_feature);
+      }
+    }
+  }
+
+  // bracket status
+  switch (bracket_status) {
+    case 0: data->fpset.insert("GNB:1"); break;  // nothing
+    case 1: data->fpset.insert("GOB:1"); break;  // open only
+    case 2: data->fpset.insert("GCB:1"); break;  // close only
+    default: data->fpset.insert("GBB:1"); break;  // both
+  }
+
+  for (size_t i = 0; i < data->dyn_a[dst].size(); ++i) {
     data->dyn_a[dst][i][0] = 'A';
     data->fpset.insert(data->dyn_a[dst][i]);
   }
 
-  max_gap = std::min(data->dyn_a[src].size(), kMaxGapSize);
-  for (size_t i = 0; i < max_gap; ++i) {
+  for (size_t i = 0; i < data->dyn_a[src].size(); ++i) {
     data->dyn_a[src][i][0] = 'a';
     data->fpset.insert(data->dyn_a[src][i]);
   }
 
-  max_gap = std::min(data->dyn_b[dst].size(), kMaxGapSize);
-  for (size_t i = 0; i < max_gap; ++i) {
-    data->dyn_b[dst][i][0] = 'B';
-    data->fpset.insert(data->dyn_b[dst][i]);
-  }
+  //  for (size_t i = 0; i < data->dyn_b[dst].size(); ++i) {
+  //    data->dyn_b[dst][i][0] = 'B';
+  //    data->fpset.insert(data->dyn_b[dst][i]);
+  //  }
 
-  const size_t fsize = data->fpset.size();
-  std::copy(data->fpset.begin(), data->fpset.end(), data->fp);
+  data->fp.clear();
+  std::copy(data->fpset.begin(), data->fpset.end(),
+            std::back_inserter(data->fp));
 
   TreeAllocator *allocator = tree->allocator();
 
   if (action_mode() == PARSING_MODE) {
-    *score = svm_->classify(fsize, const_cast<char **>(data->fp));
+    *score = svm_->classify(data->fp);
     return *score > 0;
   } else {
+    std::sort(data->fp.begin(), data->fp.end(), cmpstr());
     const bool isdep = (tree->chunk(src)->link == dst);
     *(allocator->stream()) << (isdep ? "+1" : "-1");
-    for (size_t i = 0; i < fsize; ++i) {
+    for (size_t i = 0; i < data->fp.size(); ++i) {
       *(allocator->stream()) << ' ' << data->fp[i];
     }
     *(allocator->stream()) << std::endl;
@@ -187,6 +207,16 @@ bool DependencyParser::estimate(const Tree *tree,
 
   return false;
 }
+
+// Sassano's algorithm
+#define MYPOP(agenda, n) do {                   \
+    if (agenda.empty()) {                       \
+      n = -1;                                   \
+    } else {                                    \
+      n = agenda.top();                         \
+      agenda.pop();                             \
+    }                                           \
+  } while (0)
 
 bool DependencyParser::parse(Tree *tree) const {
   if (!tree->allocator()->dependency_parser_data) {
@@ -200,102 +230,6 @@ bool DependencyParser::parse(Tree *tree) const {
   CHECK_DIE(data);
 
   const int size = static_cast<int>(tree->chunk_size());
-  if (size == 0) {
-    return true;
-  }
-
-  build(tree);
-  std::vector<int> dead(size);
-  std::vector<int> alive(size);
-
-  std::fill(dead.begin(), dead.end(), 0);
-
-  // main loop
-  while (true) {
-    alive.clear();
-    for (size_t i = 0; i < dead.size(); ++i) {
-      if (!dead[i]) {
-        alive.push_back(i);
-      }
-    }
-
-    if (alive.size() <= 1) {
-      break;
-    }
-
-    // if previous chunk does NOT depend on the next true;
-    bool prev = false;
-
-    // if current seeking does NOT change the status, true
-    bool change = false;
-
-    // size of alive, ignore the last chunk
-    const int lsize  = static_cast<int>(alive.size() - 1);
-
-    // last index of alive, ignore tha last chunk
-    const int lindex = static_cast<int>(alive.size() - 2);
-
-    for (int i = 0; i < lsize; ++i) {
-      const int src   = alive[i];
-      const int dst   = alive[i + 1];
-      bool      isdep = true;
-      double    score = 0.0;
-
-      if (src != size - 2 && data->results[src].link != dst) {
-        isdep = estimate(tree, src, dst, &score);
-      }
-
-      // force to change TRUE
-      if (i == lindex && !change) {
-        isdep = true;
-      }
-
-      // OK depend
-      if (isdep) {
-        std::copy(data->dyn_b_feature[dst].begin(),
-                  data->dyn_b_feature[dst].end(),
-                  std::back_inserter(data->dyn_b[src]));
-        std::copy(data->dyn_a_feature[src].begin(),
-                  data->dyn_a_feature[src].end(),
-                  std::back_inserter(data->dyn_a[dst]));
-        data->results[src].link = dst;
-        data->results[src].score = score;
-        if (!dead[src]) {
-          change = true;
-        }
-        if (!prev) {
-          dead[src] = true;
-        }
-      }
-
-      prev = isdep;
-    }
-  }
-
-  for (size_t i = 0; i < data->results.size(); ++i) {
-    Chunk *chunk = tree->mutable_chunk(i);
-    chunk->link = data->results[i].link;
-    chunk->score = data->results[i].score;
-  }
-
-  tree->set_output_layer(OUTPUT_DEP);
-
-  return true;
-}
-
-#if 0
-// Sassano's algorithm
-bool DependencyParser::parse(Tree *tree) {
-#define MYPOP(agenda, n) do {                   \
-    if (agenda.empty()) {                       \
-      n = -1;                                   \
-    } else {                                    \
-      n = agenda.top();                         \
-      agenda.pop();                             \
-    }                                           \
-  } while (0)
-
-  const int size = static_cast<int>(tree->chunk_size());
   build(tree);
 
   std::stack<int> agenda;
@@ -304,28 +238,31 @@ bool DependencyParser::parse(Tree *tree) {
   for (int dst = 1; dst < size; ++dst) {
     int src = 0;
     MYPOP(agenda, src);
-    while (src != -1 && estimate(tree, src, dst, &score)) {
+    // if agenda is empty, src == -1.
+    while (src != -1 &&
+           (dst == size - 1 || estimate(tree, src, dst, &score))) {
       Chunk *chunk = tree->mutable_chunk(src);
       chunk->link = dst;
       chunk->score = score;
 
       // copy dynamic feature
-      std::copy(dyn_b_feature_[dst].begin(),
-                dyn_b_feature_[dst].end(),
-                std::back_inserter(dyn_b_[src]));
-      std::copy(dyn_a_feature_[src].begin(),
-                dyn_a_feature_[src].end(),
-                std::back_inserter(dyn_a_[dst]));
+      // std::copy(data->dyn_b_feature[dst].begin(),
+      // data->dyn_b_feature[dst].end(),
+      // std::back_inserter(data->dyn_b[src]));
+      std::copy(data->dyn_a_feature[src].begin(),
+                data->dyn_a_feature[src].end(),
+                std::back_inserter(data->dyn_a[dst]));
 
       MYPOP(agenda, src);
     }
-    if (src != -1) agenda.push(src);
+    if (src != -1) {
+      agenda.push(src);
+    }
     agenda.push(dst);
   }
 
   tree->set_output_layer(OUTPUT_DEP);
   return true;
-#undef MYPOP
 }
-#endif
+#undef MYPOP
 }

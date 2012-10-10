@@ -287,12 +287,12 @@ bool SVM::open(const char *filename) {
   return true;
 }
 
-double SVM::classify(size_t argc, char **argv) const {
+double SVM::classify(const std::vector<const char *> &features) const {
   std::vector<int> dot_buf;
-  dot_buf.reserve(argc);
-  for (size_t i = 0; i < argc; ++i) {
+  dot_buf.reserve(features.size());
+  for (size_t i = 0; i < features.size(); ++i) {
     const int r =
-        da_.exactMatchSearch<Darts::DoubleArray::result_type>(argv[i]);
+        da_.exactMatchSearch<Darts::DoubleArray::result_type>(features[i]);
     if (r != -1) {
       dot_buf.push_back(r);
     }
@@ -415,7 +415,9 @@ bool SVM::compile(const char *filename, const char *output,
   {
     std::vector<std::pair<std::string, int> > dic;
     while (ifs.getline(buf.get(), buf.size())) {
-      if (std::strlen(buf.get()) == 0) break;
+      if (std::strlen(buf.get()) == 0) {
+        break;
+      }
       const size_t size = tokenize(buf.get(), " ", column.get(), 2);
       CHECK_DIE(size == 2) << "format error: " << buf.get();
       const int id = std::atoi(column[0]);
@@ -465,7 +467,6 @@ bool SVM::compile(const char *filename, const char *output,
   CHECK_DIE(ifs.getline(buf.get(), buf.size()))
       << "format error: " << filename;
   double fbias = std::atof(buf.get());
-
 
   // PKE mine
   PKEMine pkemine;
@@ -568,10 +569,10 @@ double SVMTest::classify(const std::vector<int> &ary) const {
   return result;
 }
 
-double SVMTest::classify(size_t argc, char **argv) const {
+double SVMTest::classify(const std::vector<const char *> &features) const {
   std::vector<int> ary;
-  for (size_t i = 0; i < argc; ++i) {
-    std::map<std::string, int>::const_iterator it = dic_.find(argv[i]);
+  for (size_t i = 0; i < features.size(); ++i) {
+    std::map<std::string, int>::const_iterator it = dic_.find(features[i]);
     if (it != dic_.end()) {
       ary.push_back(it->second);
     }
@@ -610,7 +611,9 @@ bool SVMTest::open(const char *filename) {
 
   while (ifs.getline(buf.get(), buf.size())) {
     const size_t size = tokenize(buf.get(), " ", column.get(), column.size());
-    if (size < 2) continue;
+    if (size < 2) {
+      continue;
+    }
     w_.push_back(std::atof(column[0]));
     x_.resize(x_.size() + 1);
     for (size_t i = 1; i < size; ++i) {

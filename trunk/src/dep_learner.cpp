@@ -39,6 +39,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
   const std::string str_train_file = std::string(model_file) + ".str";
   const std::string id_train_file = std::string(model_file) + ".id";
   const std::string svm_learn_model_file = std::string(model_file) + ".model";
+  const std::string model_debug_file = std::string(model_file) + ".svm";
 
   {
     progress_timer pg;
@@ -70,11 +71,14 @@ bool DependencyTrainingWithSVM(const char *train_file,
     std::string str;
     while (ifs) {
       CHECK_DIE(read_sentence(&ifs, &str, INPUT_CHUNK));
+      if (str.empty()) {
+        break;
+      }
       CHECK_DIE(tree.read(str.c_str(), str.size(),
                           INPUT_CHUNK)) << "cannot parse sentence";
       CHECK_DIE(selector->parse(&tree)) << selector->what();
       CHECK_DIE(analyzer->parse(&tree)) << analyzer->what();
-      if (tree.empty()) continue;
+      CHECK_DIE(!tree.empty()) << "[" << str << "]";
       if (++line % 100 == 0)
         std::cout << line << ".. " << std::flush;
     }
@@ -83,64 +87,53 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
   // read training data and make dic
   {
+    int id = 1;
     std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
     scoped_fixed_array<char, BUF_SIZE * 32> buf;
     scoped_fixed_array<char *, BUF_SIZE> column;
     while (ifs.getline(buf.get(), buf.size())) {
       const size_t size = tokenize(buf.get(), " ",
-                                   column.get(), buf.size());
+                                   column.get(), column.size());
       CHECK_DIE(size >= 2);
       for (size_t i = 1; i < size; ++i) {
-        dic[std::string(column[i])]++;
+        const std::string key = column[i];
+        if (dic.find(key) == dic.end()) {
+          dic[key] = id;
+          ++id;
+        }
       }
     }
   }
 
-  // make dic -> id table
-  {
-    std::vector<std::pair<int, std::string> > freq;
-    for (std::map<std::string, int>::const_iterator it = dic.begin();
-         it != dic.end(); ++it) {
-      freq.push_back(std::make_pair(it->second, it->first));
-    }
-    std::sort(freq.begin(), freq.end());
-    int id = 0;
-    for (size_t i = 0; i < freq.size(); ++i) {
-      dic[freq[i].second] = id;
-      ++id;
-    }
-  }
-
-  std::vector<int *> x;
+  std::vector<const int *> x;
   std::vector<double> y;
   FreeList<int> feature_freelist(8192);
 
   {
-    std::set<std::string> dup;
     std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
 
-    const std::string model_debug_file = std::string(model_file) + ".svm";
     std::ofstream ofs(WPATH(model_debug_file.c_str()));
 
     scoped_fixed_array<char, BUF_SIZE * 32> buf;
     scoped_fixed_array<char *, BUF_SIZE> column;
     while (ifs.getline(buf.get(), buf.size())) {
-      if (dup.find(buf.get()) != dup.end())
-        continue;
-      dup.insert(buf.get());
       const size_t size = tokenize(buf.get(), " ", column.get(),
-                                   buf.size());
+                                   column.size());
       CHECK_DIE(size >= 2);
       std::vector<int> tmp;
       for (size_t i = 1; i < size; ++i) {
-        tmp.push_back(dic[std::string(column[i])]);
+        const std::string key = column[i];
+        CHECK_DIE(dic.find(key) != dic.end());
+        tmp.push_back(dic[key]);
       }
       std::sort(tmp.begin(), tmp.end());
 
-      ofs << std::atof(column[0]);
+      const float label = std::atof(column[0]);
+      ofs << label;
       for (size_t i = 0; i < tmp.size(); ++i) {
+        CHECK_DIE(tmp[i] > 0);
         ofs << " " << tmp[i] << ":1";
       }
       ofs << std::endl;
@@ -149,9 +142,8 @@ bool DependencyTrainingWithSVM(const char *train_file,
       int *fp = feature_freelist.alloc(tmp.size());
       std::copy(tmp.begin(), tmp.end(), fp);
       x.push_back(fp);
-      y.push_back(std::atof(column[0]));
+      y.push_back(label);
     }
-    Unlink(str_train_file.c_str());
   }
 
   CHECK_DIE(x.size() >= 2) << "training data is too small";
@@ -159,8 +151,8 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
   scoped_ptr<SVMModel> model;
   model.reset(SVMSolver::learn(y.size(),
-                               &y[0],
-                               &x[0],
+                               y,
+                               x,
                                cost,
                                degree,
                                cache_size));
@@ -190,9 +182,14 @@ bool DependencyTrainingWithSVM(const char *train_file,
     for (std::map<std::string, int>::const_iterator it = dic.begin();
          it != dic.end(); ++it) {
       if (active_feature.find(it->second) != active_feature.end()) {
+        CHECK_DIE(old2new.find(it->second) != old2new.end());
         ofs << old2new[it->second] << ' ' << it->first << std::endl;
       }
     }
+
+    ofs.setf(std::ios::fixed, std::ios::floatfield);
+    ofs.precision(16);
+
     ofs << std::endl;
     ofs << model->degree() << std::endl;
     ofs << model->bias() << std::endl;
@@ -200,6 +197,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
       ofs << model->alpha(i);
       std::vector<int> new_x;
       for (const int *fp = model->x(i); *fp >= 0; ++fp) {
+        CHECK_DIE(old2new.find(*fp) != old2new.end());
         new_x.push_back(old2new[*fp]);
       }
       std::sort(new_x.begin(), new_x.end());
@@ -211,9 +209,10 @@ bool DependencyTrainingWithSVM(const char *train_file,
     }
   }
 
-  Unlink(str_train_file.c_str());
-  Unlink(id_train_file.c_str());
-  Unlink(svm_learn_model_file.c_str());
+  //  Unlink(model_debug_file.c_str();
+  //  Unlink(str_train_file.c_str());
+  //  Unlink(id_train_file.c_str());
+  //  Unlink(svm_learn_model_file.c_str());
 
   std::cout << "\nDone! ";
 

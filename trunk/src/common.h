@@ -119,5 +119,43 @@ class wlog {
 (condition) ? 0 : die() & std::cerr << __FILE__ << \
 "(" << __LINE__ << ") [" << #condition << "] "
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#include <hash_map>
+#include <hash_set>
+#if _MSC_VER < 1310 || _MSC_VER >= 1600
+using std::hash_map;
+#else
+using stdext::hash_map;
+#endif
+#else
+
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION >= 40300
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+#define hash_map std::tr1::unordered_map
+#define hash_set std::tr1::unordered_set
+#else
+#include <ext/hash_map>
+#include <ext/hash_set>
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash_set;
+
+#include <string>
+namespace __gnu_cxx {
+template <>
+struct hash<std::string> {
+  std::size_t operator()(const std::string &s) const {
+    std::size_t result = 0;
+    for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+      result = (result * 131) + *it;
+    }
+    return result;
+  }
+};
+}
+#endif
+#endif
+
 #endif
 

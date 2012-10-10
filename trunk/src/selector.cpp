@@ -14,7 +14,7 @@
 #include "utils.h"
 
 namespace CaboCha {
-inline const char *get_token(const Token *token, size_t id) {
+inline const char *getToken(const Token *token, size_t id) {
   if (token->feature_list_size <= id) {
     return 0;
   }
@@ -22,6 +22,30 @@ inline const char *get_token(const Token *token, size_t id) {
     return 0;
   }
   return token->feature_list[id];
+}
+
+inline void emitTokenFeatures(const char* header,
+                              const Token *token,
+                              size_t pos_size,
+                              std::ostrstream *ostrs) {
+  const char *surface = token->normalized_surface;
+  const char *cform = getToken(token, pos_size + 1);
+
+  *ostrs << ' ' << header << "S:" << surface;
+
+  const size_t size =
+      std::min(pos_size,
+               static_cast<size_t>(token->feature_list_size));
+  for (size_t k = 0; k < size; ++k) {
+    if (std::strcmp("*", token->feature_list[k]) == 0) {
+      break;
+    }
+    *ostrs << ' ' << header << 'P' << k << ':' << token->feature_list[k];
+  }
+
+  if (cform) {
+    *ostrs << ' ' << header <<  "F:" << cform;
+  }
 }
 
 PatternMatcher::PatternMatcher() : matched_result_(true) {}
@@ -121,25 +145,35 @@ bool Selector::parse(Tree *tree) const {
   for (size_t i = 0; i < size; ++i) {  // for all chunks
     const Chunk *chunk = tree->chunk(i);
     const size_t token_size = chunk->token_pos + chunk->token_size;
-    char *buf = tree->alloc(2048);
-    std::ostrstream ostrs(buf, 2048);
+    const size_t kFeatureBufferSize = 2048;
+    char *buf = tree->alloc(kFeatureBufferSize);
+    std::ostrstream ostrs(buf, kFeatureBufferSize);
 
     // for all tokens
     for (size_t j = chunk->token_pos; j < token_size; ++j) {
       const Token *token = tree->token(j);
       if (pat_kutouten_.match(token->normalized_surface)) {
-        ostrs << " G_PUNC:" << token->normalized_surface;
-        ostrs << " F_PUNC:" << token->normalized_surface;
+        ostrs << " GPUNC:" << token->normalized_surface;
+        ostrs << " FPUNC:" << token->normalized_surface;
       }
 
       if (pat_open_bracket_.match(token->normalized_surface)) {
-        ostrs << " G_OB:" << token->normalized_surface;
-        ostrs << " F_OB:" << token->normalized_surface;
+        ostrs << " GOB:" << token->normalized_surface;
+        ostrs << " FOB:" << token->normalized_surface;
+        ostrs << " GOB:1";
+        ostrs << " FOB:1";
       }
 
       if (pat_close_bracket_.match(token->normalized_surface)) {
-        ostrs << " G_CB:" << token->normalized_surface;
-        ostrs << " F_CB:" << token->normalized_surface;
+        ostrs << " GCB:" << token->normalized_surface;
+        ostrs << " FCB:" << token->normalized_surface;
+        ostrs << " GCB:1";
+        ostrs << " FCB:1";
+      }
+
+      // all particles in a chunk
+      if (pat_case_.prefix_match(token->feature)) {
+        ostrs << " FCASE:" << token->normalized_surface;
       }
     }
 
@@ -149,85 +183,65 @@ bool Selector::parse(Tree *tree) const {
 
     const Token *htoken = tree->token(head_index);
     const Token *ftoken = tree->token(func_index);
+    const Token *ltoken = tree->token(chunk->token_pos);
+    const Token *rtoken = tree->token(chunk->token_pos +
+                                      chunk->token_size - 1);
 
-    const char *hsurface = htoken->normalized_surface;
-    const char *fsurface = ftoken->normalized_surface;
-    const char *hctype   = get_token(htoken, pos_size);
-    const char *hcform   = get_token(htoken, pos_size + 1);
-    const char *fctype   = get_token(ftoken, pos_size);
-    const char *fcform   = get_token(ftoken, pos_size + 1);
+    // static features
+    emitTokenFeatures("FH", htoken, pos_size, &ostrs);
+    emitTokenFeatures("FF", ftoken, pos_size, &ostrs);
+    emitTokenFeatures("FL", ltoken, pos_size, &ostrs);
+    emitTokenFeatures("FR", rtoken, pos_size, &ostrs);
 
-    ostrs << " F_H0:" << hsurface;
+    // context features
+    ostrs << " LF:" << ftoken->normalized_surface;
+    ostrs << " RL:" << ltoken->normalized_surface;
+    ostrs << " RH:" << htoken->normalized_surface;
+    ostrs << " RF:" << ftoken->normalized_surface;
 
-    const size_t hsize =
-        std::min(pos_size,
-                 static_cast<size_t>(htoken->feature_list_size));
-    for (size_t k = 0; k < hsize; ++k) {
-      if (std::strcmp("*", htoken->feature_list[k]) == 0) {
-        break;
-      }
-      ostrs << " F_H" << k + 1 << ':' << htoken->feature_list[k];
+    if (i == 0) {
+      ostrs << " FBOS:1";
     }
-    if (hctype) {
-      ostrs << " F_H5:" << hctype;
-    }
-    if (hcform) {
-      ostrs << " F_H6:" << hcform;
+    if (i == size - 1) {
+      ostrs << " FEOS:1";
     }
 
-    ostrs << " F_F0:" << fsurface;
-    const size_t fsize = std::min(
-        pos_size,
-        static_cast<size_t>(ftoken->feature_list_size));
-    for (size_t k = 0; k < fsize; ++k) {
-      if (std::strcmp("*", ftoken->feature_list[k]) == 0) break;
-      ostrs << " F_F" << k + 1 << ':' << ftoken->feature_list[k];
+    if (pat_case_.prefix_match(ftoken->feature)) {
+      ostrs << " GCASE:" << ftoken->normalized_surface;
     }
 
-    if (fctype) {
-      ostrs << " F_F5:" << fctype;
-    }
-    if (fcform) {
-      ostrs << " F_F6:" << fcform;
-    }
-
-    std::string output;
+    // dynamic features
+    const char *fcform = getToken(ftoken, pos_size + 1);
     if (pat_dyn_a_.prefix_match(ftoken->feature)) {
-      ostrs << " A:" << fsurface;
+      ostrs << " A:" << ftoken->normalized_surface;
     } else if (fcform) {
       ostrs << " A:" << fcform;
     } else {
+      std::string output;
       concat_feature(ftoken, pos_size, &output);
       ostrs << " A:" << output;
     }
 
-    concat_feature(htoken, pos_size, &output);
-    ostrs << " B:" << output;
-
-    if (pat_case_.prefix_match(ftoken->feature)) {
-      ostrs << " G_CASE:" << fsurface;
-    }
-
-    if (i == 0) {
-      ostrs << " F_BOS:1";
-    }
-    if (i == size - 1) {
-      ostrs << " F_EOS:1";
-    }
+    // This feature is not used for linear algorithm.
+    //    std::string output;
+    //    concat_feature(htoken, pos_size, &output);
+    //    ostrs << " B:" << output;
 
     ostrs << std::ends;
+
     // write to tree
     Chunk *mutable_chunk = tree->mutable_chunk(i);
     mutable_chunk->head_pos = head_index - chunk->token_pos;
     mutable_chunk->func_pos = func_index - chunk->token_pos;
 
-    const int kFeatureSize = 256;
+    const int kFeatureSize = 128;
     scoped_array<char *> feature(new char *[kFeatureSize]);
     const size_t s = tokenize(buf + 1, " ", feature.get(), kFeatureSize);
     mutable_chunk->feature_list_size = static_cast<unsigned char>(s);
     mutable_chunk->feature_list = const_cast<const char **>
         (tree->alloc_char_array(s));
-    std::copy(feature.get(), feature.get() + s, mutable_chunk->feature_list);
+    std::copy(feature.get(), feature.get() + s,
+              mutable_chunk->feature_list);
   }
 
   tree->set_output_layer(OUTPUT_SELECTION);

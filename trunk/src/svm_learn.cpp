@@ -24,16 +24,14 @@ class QMatrix;
 class SVMSolverImpl {
  public:
   SVMModel *learn(size_t l,
-                  double *y,
-                  int    **x,
+                  const std::vector<double> &y,
+                  const std::vector<const int *> &x,
                   double C,
                   size_t degree,
                   double cache_size);
 
  private:
   size_t                        l_;
-  int                           **x_;
-  double                        *y_;
   QMatrix                       *q_matrix_;
   double                        C_;
   double                        eps_;
@@ -44,6 +42,8 @@ class SVMSolverImpl {
   size_t                        hit_old_;
   size_t                        iter_;
   size_t                        degree_;
+  std::vector<const int *>      x_;
+  std::vector<double>           y_;
   std::vector<double>           G_;
   std::vector<double>           alpha_;
   std::vector<short>            status_;
@@ -74,8 +74,8 @@ class SVMSolverImpl {
 };
 
 SVMModel *SVMSolver::learn(size_t l,
-                           double *y,
-                           int    **x,
+                           const std::vector<double> &y,
+                           const std::vector<const int *> &x,
                            double C,
                            size_t degree,
                            double cache_size) {
@@ -264,8 +264,8 @@ class Cache {
 
 class QMatrix {
  private:
-  int                  **x_;
-  double                *y_;
+  const int           **x_;
+  const double          *y_;
   Cache<float>          *cache_;
   Cache<unsigned char>  *cache_binary_;
   float                  binary_kernel_cache_[256];
@@ -278,7 +278,7 @@ class QMatrix {
   size_t size() const { return size_; }
   size_t hit()  const { return hit_;  }
   size_t miss() const { return miss_; }
-  void set(double *y, int **x) {
+  void set(const double *y, const int **x) {
     y_ = y;
     x_ = x;
   }
@@ -351,33 +351,31 @@ class QMatrix {
 };
 
 SVMModel *SVMSolverImpl::learn(size_t l,
-                               double *y,
-                               int   **x,
+                               const std::vector<double> &y,
+                               const std::vector<const int *> &x,
                                double C,
                                size_t degree,
                                double cache_size) {
   progress_timer timer;
-  l_            = l;
-  C_            = C;
-  eps_          = 0.001;
-  shrink_size_  = 100;
-  shrink_eps_   = 2.0;
-  active_size_  = l;
-  iter_         = 0;
-  hit_old_      = 0;
-  y_            = y;
-  x_            = x;
-  degree_       = degree;
+  y_           = y;
+  x_           = x;
+  l_           = l;
+  C_           = C;
+  eps_         = 0.001;
+  shrink_size_ = 100;
+  shrink_eps_  = 2.0;
+  active_size_ = l;
+  iter_        = 0;
+  hit_old_     = 0;
+  degree_      = degree;
 
-  alpha_.resize(l_);
-  G_.resize(l_);
-  shrink_iter_.resize(l_);
+
+  alpha_.resize(l_, 0.0);
+  G_.resize(l_, -1.0);
+  shrink_iter_.resize(l_, 0);
+
   status_.resize(l_);
   active2index_.resize(l_);
-
-  std::fill(G_.begin(), G_.end(), -1.0);
-  std::fill(alpha_.begin(), alpha_.end(), 0.0);
-  std::fill(shrink_iter_.begin(), shrink_iter_.end(), 0);
 
   for (size_t i = 0; i < l_; ++i) {
     status_[i] = alpha2status(alpha_[i]);
@@ -385,18 +383,38 @@ SVMModel *SVMSolverImpl::learn(size_t l,
   }
 
   q_matrix_ = new QMatrix(l_, cache_size, degree);
-  q_matrix_->set(y_, x_);
+  q_matrix_->set(&y_[0], &x_[0]);
 
   for (;;) {
     learn_sub();
-    if (check_inactive() == 0)  break;
+    if (check_inactive() == 0) {
+      break;
+    }
     q_matrix_->rebuild(active_size_);
-    q_matrix_->set(y, x);
+    q_matrix_->set(&y_[0], &x_[0]);
     shrink_eps_ = 2.0;
+  }
+
+  {
+    std::vector<double> alpha_tmp(alpha_);
+    std::vector<double> G_tmp(G_);
+    for (size_t i = 0; i < l; ++i) {
+      alpha_tmp[active2index_[i]] = alpha_[i];
+      G_tmp[active2index_[i]] = G_[i];
+    }
+    alpha_ = alpha_tmp;
+    G_ = G_tmp;
   }
 
   // calculate threshold b
   const double rho = lambda_eq_;
+
+  // calculate objective value
+  double obj = 0.0;
+  for (size_t i = 0; i < l; i++) {
+    obj += alpha_[i] * (G_[i] - 1);
+  }
+  obj /= 2;
 
   // make output model
   SVMModel *out_model = new SVMModel;
@@ -408,7 +426,7 @@ SVMModel *SVMSolverImpl::learn(size_t l,
   size_t sv = 0;
   double loss = 0.0;
   for (size_t i = 0; i < l_; ++i) {
-    const double d = G_[i] + y_[i] * rho + 1.0;
+    const double d = G_[i] + y[i] * rho + 1.0;
     if (d < 0) ++err;
     if (d < (1 - eps_)) loss += (1 - d);
     if (alpha_[i] >= C_ - EPS_A) ++bsv;  // upper bound
@@ -424,6 +442,7 @@ SVMModel *SVMSolverImpl::learn(size_t l,
   std::cout << "L1 Loss: " <<  loss << std::endl;
   std::cout << "BSV: " << bsv << std::endl;
   std::cout << "SV: " << sv << std::endl;
+  std::cout << "obj: " << obj << std::endl;
   std::cout << "Done! ";
 
   return out_model;
@@ -604,8 +623,9 @@ size_t SVMSolverImpl::check_inactive() {
   tmp_model.set_bias(-lambda_eq_);
   tmp_model.set_degree(degree_);
   for (size_t i = 0; i < l_; ++i) {
-    if (!is_lower_bound(i))
+    if (!is_lower_bound(i)) {
       tmp_model.add(alpha_[i] * y_[i], x_[i]);
+    }
   }
 
   size_t react_num = 0;
