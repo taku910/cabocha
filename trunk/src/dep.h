@@ -16,6 +16,11 @@ namespace CaboCha {
 
 class SVMInterface;
 
+class cmpstr {
+ public:bool operator() (const char *s1, const char *s2) {
+   return (strcmp(s1, s2) < 0); }
+};
+
 struct DependencyParserData {
   struct Result {
     double score;
@@ -25,12 +30,11 @@ struct DependencyParserData {
   std::vector<std::vector <char *> > left_context_feature;
   std::vector<std::vector <char *> > right_context_feature;
   std::vector<std::vector <char *> > gap_feature;
-  std::vector<std::vector <char *> > dyn_b_feature;
-  std::vector<std::vector <char *> > dyn_b;
-  std::vector<std::vector <char *> > dyn_a_feature;
-  std::vector<std::vector <char *> > dyn_a;
+  std::vector<std::vector <char *> > dynamic_feature;
   std::vector<Result> results;
-  hash_set<const char *> fpset;
+  std::vector<std::vector<int> > children;
+  // hash_set<const char *> fpset;
+  std::set<const char *, cmpstr> fpset;
   std::vector<const char *> fp;
 };
 

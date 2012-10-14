@@ -20,11 +20,6 @@
 
 namespace CaboCha {
 
-class cmpstr {
- public:bool operator() (const char *s1, const char *s2) {
-   return (strcmp(s1, s2) < 0);}
-};
-
 DependencyParser::DependencyParser() : svm_(0) {}
 DependencyParser::~DependencyParser() {}
 
@@ -63,10 +58,8 @@ void DependencyParser::build(Tree *tree) const {
   INIT_FEATURE(data->left_context_feature);
   INIT_FEATURE(data->right_context_feature);
   INIT_FEATURE(data->gap_feature);
-  INIT_FEATURE(data->dyn_a_feature);
-  //  INIT_FEATURE(data->dyn_b_feature);
-  INIT_FEATURE(data->dyn_a);
-  //  INIT_FEATURE(data->dyn_b);
+  INIT_FEATURE(data->dynamic_feature);
+  INIT_FEATURE(data->children);
 
   // collect all features from each chunk.
   for (size_t i = 0; i < tree->chunk_size(); ++i) {
@@ -78,8 +71,7 @@ void DependencyParser::build(Tree *tree) const {
         case 'L': data->left_context_feature[i].push_back(feature); break;
         case 'R': data->right_context_feature[i].push_back(feature); break;
         case 'G': data->gap_feature[i].push_back(feature);    break;
-        case 'A': data->dyn_a_feature[i].push_back(feature);  break;
-          //        case 'B': data->dyn_b_feature[i].push_back(feature);  break;
+        case 'A': data->dynamic_feature[i].push_back(feature);  break;
         default:
           CHECK_DIE(true) << "Unknown feature " << feature;
       }
@@ -101,6 +93,8 @@ bool DependencyParser::estimate(const Tree *tree,
   CHECK_DIE(data);
 
   data->fpset.clear();
+
+  // distance features
   const int dist = dst - src;
   if (dist == 1) {
     data->fpset.insert("DIST:1");
@@ -110,7 +104,7 @@ bool DependencyParser::estimate(const Tree *tree,
     data->fpset.insert("DIST:6-");
   }
 
-  // static feature
+  // static features
   for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
     data->static_feature[src][i][0] = 'S';  // src
     data->fpset.insert(data->static_feature[src][i]);
@@ -121,33 +115,21 @@ bool DependencyParser::estimate(const Tree *tree,
     data->fpset.insert(data->static_feature[dst][i]);
   }
 
-  // left context
+  // left context features
   if (src > 0) {
     for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
       data->fpset.insert(data->left_context_feature[src - 1][i]);
     }
   }
 
-  // right context
+  // right context features
   if (dst < static_cast<int>(tree->chunk_size() - 1)) {
     for (size_t i = 0; i < data->right_context_feature[dst + 1].size(); ++i) {
       data->fpset.insert(data->right_context_feature[dst + 1][i]);
     }
   }
 
-#if 0
-  // Features proposed by Iwatate
-  std::string w;
-  if (dst < static_cast<int>(tree->chunk_size() - 1)) {
-    w += "__RS:";
-    const Chunk *lchunk = tree->chunk(dst + 1);
-    for (int i = 0; i < lchunk->token_size; ++i) {
-       w.append(tree->token(lchunk->token_pos + i)->normalized_surface);
-    }
-    data->fpset.insert(w.c_str());
-  }
-#endif
-
+  // gap features
   int bracket_status = 0;
   for (int k = src + 1; k <= dst - 1; ++k) {
     for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
@@ -170,20 +152,22 @@ bool DependencyParser::estimate(const Tree *tree,
     default: data->fpset.insert("GBB:1"); break;  // both
   }
 
-  for (size_t i = 0; i < data->dyn_a[dst].size(); ++i) {
-    data->dyn_a[dst][i][0] = 'A';
-    data->fpset.insert(data->dyn_a[dst][i]);
+  // dynamic features
+  for (size_t i = 0; i < data->children[dst].size(); ++i) {
+    const int child = data->children[dst][i];
+    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
+      data->dynamic_feature[child][j][0] = 'A';
+      data->fpset.insert(data->dynamic_feature[child][j]);
+    }
   }
 
-  for (size_t i = 0; i < data->dyn_a[src].size(); ++i) {
-    data->dyn_a[src][i][0] = 'a';
-    data->fpset.insert(data->dyn_a[src][i]);
+  for (size_t i = 0; i < data->children[src].size(); ++i) {
+    const int child = data->children[src][i];
+    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
+      data->dynamic_feature[child][j][0] = 'a';
+      data->fpset.insert(data->dynamic_feature[child][j]);
+    }
   }
-
-  //  for (size_t i = 0; i < data->dyn_b[dst].size(); ++i) {
-  //    data->dyn_b[dst][i][0] = 'B';
-  //    data->fpset.insert(data->dyn_b[dst][i]);
-  //  }
 
   data->fp.clear();
   std::copy(data->fpset.begin(), data->fpset.end(),
@@ -245,13 +229,8 @@ bool DependencyParser::parse(Tree *tree) const {
       chunk->link = dst;
       chunk->score = score;
 
-      // copy dynamic feature
-      // std::copy(data->dyn_b_feature[dst].begin(),
-      // data->dyn_b_feature[dst].end(),
-      // std::back_inserter(data->dyn_b[src]));
-      std::copy(data->dyn_a_feature[src].begin(),
-                data->dyn_a_feature[src].end(),
-                std::back_inserter(data->dyn_a[dst]));
+      // store children for dynamic_features
+      data->children[dst].push_back(src);
 
       MYPOP(agenda, src);
     }

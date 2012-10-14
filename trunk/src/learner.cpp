@@ -28,8 +28,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
                                CharsetType charset,
                                PossetType posset,
                                int degree,
-                               double cost,
-                               double cache_size);
+                               double cost);
 }
 
 namespace {
@@ -143,7 +142,7 @@ int cabocha_learn(int argc, char **argv) {
      "parameter for CRF++ (default -f 2)" },
     {"freq",     'f', "1",      "INT",
      "use features that occuer no less than INT (default 1)" },
-    {"cost",     'c', "0.007",    "FLOAT",
+    {"cost",     'c', "0.0015",    "FLOAT",
      "set FLOAT for cost parameter (default 0.001)" },
     {"sigma",    's', "0.001",  "FLOAT",
      "set minimum feature weight for PKE approximation (default 0.001)" },
@@ -151,8 +150,6 @@ int cabocha_learn(int argc, char **argv) {
      "set minimum frequency support for PKE approximation (default 2)" },
     {"degree",   'd', "2",  "INT",
      "set degree of polynomial kernel (default 2)"},
-    {"cache-size",  'b',  "1000.0", "FLOAT",
-     "set FLOAT for cache memory size (MB)" },
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
       "set parser charset to ENC (default "
       CABOCHA_DEFAULT_CHARSET ")" },
@@ -186,7 +183,6 @@ int cabocha_learn(int argc, char **argv) {
 
   if (type == TRAIN_DEP) {
     const float cost       = param.get<float>("cost");
-    const float cache_size = param.get<float>("cache-size");
     const int   degree     = param.get<int>("degree");
     const std::string text_model_file = rest[1] + ".txt";
     CHECK_DIE(CaboCha::DependencyTrainingWithSVM(rest[0].c_str(),
@@ -194,8 +190,7 @@ int cabocha_learn(int argc, char **argv) {
                                                  charset,
                                                  posset,
                                                  degree,
-                                                 cost,
-                                                 cache_size));
+                                                 cost));
     const float  sigma  = param.get<float>("sigma");
     const size_t minsup = param.get<size_t>("minsup");
     CHECK_DIE(CaboCha::SVM::compile(text_model_file.c_str(),

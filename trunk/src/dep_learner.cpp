@@ -29,11 +29,9 @@ bool DependencyTrainingWithSVM(const char *train_file,
                                CharsetType charset,
                                PossetType posset,
                                int degree,
-                               double cost,
-                               double cache_size) {
-  CHECK_DIE(cache_size >= 40.0) << "too small memory size: " << cache_size;
+                               double cost) {
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
-  CHECK_DIE(degree >= 1 && degree <= 3) << "degree must be 1<=degree<=3";
+  CHECK_DIE(degree == 2) << "degree must be degree==2";
 
   std::map<std::string, int> dic;
   const std::string str_train_file = std::string(model_file) + ".str";
@@ -79,8 +77,9 @@ bool DependencyTrainingWithSVM(const char *train_file,
       CHECK_DIE(selector->parse(&tree)) << selector->what();
       CHECK_DIE(analyzer->parse(&tree)) << analyzer->what();
       CHECK_DIE(!tree.empty()) << "[" << str << "]";
-      if (++line % 100 == 0)
+      if (++line % 100 == 0) {
         std::cout << line << ".. " << std::flush;
+      }
     }
     std::cout << "\nDone! ";
   }
@@ -150,12 +149,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
   CHECK_DIE(x.size() == y.size());
 
   scoped_ptr<SVMModel> model;
-  model.reset(SVMSolver::learn(y.size(),
-                               y,
-                               x,
-                               cost,
-                               degree,
-                               cache_size));
+  model.reset(SVMSolver::learn(y, x, cost, degree));
   CHECK_DIE(model.get());
 
   {
@@ -209,10 +203,10 @@ bool DependencyTrainingWithSVM(const char *train_file,
     }
   }
 
-  //  Unlink(model_debug_file.c_str();
-  //  Unlink(str_train_file.c_str());
-  //  Unlink(id_train_file.c_str());
-  //  Unlink(svm_learn_model_file.c_str());
+  Unlink(model_debug_file.c_str());
+  Unlink(str_train_file.c_str());
+  Unlink(id_train_file.c_str());
+  Unlink(svm_learn_model_file.c_str());
 
   std::cout << "\nDone! ";
 
