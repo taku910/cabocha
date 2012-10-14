@@ -156,6 +156,4 @@ struct hash<std::string> {
 }
 #endif
 #endif
-
 #endif
-
