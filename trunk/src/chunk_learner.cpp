@@ -85,6 +85,7 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
                                int freq,
                                const char *train_file,
                                const char *model_file,
+                               const char *prev_model_file,
                                const char *crfpp_param) {
   CHECK_DIE(freq >= 1);
   const char *template_str = type == TRAIN_CHUNK ?
@@ -131,9 +132,12 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
       CHECK_DIE(tree.read(str.c_str(), str.size(),
                           input)) << "cannot parse sentence";
       CHECK_DIE(analyzer->parse(&tree)) << analyzer->what();
-      if (tree.empty()) continue;
-      if (++line % 100 == 0)
+      if (tree.empty()) {
+        continue;
+      }
+      if (++line % 100 == 0) {
         std::cout << line << ".. " << std::flush;
+      }
     }
     std::cout << "\nDone! ";
   }
