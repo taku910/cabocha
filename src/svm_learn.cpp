@@ -14,7 +14,7 @@
 
 namespace CaboCha {
 namespace {
-const double kEPS = 0.01;
+const double kEPS = 0.1;
 const double kINF = 1e+37;
 
 typedef unsigned long long uint64;
@@ -110,13 +110,32 @@ void update(const int *x, int max_index, double d,
 }  // namespace
 
 // static
-SVMModel *SVMSolver::learn(const std::vector<double> &y,  // label
-                           const std::vector<const int *> &x,
+SVMModel *SVMSolver::learn(const std::vector<double> &y_,  // label
+                           const std::vector<const int *> &x_,
+                           const SVMModel &prev_svm_model,
                            double C,
                            size_t degree) {
-  CHECK_DIE(y.size() == x.size());
   CHECK_DIE(degree == 2)
       << "SVMSolver only supports the case of degree == 2";
+
+  std::vector<double> y(y_);
+  std::vector<const int *> x(x_);
+
+  // dual parametes
+  std::vector<double> alpha(x_.size(), 0.0);
+
+  CHECK_DIE(y.size() == x.size());
+  CHECK_DIE(y.size() == alpha.size());
+
+  for (size_t i = 0; i < prev_svm_model.size(); ++i) {
+    const double a = prev_svm_model.alpha(i);
+    y.push_back(a > 0 ? +1 : -1);
+    x.push_back(prev_svm_model.x(i));
+    alpha.push_back(std::abs(a));
+  }
+
+  CHECK_DIE(y.size() == x.size());
+  CHECK_DIE(y.size() == alpha.size());
 
   const size_t l = y.size();
   size_t active_size = l;
@@ -124,7 +143,6 @@ SVMModel *SVMSolver::learn(const std::vector<double> &y,  // label
   double PGmin_old = -kINF;
   std::vector<size_t> index(l, 0);
   std::vector<double> QD(l, 0.0);     // kernel(x_i * x_i)
-  std::vector<double> alpha(l, 0.0);  // dual parametes
   std::vector<double> GA(l, 0.0);     // margin + 1
 
   std::vector<float> w(1, 0.0);   // primal parameters
@@ -143,6 +161,13 @@ SVMModel *SVMSolver::learn(const std::vector<double> &y,  // label
       ++s;  // x[i].value * x[i].value == 1 (always)
     }
     QD[i] = (1 + s) * (1 + s);   // 2nd polynomial kernel
+  }
+
+  // initialize primal parameters
+  for (size_t i = 0; i < l; ++i) {
+    if (alpha[i] > 0) {
+      update(x[i], max_index, y[i] * alpha[i], &w, &dic);
+    }
   }
 
   const size_t kMaxIteration = 5000;

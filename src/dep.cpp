@@ -222,15 +222,29 @@ bool DependencyParser::parse(Tree *tree) const {
   for (int dst = 1; dst < size; ++dst) {
     int src = 0;
     MYPOP(agenda, src);
+
+    // |is_fake_link| is used for partial training, where
+    // not all dependency relations are specified in the training phase.
+    // Here we assume that a chunk modifes the next chunk,
+    // if the dependency relation is unknown. We don't use the fake
+    // dependency for training.
+    const bool is_fake_link =
+        (action_mode() == TRAINING_MODE &&
+         dst != size - 1 &&
+         tree->chunk(src)->link == -1);
+
     // if agenda is empty, src == -1.
     while (src != -1 &&
-           (dst == size - 1 || estimate(tree, src, dst, &score))) {
+           (dst == size - 1 || is_fake_link ||
+            estimate(tree, src, dst, &score))) {
       Chunk *chunk = tree->mutable_chunk(src);
       chunk->link = dst;
       chunk->score = score;
 
       // store children for dynamic_features
-      data->children[dst].push_back(src);
+      if (!is_fake_link) {
+        data->children[dst].push_back(src);
+      }
 
       MYPOP(agenda, src);
     }

@@ -26,6 +26,7 @@ namespace CaboCha {
 
 bool DependencyTrainingWithSVM(const char *train_file,
                                const char *model_file,
+                               const char *prev_model_file,
                                CharsetType charset,
                                PossetType posset,
                                int degree,
@@ -33,11 +34,11 @@ bool DependencyTrainingWithSVM(const char *train_file,
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
   CHECK_DIE(degree == 2) << "degree must be degree==2";
 
-  std::map<std::string, int> dic;
   const std::string str_train_file = std::string(model_file) + ".str";
-  const std::string id_train_file = std::string(model_file) + ".id";
-  const std::string svm_learn_model_file = std::string(model_file) + ".model";
-  const std::string model_debug_file = std::string(model_file) + ".svm";
+
+  std::map<std::string, int> dic;
+  scoped_fixed_array<char, BUF_SIZE * 32> buf;
+  scoped_fixed_array<char *, BUF_SIZE> column;
 
   {
     progress_timer pg;
@@ -84,13 +85,51 @@ bool DependencyTrainingWithSVM(const char *train_file,
     std::cout << "\nDone! ";
   }
 
-  // read training data and make dic
+  FreeList<int> feature_freelist(8192);
+
+  SVMModel prev_model;
+  prev_model.set_degree(degree);
+  prev_model.set_bias(0.0);
+
+  if (prev_model_file) {
+    std::cout << "reading old model file: " << prev_model_file << std::endl;
+    std::ifstream ifs(WPATH(prev_model_file));
+    CHECK_DIE(ifs) << "no such file or directory: " << prev_model_file;
+    while (ifs.getline(buf.get(), buf.size())) {
+      if (std::strlen(buf.get()) == 0) {
+        break;
+      }
+      const size_t size = tokenize(buf.get(), "\t ", column.get(), 2);
+      CHECK_DIE(size >= 2);
+      dic.insert(std::make_pair(std::string(column[1]),
+                                std::atoi(column[0])));
+    }
+
+    CHECK_DIE(ifs.getline(buf.get(), buf.size()));
+    CHECK_DIE(degree == std::atoi(buf.get()));
+
+    CHECK_DIE(ifs.getline(buf.get(), buf.size()));
+    CHECK_DIE(0.0 == std::atof(buf.get()));
+
+    while (ifs.getline(buf.get(), buf.size())) {
+      const size_t size = tokenize(buf.get(), " ",
+                                   column.get(), column.size());
+      CHECK_DIE(size >= 2);
+      int *fp = feature_freelist.alloc(size);
+      for (size_t i = 1; i < size; ++i) {
+        fp[i - 1] = std::atoi(column[i]);
+      }
+      std::sort(fp, fp + size - 1);
+      fp[size - 1] = -1;
+      const double alpha = std::atof(column[0]);
+      prev_model.add(alpha, fp);
+    }
+  }
+
   {
-    int id = 1;
+    int id = dic.empty() ? 1 : dic.size();
     std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
-    scoped_fixed_array<char, BUF_SIZE * 32> buf;
-    scoped_fixed_array<char *, BUF_SIZE> column;
     while (ifs.getline(buf.get(), buf.size())) {
       const size_t size = tokenize(buf.get(), " ",
                                    column.get(), column.size());
@@ -107,49 +146,35 @@ bool DependencyTrainingWithSVM(const char *train_file,
 
   std::vector<const int *> x;
   std::vector<double> y;
-  FreeList<int> feature_freelist(8192);
 
   {
     std::ifstream ifs(WPATH(str_train_file.c_str()));
     CHECK_DIE(ifs) << "no such file or directory: " << str_train_file;
 
-    std::ofstream ofs(WPATH(model_debug_file.c_str()));
-
-    scoped_fixed_array<char, BUF_SIZE * 32> buf;
-    scoped_fixed_array<char *, BUF_SIZE> column;
     while (ifs.getline(buf.get(), buf.size())) {
       const size_t size = tokenize(buf.get(), " ", column.get(),
                                    column.size());
       CHECK_DIE(size >= 2);
-      std::vector<int> tmp;
+      int *fp = feature_freelist.alloc(size);
       for (size_t i = 1; i < size; ++i) {
         const std::string key = column[i];
-        CHECK_DIE(dic.find(key) != dic.end());
-        tmp.push_back(dic[key]);
+        fp[i - 1] = dic[key];
+        CHECK_DIE(fp[i - 1] != 0);
       }
-      std::sort(tmp.begin(), tmp.end());
+      std::sort(fp, fp + size - 1);
+      fp[size - 1] = -1;
 
-      const float label = std::atof(column[0]);
-      ofs << label;
-      for (size_t i = 0; i < tmp.size(); ++i) {
-        CHECK_DIE(tmp[i] > 0);
-        ofs << " " << tmp[i] << ":1";
-      }
-      ofs << std::endl;
-
-      tmp.push_back(-1);
-      int *fp = feature_freelist.alloc(tmp.size());
-      std::copy(tmp.begin(), tmp.end(), fp);
       x.push_back(fp);
-      y.push_back(label);
+      y.push_back(std::atof(column[0]));
     }
+    Unlink(str_train_file.c_str());
   }
 
   CHECK_DIE(x.size() >= 2) << "training data is too small";
   CHECK_DIE(x.size() == y.size());
 
   scoped_ptr<SVMModel> model;
-  model.reset(SVMSolver::learn(y, x, cost, degree));
+  model.reset(SVMSolver::learn(y, x, prev_model, cost, degree));
   CHECK_DIE(model.get());
 
   {
@@ -184,6 +209,9 @@ bool DependencyTrainingWithSVM(const char *train_file,
     ofs.setf(std::ios::fixed, std::ios::floatfield);
     ofs.precision(16);
 
+    CHECK_DIE(model->degree() == 2);
+    CHECK_DIE(model->bias() == 0.0);
+
     ofs << std::endl;
     ofs << model->degree() << std::endl;
     ofs << model->bias() << std::endl;
@@ -202,11 +230,6 @@ bool DependencyTrainingWithSVM(const char *train_file,
       ofs << std::endl;
     }
   }
-
-  Unlink(model_debug_file.c_str());
-  Unlink(str_train_file.c_str());
-  Unlink(id_train_file.c_str());
-  Unlink(svm_learn_model_file.c_str());
 
   std::cout << "\nDone! ";
 

@@ -30,13 +30,14 @@ class SVMModel {
   double bias_;
   size_t degree_;
   std::vector<double> alpha_;
-  std::vector<const int*> x_;
+  std::vector<const int *> x_;
 };
 
 class SVMSolver {
  public:
   static SVMModel *learn(const std::vector<double> &y,
                          const std::vector<const int *> &x,
+                         const SVMModel &prev_svm_model,
                          double C,
                          size_t degree);
 };

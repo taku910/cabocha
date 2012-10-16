@@ -21,10 +21,12 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
                                int freq,
                                const char *train_file,
                                const char *model_file,
+                               const char *prev_model_file,
                                const char *crfpp_param);
 
 bool DependencyTrainingWithSVM(const char *train_file,
                                const char *model_file,
+                               const char *prev_model_file,
                                CharsetType charset,
                                PossetType posset,
                                int degree,
@@ -146,8 +148,10 @@ int cabocha_learn(int argc, char **argv) {
      "set FLOAT for cost parameter (default 0.001)" },
     {"sigma",    's', "0.001",  "FLOAT",
      "set minimum feature weight for PKE approximation (default 0.001)" },
-    {"minsup",   'M', "2",  "INT",
+    {"minsup",   'n', "2",  "INT",
      "set minimum frequency support for PKE approximation (default 2)" },
+    {"old-model", 'M', 0, "FILE",
+     "set FILE as old SVM model file" },
     {"degree",   'd', "2",  "INT",
      "set degree of polynomial kernel (default 2)"},
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
@@ -173,6 +177,7 @@ int cabocha_learn(int argc, char **argv) {
   }
 
   const std::string stype = param.get<std::string>("parser-type");
+  const std::string old_model_file = param.get<std::string>("old-model");
   const ParserType type = parser_type(stype.c_str());
   CHECK_DIE(type != -1) <<  "unknown parser type: " << stype;
 
@@ -185,12 +190,14 @@ int cabocha_learn(int argc, char **argv) {
     const float cost       = param.get<float>("cost");
     const int   degree     = param.get<int>("degree");
     const std::string text_model_file = rest[1] + ".txt";
-    CHECK_DIE(CaboCha::DependencyTrainingWithSVM(rest[0].c_str(),
-                                                 text_model_file.c_str(),
-                                                 charset,
-                                                 posset,
-                                                 degree,
-                                                 cost));
+    CHECK_DIE(CaboCha::DependencyTrainingWithSVM(
+                  rest[0].c_str(),
+                  text_model_file.c_str(),
+                  old_model_file.empty() ? 0 : old_model_file.c_str(),
+                  charset,
+                  posset,
+                  degree,
+                  cost));
     const float  sigma  = param.get<float>("sigma");
     const size_t minsup = param.get<size_t>("minsup");
     CHECK_DIE(CaboCha::SVM::compile(text_model_file.c_str(),
@@ -200,13 +207,17 @@ int cabocha_learn(int argc, char **argv) {
   } else if (type == TRAIN_CHUNK || type == TRAIN_NE) {
     const std::string crfpp_param = param.get<std::string>("crfpp-param");
     const int freq = param.get<int>("freq");
-    CHECK_DIE(CaboCha::ChunkingTrainingWithCRFPP(type,
-                                                 charset,
-                                                 posset,
-                                                 freq,
-                                                 rest[0].c_str(),
-                                                 rest[1].c_str(),
-                                                 crfpp_param.c_str()));
+    CHECK_DIE(old_model_file.empty())
+        << "old-model is not supported in CHUNK|NE mode";
+    CHECK_DIE(CaboCha::ChunkingTrainingWithCRFPP(
+                  type,
+                  charset,
+                  posset,
+                  freq,
+                  rest[0].c_str(),
+                  rest[1].c_str(),
+                  old_model_file.empty() ? 0 : old_model_file.c_str(),
+                  crfpp_param.c_str()));
   }
 
   return 0;
