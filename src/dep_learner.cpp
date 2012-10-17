@@ -167,7 +167,6 @@ bool DependencyTrainingWithSVM(const char *train_file,
       x.push_back(fp);
       y.push_back(std::atof(column[0]));
     }
-    Unlink(str_train_file.c_str());
   }
 
   CHECK_DIE(x.size() >= 2) << "training data is too small";
@@ -231,6 +230,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
     }
   }
 
+  Unlink(str_train_file.c_str());
   std::cout << "\nDone! ";
 
   return true;
