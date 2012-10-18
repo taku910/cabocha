@@ -130,13 +130,33 @@ void write_lattice(const Tree &tree, StringBuffer *os,
   }
 }
 
+void write_xml_string(const char *str, StringBuffer *os) {
+  while (*str) {
+    switch (*str) {
+      case '\"': *os << "&quot;"; break;
+      case '\'': *os << "&apos;"; break;
+      case '<': *os << "&lt;"; break;
+      case '>': *os << "&gt;"; break;
+      case '&': *os << "&amp;"; break;
+      default: *os << *str;
+    }
+    ++str;
+  }
+}
+
 void write_xml_token(const Token &token, StringBuffer *os, int i) {
   *os << "  <tok id=\"" << i << "\""
-      << " feature=\"" << token.feature << "\"";
+      << " feature=\"";
+  write_xml_string(token.feature, os);
+  *os << "\"";
   if (token.ne) {
-    *os << " ne=\""     << token.ne << "\"";
+    *os << " ne=\"";
+    write_xml_string(token.ne, os);
+    *os << "\"";
   }
-  *os << ">" << token.surface << "</tok>\n";
+  *os << ">";
+  write_xml_string(token.surface, os);
+  *os << "</tok>\n";
 }
 
 void write_xml(const Tree &tree, StringBuffer *os,
@@ -160,7 +180,9 @@ void write_xml(const Tree &tree, StringBuffer *os,
       if (output_layer == OUTPUT_SELECTION && chunk->feature_list) {
         std::string str;
         make_csv_feature(chunk->feature_list, chunk->feature_list_size, &str);
-        *os << " feature=\"" << str << "\"";
+        *os << " feature=\"";
+        write_xml_string(str.c_str(), os);
+        *os << "\"";
       }
       *os << ">\n";
     }

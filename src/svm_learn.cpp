@@ -17,8 +17,6 @@ namespace {
 const double kEPS = 0.1;
 const double kINF = 1e+37;
 
-typedef unsigned long long uint64;
-
 inline uint64 getIndex(int index, size_t size) {
   return index + 1;   // index '0' is reserved for bias term.
 }
