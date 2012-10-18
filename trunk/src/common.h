@@ -66,6 +66,14 @@ Copyright(C) 2001-2012 Taku Kudo, All rights reserved.\n"
 #define WPATH(path) (path)
 #endif
 
+#if defined(_WIN32) && !defined(__CYGWIN__)
+typedef unsigned __int64   uint64;
+typedef __int64             int64;
+#else
+typedef unsigned long long uint64;
+typedef long long           int64;
+#endif
+
 namespace CaboCha {
 
 enum { PARSING_MODE, TRAINING_MODE };
@@ -151,6 +159,12 @@ struct hash<std::string> {
       result = (result * 131) + *it;
     }
     return result;
+  }
+};
+
+struct hash<uint64> {
+  std::size_t operator()(const uint64 s) const {
+    return s;
   }
 };
 }
