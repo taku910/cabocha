@@ -33,12 +33,15 @@ bool DependencyParser::open(const Param &param) {
     bool failed = false;
     svm_.reset(new FastSVMModel);
     if (!svm_->open(filename.c_str())) {
+      WHAT << svm_->what() << "\n";
       svm_.reset(new SVMModel);
       if (!svm_->open(filename.c_str())) {
+        WHAT << svm_->what();
         failed = true;
       }
     }
-    CHECK_FALSE(!failed) << "no such file or directory: " << filename;
+    CHECK_FALSE(!failed) << "no such file or directory: "
+                         << filename;
 
     const char *v = svm_->get_param("parsing_algorithm");
     CHECK_FALSE(v) << "parsing_algorithm is not defined";

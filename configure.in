@@ -32,7 +32,7 @@ AC_C_CONST
 AC_C_BIGENDIAN
 AC_CHECK_HEADERS(string.h stdlib.h unistd.h fcntl.h \
                  sys/stat.h sys/mman.h sys/times.h sys/types.h dirent.h \
-                 ctype.h sys/types.h io.h windows.h pthread.h setjmp.h)
+                 ctype.h sys/types.h io.h windows.h pthread.h)
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_CHECK_SIZEOF(char)
@@ -46,7 +46,6 @@ AC_TYPE_SIZE_T
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(getenv)
 AC_CHECK_FUNCS(opendir)
-AC_CHECK_FUNCS(setjmp)
 AC_CHECK_FUNCS(snprintf)
 AC_LANG(C++)
 
@@ -113,9 +112,7 @@ fi
 AC_CHECK_LIB(stdc++, main, STDCPP_LIBS="-lstdc++")
 AC_CHECK_LIB(crfpp,  crfpp_new, STDCRFPP_LIBS="-lcrfpp")
 AC_CHECK_LIB(mecab,  mecab_new, CRFPP_LIBS="-lmecab")
-AC_CHECK_LIB(iconv,iconv_open)
-AC_SEARCH_LIBS(iconv, iconv)
-LIBS="$STDCRFPP_LIBS $CRFPP_LIBS $LIBS"
+LIBS="$STDCRFPP_LIBS $CRFPP_LIBS $LIBS $LIBICONV"
 CABOCHA_LIBS="$LIBS"
 AC_SUBST(CABOCHA_LIBS)
 AC_SUBST(MECAB_CFLAGS)

@@ -277,6 +277,8 @@ bool FastSVMModel::open(const char *filename) {
   CHECK_FALSE(version == MODEL_VERSION)
       << "incompatible version: " << version;
 
+  std::cout << version << std::endl;
+
   scoped_fixed_array<char *, BUF_SIZE> column;
 
   // model parameters
@@ -660,7 +662,7 @@ bool SVMModel::compress() {
   for (size_t i = 0; i < size(); ++i) {
     std::vector<int> new_x;
     for (const int *fp = x(i); *fp >= 0; ++fp) {
-      CHECK_DIE(old2new.find(*fp) != old2new.end());
+      CHECK_FALSE(old2new.find(*fp) != old2new.end());
       new_x.push_back(old2new[*fp]);
     }
     std::sort(new_x.begin(), new_x.end());
@@ -711,7 +713,7 @@ bool SVMModel::open(const char *filename) {
   scoped_fixed_array<char *, BUF_SIZE> column;
 
   std::ifstream ifs(WPATH(filename));
-  CHECK_DIE(ifs) << "no such file or directory: " << filename;
+  CHECK_FALSE(ifs) << "no such file or directory: " << filename;
 
   while (ifs.getline(buf.get(), buf.size())) {
     if (std::strlen(buf.get()) == 0) {
@@ -719,9 +721,9 @@ bool SVMModel::open(const char *filename) {
     }
     const size_t size = tokenize(buf.get(), " ",
                                  column.get(), column.size());
-    CHECK_DIE(size >= 2);
+    CHECK_FALSE(size >= 2);
     const size_t len = std::strlen(column[0]);
-    CHECK_DIE(len >= 2);
+    CHECK_FALSE(len >= 2);
     column[0][len - 1] = '\0';   // remove the last ":"
     param_[column[0]] = column[1];
   }
@@ -731,14 +733,14 @@ bool SVMModel::open(const char *filename) {
       break;
     }
     const size_t size = tokenize(buf.get(), "\t ", column.get(), 2);
-    CHECK_DIE(size >= 2);
+    CHECK_FALSE(size >= 2);
     dic_[column[1]] = std::atoi(column[0]);
   }
 
   while (ifs.getline(buf.get(), buf.size())) {
     const size_t size = tokenize(buf.get(), " ",
                                  column.get(), column.size());
-    CHECK_DIE(size >= 2);
+    CHECK_FALSE(size >= 2);
     int *fp = alloc(size);
     for (size_t i = 1; i < size; ++i) {
       fp[i - 1] = std::atoi(column[i]);
@@ -749,9 +751,9 @@ bool SVMModel::open(const char *filename) {
     add(alpha, fp);
   }
 
-  CHECK_DIE(!param_.empty());
-  CHECK_DIE(!dic_.empty());
-  CHECK_DIE(alpha_.size() == x_.size());
+  CHECK_FALSE(!param_.empty());
+  CHECK_FALSE(!dic_.empty());
+  CHECK_FALSE(alpha_.size() == x_.size());
 
   return true;
 }
