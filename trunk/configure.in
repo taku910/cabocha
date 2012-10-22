@@ -4,7 +4,7 @@ AM_INIT_AUTOMAKE(cabocha, 0.65)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY
-MODEL_VERSION="100"
+MODEL_VERSION="101"
 
 # Before making a release, the LTVERSION string should be modified.
 # The string is of the form C:R:A.
