@@ -3,10 +3,10 @@
 //  $Id: svm_learn.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
-#include <cstring>
 #include <cmath>
-#include <iostream>
+#include <cstring>
 #include <fstream>
+#include <iostream>
 #include <vector>
 #include "common.h"
 #include "scoped_ptr.h"
@@ -189,7 +189,7 @@ bool solveParameters(const std::vector<double> &y,
       if (active_size == l) {
         break;
       } else {
-        std::cout << "\nCheking all parameters..." << std::endl;
+        std::cout << "\nChecking all parameters..." << std::endl;
         active_size = l;  // restore again
         PGmax_old = kINF;
         PGmin_old = -kINF;
@@ -332,7 +332,6 @@ SVMModel *SVMSolver::learn(const char *training_file,
     model->set_param("C", cost);
     model->set_param("degree", 2);
     model->set_param("bias",   0.0);
-
     model->compress();
 
     std::cout << "Done!\n\n";
