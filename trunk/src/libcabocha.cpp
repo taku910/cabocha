@@ -195,7 +195,7 @@ int cabocha_tree_empty(cabocha_tree_t *t) {
 }
 
 void cabocha_tree_clear(cabocha_tree_t *t) {
-  return reinterpret_cast<CaboCha::Tree *>(t)->clear();;
+  return reinterpret_cast<CaboCha::Tree *>(t)->clear();
 }
 
 void cabocha_tree_clear_chunk(cabocha_tree_t *t) {
@@ -233,8 +233,9 @@ int cabocha_tree_read(cabocha_tree_t *t ,
                       size_t length,
                       int input_layer) {
   return reinterpret_cast<
-      CaboCha::Tree *>(t)->read(input, length,
-                                static_cast<CaboCha::InputLayerType>(input_layer));
+      CaboCha::Tree *>(t)->read(
+          input, length,
+          static_cast<CaboCha::InputLayerType>(input_layer));
 }
 
 int cabocha_tree_read_from_mecab_node(cabocha_tree_t *t ,

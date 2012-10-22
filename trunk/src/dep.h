@@ -14,7 +14,7 @@
 
 namespace CaboCha {
 
-class SVMInterface;
+class SVMModelInterface;
 
 class cmpstr {
  public:bool operator() (const char *s1, const char *s2) {
@@ -43,15 +43,28 @@ class DependencyParser: public Analyzer {
   bool open(const Param &param);
   void close();
   bool parse(Tree *tree) const;
+  void set_parsing_algorithm(int parsing_algorithm) {
+    parsing_algorithm_ = parsing_algorithm;
+  }
+  int parsing_algorithm() const {
+    return parsing_algorithm_;
+  }
   explicit DependencyParser();
   virtual ~DependencyParser();
 
  private:
+  bool parseShiftReduce(Tree *tree) const;
+  bool parseTournament(Tree *tree) const;
   void build(Tree *tree) const;
   bool estimate(const Tree *tree,
                 int src, int dst,
                 double *score) const;
-  scoped_ptr<SVMInterface> svm_;
+  bool estimate(const Tree *tree,
+                int src, int dst1, int dst2,
+                double *score) const;
+
+  scoped_ptr<SVMModelInterface> svm_;
+  int parsing_algorithm_;
 };
 }
 #endif

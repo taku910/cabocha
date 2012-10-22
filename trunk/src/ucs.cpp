@@ -181,6 +181,8 @@ bool Iconv::open(CharsetType from, CharsetType to) {
 
 bool Iconv::open(const char* from, const char* to) {
   ic_ = 0;
+  from_ = decode_charset(from);
+  to_ = decode_charset(to);
 #if defined HAVE_ICONV
   const char *from2 = decode_charset_iconv(from);
   const char *to2 = decode_charset_iconv(to);

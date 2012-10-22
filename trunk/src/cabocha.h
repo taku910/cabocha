@@ -68,6 +68,11 @@ extern "C" {
     CABOCHA_TRAIN_DEP   = 2,
   };
 
+  enum {
+    CABOCHA_SHIFT_REDUCE = 0,
+    CABOCHA_TOURNAMENT   = 1,
+  };
+
   typedef struct cabocha_t cabocha_t;
   typedef struct cabocha_tree_t cabocha_tree_t;
   struct mecab_node_t;
@@ -224,6 +229,11 @@ enum ParserType {
   TRAIN_NE    = CABOCHA_TRAIN_NE,
   TRAIN_CHUNK = CABOCHA_TRAIN_CHUNK,
   TRAIN_DEP   = CABOCHA_TRAIN_DEP
+};
+
+enum ParsingAlgorithm {
+  SHIFT_REDUCE = CABOCHA_SHIFT_REDUCE,
+  TOURNAMENT = CABOCHA_TOURNAMENT,
 };
 
 class TreeAllocator;

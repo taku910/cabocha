@@ -29,21 +29,58 @@ bool DependencyTrainingWithSVM(const char *train_file,
                                const char *prev_model_file,
                                CharsetType charset,
                                PossetType posset,
-                               int degree,
+                               int parsing_algorithm,
                                double cost);
 }
 
 namespace {
 using namespace CaboCha;
+
 ParserType guess_text_model_type(const char *filename) {
   std::ifstream ifs(WPATH(filename));
   CHECK_DIE(ifs);
   std::string line;
-  std::getline(ifs, line);
-  if (line.find("version: ") != std::string::npos) {
-    return TRAIN_NE;
+  int line_num = 0;
+  while (std::getline(ifs, line)) {
+    if (line.empty()) {
+      break;
+    }
+    if (line == "type: dep") {
+      return TRAIN_DEP;
+    }
+    if (++line_num >= 20) {
+      break;
+    }
   }
-  return TRAIN_DEP;
+
+  return TRAIN_NE;
+}
+
+const std::string convert_character_encoding(const char *filename,
+                                             Iconv *iconv) {
+  if (iconv->from() == iconv->to()) {
+    return std::string(filename);
+  }
+
+  const std::string new_filename = std::string(filename) + ".tmp";
+  std::string line;
+  std::ifstream ifs(WPATH(filename));
+  CHECK_DIE(ifs) << "no such file or directory: " << filename;
+  std::ofstream ofs(WPATH(new_filename.c_str()));
+  CHECK_DIE(ifs) << "permission denied: " << new_filename;
+
+  while (std::getline(ifs, line)) {
+    std::string original = line;
+    if (!iconv->convert(&line)) {
+      std::cerr << "iconv conversion failed. skip this entry:"
+                << original << std::endl;
+      line = original;
+      continue;
+    }
+    ofs << line << "\n";
+  }
+
+  return new_filename;
 }
 }
 
@@ -69,7 +106,9 @@ int cabocha_model_index(int argc, char **argv) {
   CaboCha::Param param;
   param.open(argc, argv, long_options);
 
-  if (!param.help_version()) return 0;
+  if (!param.help_version()) {
+    return 0;
+  }
 
   const std::vector<std::string> &rest = param.rest_args();
   if (rest.size() != 2) {
@@ -79,58 +118,35 @@ int cabocha_model_index(int argc, char **argv) {
 
   const std::string from = param.get<std::string>("model-charset");
   const std::string to =   param.get<std::string>("charset");
-  const int from_id = decode_charset(from.c_str());
-  const int to_id = decode_charset(to.c_str());
-  std::string input = rest[0];
-
-  if (from_id != to_id) {
-    const std::string input2 = rest[1] + ".tmp";
-    std::string line;
-    std::ifstream ifs(WPATH(input.c_str()));
-    CHECK_DIE(ifs) << "no such file or directory: " << input;
-    std::ofstream ofs(WPATH(input2.c_str()));
-    CHECK_DIE(ifs) << "permission denied: " << input2;
-
-    Iconv iconv;
-    CHECK_DIE(iconv.open(from.c_str(), to.c_str()))
-        << "iconv_open() failed with from=" << from << " to=" << to;
-
-    while (std::getline(ifs, line)) {
-      std::string original = line;
-      if (!iconv.convert(&line)) {
-        std::cerr << "iconv conversion failed. skip this entry:"
-                  << original << std::endl;
-        line = original;
-        continue;
-      }
-      ofs << line << std::endl;
-    }
-
-    input = input2;
-  }
-
+  const std::string input = rest[0];
   const ParserType type = guess_text_model_type(input.c_str());
 
+  Iconv iconv;
+  CHECK_DIE(iconv.open(from.c_str(), to.c_str()))
+      << "iconv_open() failed with from=" << from << " to=" << to;
+
   if (type == TRAIN_DEP) {
-    const float sigma = param.get<float>("sigma");
+    const double sigma = param.get<double>("sigma");
     const size_t minsup = param.get<size_t>("minsup");
-    CHECK_DIE(CaboCha::SVM::compile(input.c_str(),
-                                    rest[1].c_str(),
-                                    sigma,
-                                    minsup));
+    CHECK_DIE(CaboCha::FastSVMModel::compile(input.c_str(),
+                                             rest[1].c_str(),
+                                             sigma,
+                                             minsup,
+                                             &iconv));
   } else if (type == TRAIN_NE) {
+    std::string tmp_input = convert_character_encoding(input.c_str(),
+                                                       &iconv);
     std::vector<const char*> argv;
     argv.push_back("CRF++");
     argv.push_back("--convert");
-    argv.push_back(input.c_str());
+    argv.push_back(tmp_input.c_str());
     argv.push_back(rest[1].c_str());
     CHECK_DIE(0 == crfpp_learn(argv.size(),
                                const_cast<char **>(&argv[0])))
         << "crfpp_learn execution error";
-  }
-
-  if (from_id != to_id) {
-    Unlink(input.c_str());
+    if (input != tmp_input) {
+      Unlink(tmp_input.c_str());
+    }
   }
 
   return 0;
@@ -152,8 +168,8 @@ int cabocha_learn(int argc, char **argv) {
      "set minimum frequency support for PKE approximation (default 2)" },
     {"old-model", 'M', 0, "FILE",
      "set FILE as old SVM model file" },
-    {"degree",   'd', "2",  "INT",
-     "set degree of polynomial kernel (default 2)"},
+    {"parsing-algorithm", 'a', "0", "INT",
+     "set dependency parsing algorithm (0:shift-reduce, 1:tournament)"},
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
       "set parser charset to ENC (default "
       CABOCHA_DEFAULT_CHARSET ")" },
@@ -168,7 +184,9 @@ int cabocha_learn(int argc, char **argv) {
   CaboCha::Param param;
   param.open(argc, argv, long_options);
 
-  if (!param.help_version()) return 0;
+  if (!param.help_version()) {
+    return 0;
+  }
 
   const std::vector<std::string> &rest = param.rest_args();
   if (rest.size() != 2) {
@@ -188,7 +206,7 @@ int cabocha_learn(int argc, char **argv) {
 
   if (type == TRAIN_DEP) {
     const float cost       = param.get<float>("cost");
-    const int   degree     = param.get<int>("degree");
+    const int   parsing_algorithm = param.get<int>("parsing-algorithm");
     const std::string text_model_file = rest[1] + ".txt";
     CHECK_DIE(CaboCha::DependencyTrainingWithSVM(
                   rest[0].c_str(),
@@ -196,14 +214,16 @@ int cabocha_learn(int argc, char **argv) {
                   old_model_file.empty() ? 0 : old_model_file.c_str(),
                   charset,
                   posset,
-                  degree,
+                  parsing_algorithm,
                   cost));
     const float  sigma  = param.get<float>("sigma");
     const size_t minsup = param.get<size_t>("minsup");
-    CHECK_DIE(CaboCha::SVM::compile(text_model_file.c_str(),
-                                    rest[1].c_str(),
-                                    sigma,
-                                    minsup));
+    CaboCha::Iconv iconv;
+    iconv.open(charset, charset);
+    CHECK_DIE(CaboCha::FastSVMModel::compile(text_model_file.c_str(),
+                                             rest[1].c_str(),
+                                             sigma,
+                                             minsup, &iconv));
   } else if (type == TRAIN_CHUNK || type == TRAIN_NE) {
     const std::string crfpp_param = param.get<std::string>("crfpp-param");
     const int freq = param.get<int>("freq");
