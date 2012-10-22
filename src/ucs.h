@@ -14,6 +14,8 @@
 #include "windows.h"
 #endif
 
+#include "cabocha.h"
+
 namespace CaboCha {
 
 CharsetType decode_charset(const char *charset);
@@ -38,7 +40,17 @@ unsigned short cp932_to_ucs2(const char *begin,
 #endif
 
 class Iconv {
- private:
+ public:
+  explicit Iconv();
+  virtual ~Iconv();
+  bool open(const char *from, const char *to);
+  bool open(CharsetType from, CharsetType to);
+  bool convert(std::string *);
+
+  CharsetType from() const { return from_; }
+  CharsetType to() const { return to_; }
+
+   private:
 #ifdef HAVE_ICONV
   iconv_t ic_;
 #else
@@ -50,12 +62,8 @@ class Iconv {
   DWORD to_cp_;
 #endif
 
- public:
-  explicit Iconv();
-  virtual ~Iconv();
-  bool open(const char *from, const char *to);
-  bool open(CharsetType from, CharsetType to);
-  bool convert(std::string *);
+  CharsetType from_;
+  CharsetType to_;
 };
 }
 #endif

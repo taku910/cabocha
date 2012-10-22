@@ -6,8 +6,11 @@
 #include <cstring>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "common.h"
+#include "scoped_ptr.h"
+#include "svm.h"
 #include "svm_learn.h"
 #include "timer.h"
 #include "utils.h"
@@ -24,23 +27,6 @@ inline uint64 getIndex(int index, size_t size) {
 inline uint64 getIndex(int index1, int index2, size_t size) {
   return (index1 + 1) * (size + 1) + index2 + 1;
 }
-
-#if 0
-double classifyWithKernel(const int *xx,
-                          const std::vector<const int *> &x,
-                          const std::vector<double> &alpha,
-                          const std::vector<float> &y) {
-  double result = 0.0;
-  for (size_t i = 0; i < alpha.size(); ++i) {
-    if (alpha[i] == 0.0) {
-      continue;
-    }
-    const int s = dot(xx, x[i]);
-    result += y[i] * alpha[i] * (s + 1) * (s + 1);
-  }
-  return result;
-}
-#endif
 
 double classify(const int *x, int max_index,
                 const std::vector<float> &w,
@@ -105,35 +91,15 @@ void update(const int *x, int max_index, double d,
     }
   }
 }
-}  // namespace
 
-// static
-SVMModel *SVMSolver::learn(const std::vector<double> &y_,  // label
-                           const std::vector<const int *> &x_,
-                           const SVMModel &prev_svm_model,
-                           double C,
-                           size_t degree) {
-  CHECK_DIE(degree == 2)
-      << "SVMSolver only supports the case of degree == 2";
+bool solveParameters(const std::vector<double> &y,
+                     const std::vector<const int *> &x,
+                     double C,
+                     std::vector<double> *alpha_) {
+  std::vector<double> alpha(*alpha_);
 
-  std::vector<double> y(y_);
-  std::vector<const int *> x(x_);
-
-  // dual parametes
-  std::vector<double> alpha(x_.size(), 0.0);
-
+  CHECK_DIE(alpha.size() == x.size());
   CHECK_DIE(y.size() == x.size());
-  CHECK_DIE(y.size() == alpha.size());
-
-  for (size_t i = 0; i < prev_svm_model.size(); ++i) {
-    const double a = prev_svm_model.alpha(i);
-    y.push_back(a > 0 ? +1 : -1);
-    x.push_back(prev_svm_model.x(i));
-    alpha.push_back(std::abs(a));
-  }
-
-  CHECK_DIE(y.size() == x.size());
-  CHECK_DIE(y.size() == alpha.size());
 
   const size_t l = y.size();
   size_t active_size = l;
@@ -241,10 +207,6 @@ SVMModel *SVMSolver::learn(const std::vector<double> &y_,  // label
     }
   }
 
-  SVMModel *model = new SVMModel;
-  model->set_degree(degree);
-  model->set_bias(0.0);
-
   size_t err = 0;
   size_t bsv = 0;
   size_t sv = 0;
@@ -264,7 +226,6 @@ SVMModel *SVMSolver::learn(const std::vector<double> &y_,  // label
       ++bsv;
     }
     if (alpha[i] > 0.0) {
-      model->add(alpha[i] * y[i], x[i]);
       ++sv;
     }
   }
@@ -276,7 +237,106 @@ SVMModel *SVMSolver::learn(const std::vector<double> &y_,  // label
   std::cout << "BSV: " << bsv << std::endl;
   std::cout << "SV: " << sv << std::endl;
   std::cout << "obj: " << obj << std::endl;
-  std::cout << "Done! ";
+
+  // copy results.
+  *alpha_ = alpha;
+
+  return true;
+}
+}  // namespace
+
+// static
+SVMModel *SVMSolver::learn(const char *training_file,
+                           const char *prev_model_file,
+                           double cost) {
+  SVMModel prev_model;
+  SVMModel *model = new SVMModel;
+
+  scoped_fixed_array<char, BUF_SIZE * 32> buf;
+  scoped_fixed_array<char *, BUF_SIZE> column;
+
+  if (prev_model_file) {
+    CHECK_DIE(prev_model.open(prev_model_file))
+        << "no such file or directory: " << prev_model_file;
+  }
+
+  // copy old dictionary
+  std::map<std::string, int> *dic = model->mutable_dic();
+  *dic = prev_model.dic();
+
+  // create feature_string => id maping
+  {
+    int id = dic->size();
+    std::ifstream ifs(WPATH(training_file));
+    CHECK_DIE(ifs) << "no such file or directory: " << training_file;
+    while (ifs.getline(buf.get(), buf.size())) {
+      const size_t size = tokenize(buf.get(), " ",
+                                   column.get(), column.size());
+      CHECK_DIE(size >= 2);
+      for (size_t i = 1; i < size; ++i) {
+        const std::string key = column[i];
+        if (dic->find(key) == dic->end()) {
+          (*dic)[key] = id;
+          ++id;
+        }
+      }
+    }
+  }
+
+  // make training data
+  {
+    std::vector<const int *> x;
+    std::vector<double> y;
+    std::vector<double> alpha;
+    std::ifstream ifs(WPATH(training_file));
+    CHECK_DIE(ifs) << "no such file or directory: " << training_file;
+
+    // load training data
+    while (ifs.getline(buf.get(), buf.size())) {
+      const size_t size = tokenize(buf.get(), " ", column.get(),
+                                   column.size());
+      CHECK_DIE(size >= 2);
+      int *fp = model->alloc(size);
+      for (size_t i = 1; i < size; ++i) {
+        const std::string key = column[i];
+        CHECK_DIE(dic->find(key) != dic->end());
+        fp[i - 1] = (*dic)[key];
+      }
+      std::sort(fp, fp + size - 1);
+      fp[size - 1] = -1;
+
+      x.push_back(fp);
+      y.push_back(std::atof(column[0]));
+      alpha.push_back(0.0);
+    }
+
+    // add prev model
+    for (size_t i = 0; i < prev_model.size(); ++i) {
+      x.push_back(prev_model.x(i));
+      y.push_back(prev_model.alpha(i) > 0 ? +1 : -1);
+      alpha.push_back(std::fabs(prev_model.alpha(i)));
+    }
+
+    CHECK_DIE(x.size() >= 2) << "training data is too small";
+    CHECK_DIE(x.size() == y.size());
+    CHECK_DIE(alpha.size() == y.size());
+
+    CHECK_DIE(solveParameters(y, x, cost, &alpha));
+
+    for (size_t i = 0; i < alpha.size(); ++i) {
+      if (alpha[i] > 0.0) {
+        model->add(y[i] * alpha[i], x[i]);
+      }
+    }
+
+    model->set_param("C", cost);
+    model->set_param("degree", 2);
+    model->set_param("bias",   0.0);
+
+    model->compress();
+
+    std::cout << "Done!\n\n";
+  }
 
   return model;
 }

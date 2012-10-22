@@ -20,23 +20,45 @@
 
 namespace CaboCha {
 
-DependencyParser::DependencyParser() : svm_(0) {}
+DependencyParser::DependencyParser()
+    : svm_(0), parsing_algorithm_(SHIFT_REDUCE) {}
+
 DependencyParser::~DependencyParser() {}
 
 bool DependencyParser::open(const Param &param) {
   close();
+
   if (action_mode() == PARSING_MODE) {
     const std::string filename = param.get<std::string>("parser-model");
     bool failed = false;
-    svm_.reset(new SVM);
+    svm_.reset(new FastSVMModel);
     if (!svm_->open(filename.c_str())) {
-      svm_.reset(new SVMTest);
+      svm_.reset(new SVMModel);
       if (!svm_->open(filename.c_str())) {
         failed = true;
       }
     }
     CHECK_FALSE(!failed) << "no such file or directory: " << filename;
+
+    const char *v = svm_->get_param("parsing_algorithm");
+    CHECK_FALSE(v) << "parsing_algorithm is not defined";
+    parsing_algorithm_ = std::atoi(v);
+    CHECK_FALSE(parsing_algorithm_ == CABOCHA_TOURNAMENT ||
+                parsing_algorithm_ == CABOCHA_SHIFT_REDUCE);
+
+    const char *c = svm_->get_param("charset");
+    CHECK_FALSE(c) << "charset is not defined";
+    CHECK_FALSE(decode_charset(c) == charset())
+        << "model charset and dependency parser's charset are different: "
+        << c << " != " << encode_charset(charset());
+
+    const char *p = svm_->get_param("posset");
+    CHECK_FALSE(p) << "posset is not defined";
+    CHECK_FALSE(decode_posset(p) == posset())
+        << "model posset and dependency parser's posset are different: "
+        << p << " != " << encode_posset(posset());
   }
+
   return true;
 }
 
@@ -44,8 +66,10 @@ void DependencyParser::close() {
   svm_.reset(0);
 }
 
-#define INIT_FEATURE(array) do { \
-    array.clear(); array.resize(size); } while (false)
+#define INIT_FEATURE(array) do {                \
+    array.clear();                              \
+    array.resize(size);                         \
+  } while (false)
 
 void DependencyParser::build(Tree *tree) const {
   const size_t size  = tree->chunk_size();
@@ -83,6 +107,192 @@ void DependencyParser::build(Tree *tree) const {
     data->results[i].score = 0.0;
     data->results[i].link = -1;
   }
+}
+
+bool DependencyParser::estimate(const Tree *tree,
+                                int src, int dst1, int dst2,
+                                double *score) const {
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
+
+  std::set<std::string> fpset;
+  CHECK_DIE(dst1 != dst2);
+
+  // distance features
+  const int dist1 = dst1 - src;
+  const int dist2 = dst2 - src;
+  if (dist1 == 1) {
+    fpset.insert("DIST1:1");
+  } else if (dist1 >= 2 && dist1 <= 5) {
+    fpset.insert("DIST1:2-5");
+  } else {
+    fpset.insert("DIST1:6-");
+  }
+
+  if (dist2 == 1) {
+    fpset.insert("DIST2:1");
+  } else if (dist2 >= 2 && dist2 <= 5) {
+    fpset.insert("DIST2:2-5");
+  } else {
+    fpset.insert("DIST2:6-");
+  }
+
+  // static features
+  for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
+    data->static_feature[src][i][0] = 'S';  // src
+    fpset.insert(data->static_feature[src][i]);
+  }
+
+  for (size_t i = 0; i < data->static_feature[dst1].size(); ++i) {
+    std::string n = "D1";
+    n += data->static_feature[dst1][i];
+    fpset.insert(n);
+  }
+
+  for (size_t i = 0; i < data->static_feature[dst2].size(); ++i) {
+    std::string n = "D2";
+    n += data->static_feature[dst2][i];
+    fpset.insert(n);
+  }
+
+  // left context features
+  if (src > 0) {
+    for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
+      fpset.insert(data->left_context_feature[src - 1][i]);
+    }
+  }
+
+  // right context features
+  if (dst1 < static_cast<int>(tree->chunk_size() - 1)) {
+    for (size_t i = 0; i < data->right_context_feature[dst1 + 1].size(); ++i) {
+      std::string n = "R1";
+      n += data->right_context_feature[dst1 + 1][i];
+      fpset.insert(n);
+    }
+  }
+
+  // right context features
+  if (dst2 < static_cast<int>(tree->chunk_size() - 1)) {
+    for (size_t i = 0; i < data->right_context_feature[dst2 + 1].size(); ++i) {
+      std::string n = "R2";
+      n += data->right_context_feature[dst2 + 1][i];
+      fpset.insert(n);
+    }
+  }
+
+  {
+    // gap features
+    int bracket_status = 0;
+    for (int k = src + 1; k <= dst1 - 1; ++k) {
+      for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
+        const char *gap_feature = data->gap_feature[k][i];
+        if (std::strcmp(gap_feature, "GOB:1") == 0) {
+          bracket_status |= 1;
+        } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
+          bracket_status |= 2;
+        } else {
+          std::string n = "G1";
+          n += gap_feature;
+          fpset.insert(n);
+        }
+      }
+    }
+
+    // bracket status
+    switch (bracket_status) {
+      case 0: fpset.insert("GNB1:1"); break;  // nothing
+      case 1: fpset.insert("GOB1:1"); break;  // open only
+      case 2: fpset.insert("GCB1:1"); break;  // close only
+      default: fpset.insert("GBB1:1"); break;  // both
+    }
+  }
+
+  {
+    // gap features
+    int bracket_status = 0;
+    for (int k = src + 1; k <= dst2 - 1; ++k) {
+      for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
+        const char *gap_feature = data->gap_feature[k][i];
+        if (std::strcmp(gap_feature, "GOB:1") == 0) {
+          bracket_status |= 1;
+        } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
+          bracket_status |= 2;
+        } else {
+          std::string n = "G2";
+          n += gap_feature;
+          fpset.insert(n);
+        }
+      }
+    }
+
+    // bracket status
+    switch (bracket_status) {
+      case 0: fpset.insert("GNB2:1"); break;  // nothing
+      case 1: fpset.insert("GOB2:1"); break;  // open only
+      case 2: fpset.insert("GCB2:1"); break;  // close only
+      default: fpset.insert("GBB2:1"); break;  // both
+    }
+  }
+
+  for (size_t i = 0; i < data->children[src].size(); ++i) {
+    const int child = data->children[src][i];
+    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
+      data->dynamic_feature[child][j][0] = 'a';
+      fpset.insert(data->dynamic_feature[child][j]);
+    }
+  }
+
+  {
+    // dynamic features
+    for (size_t i = 0; i < data->children[dst1].size(); ++i) {
+      const int child = data->children[dst1][i];
+      for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
+        std::string n = "A1";
+        n += data->dynamic_feature[child][j];
+        fpset.insert(n);
+      }
+    }
+
+    // dynamic features
+    for (size_t i = 0; i < data->children[dst2].size(); ++i) {
+      const int child = data->children[dst2][i];
+      for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
+        std::string n = "A2";
+        n += data->dynamic_feature[child][j];
+        fpset.insert(n);
+      }
+    }
+  }
+
+  std::vector<const char *> fp;
+  for (std::set<std::string>::const_iterator it = fpset.begin();
+       it != fpset.end(); ++it) {
+    fp.push_back(it->c_str());
+  }
+
+  TreeAllocator *allocator = tree->allocator();
+
+  if (action_mode() == PARSING_MODE) {
+    *score = svm_->classify(fp);
+    return *score > 0;
+  } else {
+    const int h = tree->chunk(src)->link;
+    CHECK_DIE(h != -1 && h >= 0 && h < static_cast<int>(tree->size()));
+    if (h == dst2) {  // RIGHT
+      *(allocator->stream()) << "+1";
+    } else if (h == dst1) {  // LEFT
+      *(allocator->stream()) << "-1";
+    } else {
+      CHECK_DIE(true) << "dst1 or dst2 must be a true head";
+    }
+    for (size_t i = 0; i < fp.size(); ++i) {
+      *(allocator->stream()) << ' ' << fp[i];
+    }
+    *(allocator->stream()) << std::endl;
+  }
+
+  return false;
 }
 
 bool DependencyParser::estimate(const Tree *tree,
@@ -202,7 +412,7 @@ bool DependencyParser::estimate(const Tree *tree,
     }                                           \
   } while (0)
 
-bool DependencyParser::parse(Tree *tree) const {
+bool DependencyParser::parseShiftReduce(Tree *tree) const {
   if (!tree->allocator()->dependency_parser_data) {
     tree->allocator()->dependency_parser_data
         = new DependencyParserData;
@@ -258,4 +468,79 @@ bool DependencyParser::parse(Tree *tree) const {
   return true;
 }
 #undef MYPOP
+
+bool DependencyParser::parseTournament(Tree *tree) const {
+  if (!tree->allocator()->dependency_parser_data) {
+    tree->allocator()->dependency_parser_data
+        = new DependencyParserData;
+    CHECK_DIE(tree->allocator()->dependency_parser_data);
+  }
+
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
+  const int size = static_cast<int>(tree->chunk_size());
+  build(tree);
+
+  if (size <= 1) {
+    return true;
+  }
+
+  double score = 0.0;
+  if (action_mode() == TRAINING_MODE) {
+    for (int src = size - 2; src >= 0; --src) {
+      const int head = tree->chunk(src)->link;
+      if (head == -1) {   // dependency is unknown.
+        continue;
+      }
+      for (int dst = src + 1; dst <= head - 1; ++dst) {
+        estimate(tree, src, dst, head, &score);
+      }
+      for (int dst = head + 1; dst <= size - 1; ++dst) {
+        estimate(tree, src, head, dst, &score);
+      }
+      data->children[head].push_back(src);
+    }
+  } else {
+    std::vector<int> head(size);
+    for (int i = 0; i < size; ++i) {
+      head[i] = i + 1;
+    }
+    CHECK_DIE(head[size - 1] == size);
+
+    for (int src = size - 2; src >= 0; --src) {
+      int h = src + 1;
+      int dst = head[h];
+      while (dst != size) {
+        if (estimate(tree, src, h, dst, &score)) {
+          h = dst;
+        }
+        dst = head[dst];
+      }
+      head[src] = h;
+      Chunk *chunk = tree->mutable_chunk(src);
+      chunk->link = h;
+      chunk->score = score;
+      data->children[h].push_back(src);
+    }
+  }
+
+  tree->set_output_layer(OUTPUT_DEP);
+  return true;
 }
+
+bool DependencyParser::parse(Tree *tree) const {
+  switch (parsing_algorithm_) {
+    case SHIFT_REDUCE:
+      return parseShiftReduce(tree);
+      break;
+    case TOURNAMENT:
+      return parseTournament(tree);
+      break;
+    default:
+      CHECK_DIE(true) << "Unknown parsing model: " << parsing_algorithm_;
+      break;
+  }
+  return false;
+}
+}  // namespace CaboCha
