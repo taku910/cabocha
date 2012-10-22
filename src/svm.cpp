@@ -207,9 +207,10 @@ class PKEMine {
       const size_t id   = projected[i].first;
       const int    pos  = projected[i].second;
       const size_t size = (*transaction_)[id].size();
-      for (size_t j = pos + 1; j < size; ++j)
+      for (size_t j = pos + 1; j < size; ++j) {
         counter[(*transaction_)[id][j]].push_back
             (std::make_pair(id, j));
+      }
     }
 
     const size_t root_size = counter.size();

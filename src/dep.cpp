@@ -9,9 +9,9 @@
 #include <iterator>
 #include <stack>
 #include <vector>
-#include "dep.h"
 #include "cabocha.h"
 #include "common.h"
+#include "dep.h"
 #include "param.h"
 #include "svm.h"
 #include "timer.h"

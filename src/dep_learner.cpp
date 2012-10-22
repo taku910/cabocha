@@ -66,6 +66,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
     analyzer->set_charset(charset);
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
+
     selector->set_charset(charset);
     selector->set_posset(posset);
     selector->open(param);
