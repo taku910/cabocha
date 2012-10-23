@@ -277,8 +277,6 @@ bool FastSVMModel::open(const char *filename) {
   CHECK_FALSE(version == MODEL_VERSION)
       << "incompatible version: " << version;
 
-  std::cout << version << std::endl;
-
   scoped_fixed_array<char *, BUF_SIZE> column;
 
   // model parameters
