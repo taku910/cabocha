@@ -72,9 +72,9 @@ void inline encodeBERArray(unsigned int *begin,
   *output_len = static_cast<unsigned int>(str - output);
 }
 
-static const unsigned int DictionaryMagicID = 0xef522177u;
+const unsigned int kDictionaryMagicID = 0xef522177u;
 
-static const int kWeight[4][5] = {
+const int kWeight[4][5] = {
   {0, 0, 0, 0, 0},   // 0
   {1, 1, 0, 0, 0},   // 1
   {1, 3, 2, 0, 0},   // 2
@@ -269,7 +269,7 @@ bool FastSVMModel::open(const char *filename) {
 
   unsigned int magic = 0;
   read_static<unsigned int>(&ptr, magic);
-  CHECK_FALSE((magic ^ DictionaryMagicID) == mmap_.size())
+  CHECK_FALSE((magic ^ kDictionaryMagicID) == mmap_.size())
       << "dictionary file is broken: " << filename;
 
   unsigned int version = 0;
@@ -553,7 +553,7 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         sizeof(bias) +
         param_str.size() + dsize + fsize;
 
-    magic ^= DictionaryMagicID;
+    magic ^= kDictionaryMagicID;
 
     std::ofstream bofs(WPATH(output), std::ios::binary|std::ios::out);
     CHECK_DIE(bofs) << "permission denied: " << output;

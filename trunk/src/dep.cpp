@@ -405,7 +405,6 @@ bool DependencyParser::estimate(const Tree *tree,
   return false;
 }
 
-// Sassano's algorithm
 #define MYPOP(agenda, n) do {                   \
     if (agenda.empty()) {                       \
       n = -1;                                   \
@@ -415,6 +414,7 @@ bool DependencyParser::estimate(const Tree *tree,
     }                                           \
   } while (0)
 
+// Sassano's algorithm
 bool DependencyParser::parseShiftReduce(Tree *tree) const {
   if (!tree->allocator()->dependency_parser_data) {
     tree->allocator()->dependency_parser_data
@@ -536,13 +536,11 @@ bool DependencyParser::parse(Tree *tree) const {
   switch (parsing_algorithm_) {
     case SHIFT_REDUCE:
       return parseShiftReduce(tree);
-      break;
     case TOURNAMENT:
       return parseTournament(tree);
-      break;
     default:
       CHECK_DIE(true) << "Unknown parsing model: " << parsing_algorithm_;
-      break;
+      return false;
   }
   return false;
 }
