@@ -2,7 +2,7 @@
 //
 //  $Id: char_category.h 41 2008-01-20 09:31:34Z taku-ku $;
 //
-//  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
+//  Copyright(C) 2001-2012 Taku Kudo <taku@chasen.org>
 #ifndef CABOCHA_CHAR_CATEGORY_H_
 #define CABOCHA_CHAR_CATEGORY_H_
 
