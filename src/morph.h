@@ -16,19 +16,18 @@ namespace CaboCha {
 
 class MorphAnalyzer: public Analyzer {
  public:
-  bool open(const Param &) ;
+  bool open(const Param &param) ;
   void close();
-  bool parse(Tree *) const;
+  bool parse(Tree *tree) const;
 
-  static void clearMeCabLattice(mecab_lattice_t *);
-  static void deleteMeCabLattice(mecab_lattice_t *);
+  static void clearMeCabLattice(mecab_lattice_t *lattice);
+  static void deleteMeCabLattice(mecab_lattice_t *lattice);
 
   explicit MorphAnalyzer();
   virtual ~MorphAnalyzer();
 
  private:
   mecab_t *mecab_;
-  std::string sentence_;
 };
 }
 

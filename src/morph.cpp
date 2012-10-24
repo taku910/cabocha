@@ -208,7 +208,7 @@ bool MorphAnalyzer::parse(Tree *tree) const {
       tree->sentence_size());
 
   CHECK_TREE_FALSE(mecab_parse_lattice_f(
-                  mecab_, allocator->mecab_lattice))
+                       mecab_, allocator->mecab_lattice))
       << mecab_lattice_strerror_f(allocator->mecab_lattice);
 
   const mecab_node_t *node  =
