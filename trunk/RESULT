@@ -1,4 +1,4 @@
-* JUMAN tournament c=0.0008
+* JUMAN tournament c=0.000800
 dependency level0: 92.6586 (83251/89847)
 dependency level1: 91.8126 (73967/80563)
 dependency level2: 90.7606 (64794/71390)
@@ -17,25 +17,20 @@ dependency level2: 90.1729 (64351/71364)
 sentence         : 54.9440 (5101/9284)
 
 ==========================================================
-* JUMAN c=0.001800
+* JUMAN shift-reduce c=0.001800
 dependency level0: 92.6520 (83245/89847)
 dependency level1: 91.8052 (73961/80563)
 dependency level2: 90.7522 (64788/71390)
 sentence         : 57.3460 (5324/9284)
 
-* IPA c=0.001500
+* IPA shift-reduce c=0.001500
 dependency level0: 92.4679 (81258/87877)
 dependency level1: 91.5781 (71974/78593)
 dependency level2: 90.4654 (62802/69421)
 sentence         : 56.9044 (5283/9284)
 
-* Unidic c=0.002300
+* Unidic shift-reduce c=0.002300
 dependency level0: 92.2301 (82842/89821)
 dependency level1: 91.3344 (73558/80537)
 dependency level2: 90.2206 (64385/71364)
 sentence         : 55.4933 (5152/9284)
-
-
-
-
-
