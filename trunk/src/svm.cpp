@@ -52,8 +52,10 @@ int progress_bar_trie(size_t current, size_t total) {
 void inline encodeBER(unsigned int value,
                       unsigned char *output, unsigned int *length) {
   *length = 0;
+  ++value;
   output[(*length)++] = (value & 0x7f);
   while (value >>= 7) {
+    ++value;     
     output[*length - 1] |= 0x80;
     output[(*length)++] = (value & 0x7f);
   }
