@@ -88,8 +88,8 @@ using namespace CaboCha;
 
 int cabocha_model_index(int argc, char **argv) {
   static const CaboCha::Option long_options[] = {
-    {"sigma",    's', "0.001",  "FLOAT",
-     "set minimum feature weight for PKE approximation (default 0.001)" },
+    {"sigma",    's', "0.0001",  "FLOAT",
+     "set minimum feature weight for PKE approximation (default 0.0001)" },
     {"minsup",   'n', "2",  "INT",
      "set minimum frequency support for PKE approximation (default 2)" },
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
