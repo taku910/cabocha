@@ -20,8 +20,79 @@
 
 namespace CaboCha {
 
+class HypothesisComp {
+ public:
+  bool operator() (const Hypothesis *a, const Hypothesis *b) const {
+    return a->hscore < b->hscore;
+  }
+};
+
+void Hypothesis::init(size_t size) {
+  head.resize(size);
+  score.resize(size);
+  children.resize(size);
+  hscore = 0.0;
+  for (size_t i = 0; i < size; ++i) {
+    head[i] = -1;
+    score[i] = 0.0;
+    children[i].clear();
+  }
+}
+
+// Agenda::Agenda() : freelist_(256) {}
+// Agenda::~Agenda() {}
+
+// void Agenda::init(size_t size) {
+//   agenda_.resize(size);
+//   for (size_t i = 0; i < size; ++i) {
+//     agenda_[i].clear();
+//   }
+//   freelist_.free();
+// }
+
+// Hypothesis *Agenda::alloc() {
+//   return freelist_.alloc();
+// }
+
+// void Agenda::push(Hypothesis *hypo, size_t index) {
+//   agenda_[index].push_back(hypo);
+// }
+
+// Hypothesis *Agenda::pop(size_t index) {
+//   if (agenda_[index].empty()) {
+//     return 0;
+//   }
+//   std::pop_heap(agenda_[index].begin(),
+//                 agenda_[index].end(), HypothesisComp());
+//   Hypothesis *result = agenda_[index].back();
+//   agenda_[index].resize(agenda_[index].size() - 1);
+//   return result;
+// }
+
+// Agenda *DependencyParserData::agenda() {
+//   if (!agenda_.get()) {
+//     agenda_.reset(new Agenda);
+//   }
+//   return agenda_.get();
+// }
+
+void DependencyParserData::set_hypothesis(Hypothesis *hypothesis) {
+  hypothesis_ = hypothesis;
+}
+
+Hypothesis *DependencyParserData::hypothesis() {
+  if (hypothesis_) {
+    return hypothesis_;
+  }
+  if (!hypothesis_data_.get()) {
+    hypothesis_data_.reset(new Hypothesis);
+    hypothesis_ = hypothesis_data_.get();
+  }
+  return hypothesis_;
+}
+
 DependencyParser::DependencyParser()
-    : svm_(0), parsing_algorithm_(SHIFT_REDUCE) {}
+    : svm_(0), parsing_algorithm_(SHIFT_REDUCE), beam_(1) {}
 
 DependencyParser::~DependencyParser() {}
 
@@ -60,6 +131,10 @@ bool DependencyParser::open(const Param &param) {
     CHECK_FALSE(decode_posset(p) == posset())
         << "model posset and dependency parser's posset are different: "
         << p << " != " << encode_posset(posset());
+
+    //    beam_ = param.get<int>("beam");
+    //    CHECK_FALSE(beam_ >= 1 && beam_ <= 100)
+    //        << "beam width must be 1<=beam<=100";
   }
 
   return true;
@@ -86,7 +161,6 @@ void DependencyParser::build(Tree *tree) const {
   INIT_FEATURE(data->right_context_feature);
   INIT_FEATURE(data->gap_feature);
   INIT_FEATURE(data->dynamic_feature);
-  INIT_FEATURE(data->children);
 
   // collect all features from each chunk.
   for (size_t i = 0; i < tree->chunk_size(); ++i) {
@@ -104,12 +178,6 @@ void DependencyParser::build(Tree *tree) const {
       }
     }
   }
-
-  data->results.resize(size);
-  for (size_t i = 0; i < data->results.size(); ++i) {
-    data->results[i].score = 0.0;
-    data->results[i].link = -1;
-  }
 }
 
 bool DependencyParser::estimate(const Tree *tree,
@@ -118,6 +186,9 @@ bool DependencyParser::estimate(const Tree *tree,
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
+
+  Hypothesis *hypo = data->hypothesis();
+  CHECK_DIE(hypo);
 
   std::set<std::string> fpset;
   CHECK_DIE(dst1 != dst2);
@@ -238,8 +309,8 @@ bool DependencyParser::estimate(const Tree *tree,
     }
   }
 
-  for (size_t i = 0; i < data->children[src].size(); ++i) {
-    const int child = data->children[src][i];
+  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
+    const int child = hypo->children[src][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'a';
       fpset.insert(data->dynamic_feature[child][j]);
@@ -248,8 +319,8 @@ bool DependencyParser::estimate(const Tree *tree,
 
   {
     // dynamic features
-    for (size_t i = 0; i < data->children[dst1].size(); ++i) {
-      const int child = data->children[dst1][i];
+    for (size_t i = 0; i < hypo->children[dst1].size(); ++i) {
+      const int child = hypo->children[dst1][i];
       for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
         std::string n = "A1";
         n += data->dynamic_feature[child][j];
@@ -258,8 +329,8 @@ bool DependencyParser::estimate(const Tree *tree,
     }
 
     // dynamic features
-    for (size_t i = 0; i < data->children[dst2].size(); ++i) {
-      const int child = data->children[dst2][i];
+    for (size_t i = 0; i < hypo->children[dst2].size(); ++i) {
+      const int child = hypo->children[dst2][i];
       for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
         std::string n = "A2";
         n += data->dynamic_feature[child][j];
@@ -298,12 +369,14 @@ bool DependencyParser::estimate(const Tree *tree,
   return false;
 }
 
-bool DependencyParser::estimate(const Tree *tree,
-                                int src, int dst,
+bool DependencyParser::estimate(const Tree *tree, int src, int dst,
                                 double *score) const {
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
+
+  Hypothesis *hypo = data->hypothesis();
+  CHECK_DIE(hypo);
 
   data->fpset.clear();
 
@@ -366,16 +439,16 @@ bool DependencyParser::estimate(const Tree *tree,
   }
 
   // dynamic features
-  for (size_t i = 0; i < data->children[dst].size(); ++i) {
-    const int child = data->children[dst][i];
+  for (size_t i = 0; i < hypo->children[dst].size(); ++i) {
+    const int child = hypo->children[dst][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'A';
       data->fpset.insert(data->dynamic_feature[child][j]);
     }
   }
 
-  for (size_t i = 0; i < data->children[src].size(); ++i) {
-    const int child = data->children[src][i];
+  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
+    const int child = hypo->children[src][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'a';
       data->fpset.insert(data->dynamic_feature[child][j]);
@@ -416,22 +489,21 @@ bool DependencyParser::estimate(const Tree *tree,
 
 // Sassano's algorithm
 bool DependencyParser::parseShiftReduce(Tree *tree) const {
-  if (!tree->allocator()->dependency_parser_data) {
-    tree->allocator()->dependency_parser_data
-        = new DependencyParserData;
-    CHECK_DIE(tree->allocator()->dependency_parser_data);
-  }
-
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
 
   const int size = static_cast<int>(tree->chunk_size());
-  build(tree);
+  CHECK_DIE(size >= 2);
+
+  Hypothesis *hypo = data->hypothesis();
+  CHECK_DIE(hypo);
+  hypo->init(size);
 
   std::stack<int> agenda;
   double score = 0.0;
   agenda.push(0);
+
   for (int dst = 1; dst < size; ++dst) {
     int src = 0;
     MYPOP(agenda, src);
@@ -450,13 +522,11 @@ bool DependencyParser::parseShiftReduce(Tree *tree) const {
     while (src != -1 &&
            (dst == size - 1 || is_fake_link ||
             estimate(tree, src, dst, &score))) {
-      Chunk *chunk = tree->mutable_chunk(src);
-      chunk->link = dst;
-      chunk->score = score;
-
+      hypo->head[src] = dst;
+      hypo->score[src] = score;
       // store children for dynamic_features
       if (!is_fake_link) {
-        data->children[dst].push_back(src);
+        hypo->children[dst].push_back(src);
       }
 
       MYPOP(agenda, src);
@@ -467,29 +537,30 @@ bool DependencyParser::parseShiftReduce(Tree *tree) const {
     agenda.push(dst);
   }
 
+  for (int src = 0; src < size - 1; ++src) {
+    Chunk *chunk = tree->mutable_chunk(src);
+    chunk->link = hypo->head[src];
+    chunk->score = hypo->score[src];
+  }
+
   tree->set_output_layer(OUTPUT_DEP);
   return true;
 }
 #undef MYPOP
 
 bool DependencyParser::parseTournament(Tree *tree) const {
-  if (!tree->allocator()->dependency_parser_data) {
-    tree->allocator()->dependency_parser_data
-        = new DependencyParserData;
-    CHECK_DIE(tree->allocator()->dependency_parser_data);
-  }
-
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
-  const int size = static_cast<int>(tree->chunk_size());
-  build(tree);
 
-  if (size <= 1) {
-    return true;
-  }
+  const int size = static_cast<int>(tree->chunk_size());
+  CHECK_DIE(size >= 2);
 
   double score = 0.0;
+  Hypothesis *hypo = data->hypothesis();
+  CHECK_DIE(hypo);
+  hypo->init(size);
+
   if (action_mode() == TRAINING_MODE) {
     for (int src = size - 2; src >= 0; --src) {
       const int head = tree->chunk(src)->link;
@@ -502,15 +573,14 @@ bool DependencyParser::parseTournament(Tree *tree) const {
       for (int dst = head + 1; dst <= size - 1; ++dst) {
         estimate(tree, src, head, dst, &score);
       }
-      data->children[head].push_back(src);
+      hypo->children[head].push_back(src);
     }
   } else {
-    std::vector<int> head(size);
     for (int i = 0; i < size; ++i) {
-      head[i] = i + 1;
+      hypo->head[i] = i + 1;
     }
-    CHECK_DIE(head[size - 1] == size);
-
+    CHECK_DIE(hypo->head[size - 1] == size);
+    const std::vector<int> &head = hypo->head;
     for (int src = size - 2; src >= 0; --src) {
       int h = src + 1;
       int dst = head[h];
@@ -520,11 +590,17 @@ bool DependencyParser::parseTournament(Tree *tree) const {
         }
         dst = head[dst];
       }
-      head[src] = h;
+      hypo->head[src] = h;
+      hypo->score[src] = std::fabs(score);
+      hypo->children[h].push_back(src);
+    }
+
+    // propagete hypothesis.
+    for (int src = 0; src < size - 1; ++src) {
       Chunk *chunk = tree->mutable_chunk(src);
-      chunk->link = h;
-      chunk->score = score;
-      data->children[h].push_back(src);
+      CHECK_DIE(chunk != 0);
+      chunk->link = hypo->head[src];
+      chunk->score = hypo->score[src];
     }
   }
 
@@ -533,6 +609,25 @@ bool DependencyParser::parseTournament(Tree *tree) const {
 }
 
 bool DependencyParser::parse(Tree *tree) const {
+  if (!tree->allocator()->dependency_parser_data) {
+    tree->allocator()->dependency_parser_data
+        = new DependencyParserData;
+    CHECK_DIE(tree->allocator()->dependency_parser_data);
+  }
+
+  if (tree->chunk_size() == 0) {
+    return true;
+  }
+
+  if (tree->chunk_size() == 1) {
+    tree->mutable_chunk(tree->chunk_size() - 1)->link = -1;
+    tree->mutable_chunk(tree->chunk_size() - 1)->score = 0.0;
+    return true;
+  }
+
+  // make features
+  build(tree);
+
   switch (parsing_algorithm_) {
     case SHIFT_REDUCE:
       return parseShiftReduce(tree);

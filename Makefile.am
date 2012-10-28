@@ -3,7 +3,7 @@
 # $Id: Makefile.am 1460 2005-07-21 13:31:24Z taku-ku $;
 #
 @SET_MAKE@
-AUTOMAKE_OPTIONS = 1.4 no-dependencies
+AUTOMAKE_OPTIONS = 1.4 no-dependencies  dist-bzip2 no-dist-gzip
 SUBDIRS = src model man
 confdir = $(sysconfdir)
 conf_DATA = cabocharc
