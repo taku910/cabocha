@@ -9,6 +9,7 @@
 #include <vector>
 #include <set>
 #include "common.h"
+#include "freelist.h"
 #include "analyzer.h"
 #include "scoped_ptr.h"
 
@@ -21,21 +22,45 @@ class cmpstr {
    return (strcmp(s1, s2) < 0); }
 };
 
+struct Hypothesis {
+  void init(size_t size);
+  std::vector<int> head;
+  std::vector<float> score;
+  std::vector<std::vector<int> > children;
+  double hscore;
+};
+
+// // stack-based agenda.
+// struct Agenda {
+//  public:
+//   Agenda();
+//   ~Agenda();
+//   void init(size_t size);
+//   Hypothesis *alloc();
+//   void push(Hypothesis *hypo, size_t index);
+//   Hypothesis *pop(size_t index);
+
+//  private:
+//   FreeList<Hypothesis> freelist_;
+//   std::vector<std::vector<Hypothesis *> > agenda_;
+// };
+
 struct DependencyParserData {
-  struct Result {
-    double score;
-    int link;
-  };
   std::vector<std::vector <char *> > static_feature;
   std::vector<std::vector <char *> > left_context_feature;
   std::vector<std::vector <char *> > right_context_feature;
   std::vector<std::vector <char *> > gap_feature;
   std::vector<std::vector <char *> > dynamic_feature;
-  std::vector<Result> results;
-  std::vector<std::vector<int> > children;
-  // hash_set<const char *> fpset;
   std::set<const char *, cmpstr> fpset;
   std::vector<const char *> fp;
+
+  //  Agenda *agenda();
+  void set_hypothesis(Hypothesis *hypothesis);
+  Hypothesis *hypothesis();
+
+  Hypothesis *hypothesis_;                   // current hypothesis
+  //  scoped_ptr<Agenda> agenda_;  // used in n-best parsing with beam search
+  scoped_ptr<Hypothesis> hypothesis_data_;  // used in greedy parsing
 };
 
 class DependencyParser: public Analyzer {
@@ -65,6 +90,7 @@ class DependencyParser: public Analyzer {
 
   scoped_ptr<SVMModelInterface> svm_;
   int parsing_algorithm_;
+  int beam_;
 };
 }
 #endif

@@ -46,6 +46,7 @@ const CaboCha::Option long_options[] = {
   {"parser-model",    'm', 0, "FILE", "use FILE as parser model file"},
   {"chunker-model",   'M', 0, "FILE", "use FILE as chunker model file"},
   {"ne-model",        'N', 0, "FILE", "use FILE as NE tagger model file"},
+  //  {"beam",            'B', "1", "INT", "set beam width for tournament model" },
   { "posset",         'P',  CABOCHA_DEFAULT_POSSET, "STR",
     "make posset of morphological analyzer (default "
     CABOCHA_DEFAULT_POSSET ")" },
