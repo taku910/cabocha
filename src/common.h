@@ -162,6 +162,7 @@ struct hash<std::string> {
   }
 };
 
+template <>
 struct hash<uint64> {
   std::size_t operator()(const uint64 s) const {
     return s;

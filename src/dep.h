@@ -61,6 +61,9 @@ struct DependencyParserData {
   Hypothesis *hypothesis_;                   // current hypothesis
   //  scoped_ptr<Agenda> agenda_;  // used in n-best parsing with beam search
   scoped_ptr<Hypothesis> hypothesis_data_;  // used in greedy parsing
+
+  DependencyParserData();
+  ~DependencyParserData();
 };
 
 class DependencyParser: public Analyzer {
