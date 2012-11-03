@@ -91,6 +91,8 @@ Hypothesis *DependencyParserData::hypothesis() {
   return hypothesis_;
 }
 
+DependencyParserData::DependencyParserData() : hypothesis_(0) {}
+
 DependencyParser::DependencyParser()
     : svm_(0), parsing_algorithm_(SHIFT_REDUCE), beam_(1) {}
 
