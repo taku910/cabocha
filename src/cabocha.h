@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #ifndef CABOCHA_DLL_CLASS_EXTERN
-#  define CABOCHA_DLL_CLASS_EXTERN extern
+#  define CABOCHA_DLL_CLASS_EXTERN
 #endif
 
   enum {
