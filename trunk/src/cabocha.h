@@ -14,6 +14,7 @@ extern "C" {
 #ifdef _WIN32
 #  ifdef DLL_EXPORT
 #    define CABOCHA_DLL_EXTERN    __declspec(dllexport)
+#    define CABOCHA_DLL_CLASS_EXTERN  __declspec(dllexport)
 #  else
 #    ifdef  DLL_IMPORT
 #      define CABOCHA_DLL_EXTERN  __declspec(dllimport)
@@ -23,6 +24,10 @@ extern "C" {
 
 #ifndef CABOCHA_DLL_EXTERN
 #  define CABOCHA_DLL_EXTERN extern
+#endif
+
+#ifndef CABOCHA_DLL_CLASS_EXTERN
+#  define CABOCHA_DLL_CLASS_EXTERN extern
 #endif
 
   enum {
@@ -238,7 +243,7 @@ enum ParsingAlgorithm {
 
 class TreeAllocator;
 
-class Tree {
+class CABOCHA_DLL_CLASS_EXTERN Tree {
  public:
   void set_sentence(const char *sentence);
   const char *sentence() const;
@@ -308,7 +313,7 @@ class Tree {
   OutputLayerType             output_layer_;
 };
 
-class Parser {
+class CABOCHA_DLL_CLASS_EXTERN Parser {
  public:
   virtual const Tree *parse(const char *input)                          = 0;
   virtual const char *parseToString(const char *input)                  = 0;
