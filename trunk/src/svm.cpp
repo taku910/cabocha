@@ -55,7 +55,7 @@ void inline encodeBER(unsigned int value,
   ++value;
   output[(*length)++] = (value & 0x7f);
   while (value >>= 7) {
-    ++value;     
+    ++value;
     output[*length - 1] |= 0x80;
     output[(*length)++] = (value & 0x7f);
   }
