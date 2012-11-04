@@ -31,7 +31,7 @@ win-dist:
 	mkdir wintmp
 	cp -f example/*.c example/*.cpp src/cabocha.h wintmp
 	mkdir wintmp/model
-	for txt in model/*.ipa.txt; do \
+	for txt in model/dep.ipa.txt model/chunk.ipa.txt model/ne.ipa.txt; do \
 	  nkf -s $$txt > wintmp/$$txt; \
 	done
 	perl -pe 's#\@prefix\@/lib/cabocha/model/#\$$(rcpath)\\..\\model\\#g; \
@@ -59,5 +59,5 @@ dist-all-package:
 	$(MAKE) win-dist
 
 export-package:
-	python googlecode_upload.py -p cabocha -s cabocha      -u taku@chasen.org -w `cat ~/.googlecode_upload_password` cabocha-@VERSION@.tar.gz
+	python googlecode_upload.py -p cabocha -s cabocha      -u taku@chasen.org -w `cat ~/.googlecode_upload_password` cabocha-@VERSION@.tar.bz2
 	python googlecode_upload.py -p cabocha -s cabocha-win  -u taku@chasen.org -w `cat ~/.googlecode_upload_password` cabocha-@VERSION@.exe
