@@ -38,8 +38,11 @@ ne = 1
 # Parser model file name
 parser-model  = @prefix@/lib/cabocha/model/dep.@POSSET2@.model
 # parser-model  = @prefix@/lib/cabocha/model/dep.ipa.model
+# parser-model  = @prefix@/lib/cabocha/model/dep-tournament.ipa.model
 # parser-model  = @prefix@/lib/cabocha/model/dep.juman.model
+# parser-model  = @prefix@/lib/cabocha/model/dep-tournament.juman.model
 # parser-model  = @prefix@/lib/cabocha/model/dep.unidic.model
+# parser-model  = @prefix@/lib/cabocha/model/dep-tournament.unidic.model
 
 # Chunker model file name
 chunker-model = @prefix@/lib/cabocha/model/chunk.@POSSET2@.model
