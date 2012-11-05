@@ -34,6 +34,8 @@ public class CaboChaJNI {
   public final static native int CABOCHA_TRAIN_NE_get();
   public final static native int CABOCHA_TRAIN_CHUNK_get();
   public final static native int CABOCHA_TRAIN_DEP_get();
+  public final static native int CABOCHA_SHIFT_REDUCE_get();
+  public final static native int CABOCHA_TOURNAMENT_get();
   public final static native int Chunk_link_get(long jarg1, Chunk jarg1_);
   public final static native int Chunk_head_pos_get(long jarg1, Chunk jarg1_);
   public final static native int Chunk_func_pos_get(long jarg1, Chunk jarg1_);
@@ -76,6 +78,8 @@ public class CaboChaJNI {
   public final static native int TRAIN_NE_get();
   public final static native int TRAIN_CHUNK_get();
   public final static native int TRAIN_DEP_get();
+  public final static native int SHIFT_REDUCE_get();
+  public final static native int TOURNAMENT_get();
   public final static native void Tree_set_sentence(long jarg1, Tree jarg1_, String jarg2);
   public final static native String Tree_sentence(long jarg1, Tree jarg1_);
   public final static native long Tree_sentence_size(long jarg1, Tree jarg1_);

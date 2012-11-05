@@ -951,6 +951,58 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TRAIN_1DEP_1
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1SHIFT_1REDUCE_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (int)CABOCHA_SHIFT_REDUCE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TOURNAMENT_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (int)CABOCHA_TOURNAMENT; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_Chunk_1link_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
@@ -1871,6 +1923,58 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_TRAIN_1DEP_1get(JNIEn
   {
     try {
       result = (CaboCha::ParserType)CaboCha::TRAIN_DEP; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_SHIFT_1REDUCE_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  CaboCha::ParsingAlgorithm result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (CaboCha::ParsingAlgorithm)CaboCha::SHIFT_REDUCE; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_TOURNAMENT_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  CaboCha::ParsingAlgorithm result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (CaboCha::ParsingAlgorithm)CaboCha::TOURNAMENT; 
     }
     catch (char *e) {
       {
