@@ -5845,6 +5845,8 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_NE",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_NE)));
   SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_CHUNK",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_CHUNK)));
   SWIG_Python_SetConstant(d, "CABOCHA_TRAIN_DEP",SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_DEP)));
+  SWIG_Python_SetConstant(d, "CABOCHA_SHIFT_REDUCE",SWIG_From_int(static_cast< int >(CABOCHA_SHIFT_REDUCE)));
+  SWIG_Python_SetConstant(d, "CABOCHA_TOURNAMENT",SWIG_From_int(static_cast< int >(CABOCHA_TOURNAMENT)));
   SWIG_Python_SetConstant(d, "EUC_JP",SWIG_From_int(static_cast< int >(CaboCha::EUC_JP)));
   SWIG_Python_SetConstant(d, "CP932",SWIG_From_int(static_cast< int >(CaboCha::CP932)));
   SWIG_Python_SetConstant(d, "UTF8",SWIG_From_int(static_cast< int >(CaboCha::UTF8)));
@@ -5870,6 +5872,8 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "TRAIN_NE",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_NE)));
   SWIG_Python_SetConstant(d, "TRAIN_CHUNK",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_CHUNK)));
   SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
+  SWIG_Python_SetConstant(d, "SHIFT_REDUCE",SWIG_From_int(static_cast< int >(CaboCha::SHIFT_REDUCE)));
+  SWIG_Python_SetConstant(d, "TOURNAMENT",SWIG_From_int(static_cast< int >(CaboCha::TOURNAMENT)));
   SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.65"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;

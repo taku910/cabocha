@@ -4072,6 +4072,8 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_NE", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_NE)));
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_CHUNK", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_CHUNK)));
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_DEP", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_DEP)));
+  rb_define_const(mCaboCha, "CABOCHA_SHIFT_REDUCE", SWIG_From_int(static_cast< int >(CABOCHA_SHIFT_REDUCE)));
+  rb_define_const(mCaboCha, "CABOCHA_TOURNAMENT", SWIG_From_int(static_cast< int >(CABOCHA_TOURNAMENT)));
   
   SwigClassChunk.klass = rb_define_class_under(mCaboCha, "Chunk", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_cabocha_chunk_t, (void *) &SwigClassChunk);
@@ -4126,6 +4128,8 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "TRAIN_NE", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_NE)));
   rb_define_const(mCaboCha, "TRAIN_CHUNK", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_CHUNK)));
   rb_define_const(mCaboCha, "TRAIN_DEP", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
+  rb_define_const(mCaboCha, "SHIFT_REDUCE", SWIG_From_int(static_cast< int >(CaboCha::SHIFT_REDUCE)));
+  rb_define_const(mCaboCha, "TOURNAMENT", SWIG_From_int(static_cast< int >(CaboCha::TOURNAMENT)));
   
   SwigClassTree.klass = rb_define_class_under(mCaboCha, "Tree", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Tree, (void *) &SwigClassTree);

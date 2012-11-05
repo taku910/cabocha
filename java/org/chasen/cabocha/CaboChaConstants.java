@@ -40,5 +40,8 @@ public interface CaboChaConstants {
   public final static int CABOCHA_TRAIN_CHUNK = CaboChaJNI.CABOCHA_TRAIN_CHUNK_get();
   public final static int CABOCHA_TRAIN_DEP = CaboChaJNI.CABOCHA_TRAIN_DEP_get();
 
+  public final static int CABOCHA_SHIFT_REDUCE = CaboChaJNI.CABOCHA_SHIFT_REDUCE_get();
+  public final static int CABOCHA_TOURNAMENT = CaboChaJNI.CABOCHA_TOURNAMENT_get();
+
   public final static String VERSION = CaboChaJNI.VERSION_get();
 }
