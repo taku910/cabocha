@@ -119,10 +119,10 @@ class Eval {
       tree_str2.clear();
       CHECK_DIE(read_sentence(&ifs1,
                               &tree_str1,
-                              INPUT_DEP));
+                              INPUT_CHUNK));
       CHECK_DIE(read_sentence(&ifs2,
                               &tree_str2,
-                              INPUT_DEP));
+                              INPUT_CHUNK));
       CHECK_DIE(tree1.read(tree_str1.c_str(),
                            tree_str1.size(),
                            INPUT_DEP)) << "cannot parse sentence";

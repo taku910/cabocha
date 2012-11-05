@@ -473,14 +473,17 @@ bool Tree::read(const char *input, size_t length,
 
             if (size >= 4) {
               size_t i = 0;
-              const size_t len = std::strlen(column[3]) - 1;
-              for (i = 0; i < len ; i++) {
-                if (column[3][i] == '/') {
-                  break;
+              size_t len = std::strlen(column[3]);
+              if (len > 0) {
+                --len;
+                for (i = 0; i < len ; i++) {
+                  if (column[3][i] == '/') {
+                    break;
+                  }
                 }
+                chunk->head_pos = std::atoi(column[3]);
+                chunk->func_pos = std::atoi(column[3] + i + 1);
               }
-              chunk->head_pos = std::atoi(column[3]);
-              chunk->func_pos = std::atoi(column[3] +i + 1);
             }
 
             if (size >= 5) {
