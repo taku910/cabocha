@@ -33,7 +33,7 @@ output-layer = 4
 # 0 - no output
 # 1 - output NE with    Chunk Constraint
 # 2 - output NE without Chunk Constraint
-ne = 1
+ne = 0
 
 # Parser model file name
 parser-model  = @prefix@/lib/cabocha/model/dep.@POSSET2@.model

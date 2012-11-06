@@ -274,6 +274,66 @@ void write_tree(const Tree &tree, StringBuffer *os,
   *os << "EOS\n";
 }
 
+bool write_conll(const Tree &tree, StringBuffer *os,
+		 int output_layer, int charset) {
+  const size_t size = tree.chunk_size();
+  int token_id = 1;
+  std::string pos;
+
+  for (size_t i = 0; i < size; ++i) {
+    const Chunk *chunk = tree.chunk(i);
+    for (size_t j = 0; j < static_cast<size_t>(chunk->token_size); ++j) {
+      int link = 0;
+      if (j == static_cast<size_t>(chunk->token_size) - 1 &&
+	  chunk->link >= 0 && chunk->link < static_cast<int>(tree.chunk_size())) {
+	const Chunk *head = tree.chunk(chunk->link);
+	link = head->head_pos + head->token_pos + 1;
+      } else {
+	link = chunk->token_pos + j + 2;
+      }
+      if (link == static_cast<int>(tree.token_size()) + 1) {
+	link = 0;
+      }
+      const Token *token = tree.token(chunk->token_pos + j);
+
+      const char *lemma = "_";
+      if (tree.posset() == IPA || tree.posset() == UNIDIC) {
+	concat_feature(token, 4, &pos);
+	if (token->feature_list_size > 7) {
+	  lemma = token->feature_list[6];
+	}
+      } else if (tree.posset() == JUMAN) {
+	concat_feature(token, 2, &pos);
+	if (token->feature_list_size > 5) {
+	  lemma = token->feature_list[4];
+	}
+      }
+      const char *category = "_";
+      if (token->feature_list_size > 0) {
+	category = token->feature_list[0];
+      }
+
+      *os << token_id++ << '\t' << token->surface << '\t' << lemma
+	  << '\t' << category << '\t' << pos
+	  << "\tfeature=" << token->feature;
+      if (j == 0 && output_layer >= OUTPUT_CHUNK) {
+	*os << "|begin_chunk=1";
+      }
+      if (output_layer >= OUTPUT_SELECTION) {
+	if (j == chunk->head_pos) {
+	  *os << "|head=1";
+	}
+	if (j == chunk->func_pos) {
+	  *os << "|func=1";
+	}
+      }
+      *os << '\t' << link << "\tD\t_\t_\n";
+    }
+  }
+  *os << "\n";
+  return true;
+}
+
 bool write_tree(const Tree &tree, StringBuffer *os,
                 int output_layer, int output_format, int charset) {
   os->clear();
@@ -290,6 +350,9 @@ bool write_tree(const Tree &tree, StringBuffer *os,
       break;
     case FORMAT_XML:
       write_xml(tree, os, output_layer, charset);
+      break;
+    case FORMAT_CONLL:
+      write_conll(tree, os, output_layer, charset);
       break;
     case FORMAT_NONE:
       break;
