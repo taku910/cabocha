@@ -39,43 +39,6 @@ void Hypothesis::init(size_t size) {
   }
 }
 
-// Agenda::Agenda() : freelist_(256) {}
-// Agenda::~Agenda() {}
-
-// void Agenda::init(size_t size) {
-//   agenda_.resize(size);
-//   for (size_t i = 0; i < size; ++i) {
-//     agenda_[i].clear();
-//   }
-//   freelist_.free();
-// }
-
-// Hypothesis *Agenda::alloc() {
-//   return freelist_.alloc();
-// }
-
-// void Agenda::push(Hypothesis *hypo, size_t index) {
-//   agenda_[index].push_back(hypo);
-// }
-
-// Hypothesis *Agenda::pop(size_t index) {
-//   if (agenda_[index].empty()) {
-//     return 0;
-//   }
-//   std::pop_heap(agenda_[index].begin(),
-//                 agenda_[index].end(), HypothesisComp());
-//   Hypothesis *result = agenda_[index].back();
-//   agenda_[index].resize(agenda_[index].size() - 1);
-//   return result;
-// }
-
-// Agenda *DependencyParserData::agenda() {
-//   if (!agenda_.get()) {
-//     agenda_.reset(new Agenda);
-//   }
-//   return agenda_.get();
-// }
-
 void DependencyParserData::set_hypothesis(Hypothesis *hypothesis) {
   hypothesis_ = hypothesis;
 }
@@ -95,7 +58,8 @@ DependencyParserData::DependencyParserData() : hypothesis_(0) {}
 DependencyParserData::~DependencyParserData() {}
 
 DependencyParser::DependencyParser()
-    : svm_(0), parsing_algorithm_(SHIFT_REDUCE), beam_(1) {}
+    : svm_(0), parsing_algorithm_(SHIFT_REDUCE),
+      beam_(1) {}
 
 DependencyParser::~DependencyParser() {}
 
@@ -134,10 +98,10 @@ bool DependencyParser::open(const Param &param) {
     CHECK_FALSE(decode_posset(p) == posset())
         << "model posset and dependency parser's posset are different: "
         << p << " != " << encode_posset(posset());
+  }
 
-    //    beam_ = param.get<int>("beam");
-    //    CHECK_FALSE(beam_ >= 1 && beam_ <= 100)
-    //        << "beam width must be 1<=beam<=100";
+  if (action_mode() == TRAINING_MODE) {
+    svm_.reset(new SVMModel);
   }
 
   return true;
@@ -183,6 +147,11 @@ void DependencyParser::build(Tree *tree) const {
   }
 }
 
+#define ADD_FEATURE(key) do { \
+  const int id = svm_->id(key); \
+  if (id != -1) { fp->push_back(id); }          \
+  } while (0)
+
 bool DependencyParser::estimate(const Tree *tree,
                                 int src, int dst1, int dst2,
                                 double *score) const {
@@ -193,50 +162,52 @@ bool DependencyParser::estimate(const Tree *tree,
   Hypothesis *hypo = data->hypothesis();
   CHECK_DIE(hypo);
 
-  std::set<std::string> fpset;
+  std::vector<int> *fp = &data->fp;
+  fp->clear();
+
   CHECK_DIE(dst1 != dst2);
 
   // distance features
   const int dist1 = dst1 - src;
   const int dist2 = dst2 - src;
   if (dist1 == 1) {
-    fpset.insert("DIST1:1");
+    ADD_FEATURE("DIST1:1");
   } else if (dist1 >= 2 && dist1 <= 5) {
-    fpset.insert("DIST1:2-5");
+    ADD_FEATURE("DIST1:2-5");
   } else {
-    fpset.insert("DIST1:6-");
+    ADD_FEATURE("DIST1:6-");
   }
 
   if (dist2 == 1) {
-    fpset.insert("DIST2:1");
+    ADD_FEATURE("DIST2:1");
   } else if (dist2 >= 2 && dist2 <= 5) {
-    fpset.insert("DIST2:2-5");
+    ADD_FEATURE("DIST2:2-5");
   } else {
-    fpset.insert("DIST2:6-");
+    ADD_FEATURE("DIST2:6-");
   }
 
   // static features
   for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
     data->static_feature[src][i][0] = 'S';  // src
-    fpset.insert(data->static_feature[src][i]);
+    ADD_FEATURE(data->static_feature[src][i]);
   }
 
   for (size_t i = 0; i < data->static_feature[dst1].size(); ++i) {
     std::string n = "D1";
     n += data->static_feature[dst1][i];
-    fpset.insert(n);
+    ADD_FEATURE(n);
   }
 
   for (size_t i = 0; i < data->static_feature[dst2].size(); ++i) {
     std::string n = "D2";
     n += data->static_feature[dst2][i];
-    fpset.insert(n);
+    ADD_FEATURE(n);
   }
 
   // left context features
   if (src > 0) {
     for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
-      fpset.insert(data->left_context_feature[src - 1][i]);
+      ADD_FEATURE(data->left_context_feature[src - 1][i]);
     }
   }
 
@@ -245,7 +216,7 @@ bool DependencyParser::estimate(const Tree *tree,
     for (size_t i = 0; i < data->right_context_feature[dst1 + 1].size(); ++i) {
       std::string n = "R1";
       n += data->right_context_feature[dst1 + 1][i];
-      fpset.insert(n);
+      ADD_FEATURE(n);
     }
   }
 
@@ -254,7 +225,7 @@ bool DependencyParser::estimate(const Tree *tree,
     for (size_t i = 0; i < data->right_context_feature[dst2 + 1].size(); ++i) {
       std::string n = "R2";
       n += data->right_context_feature[dst2 + 1][i];
-      fpset.insert(n);
+      ADD_FEATURE(n);
     }
   }
 
@@ -271,17 +242,17 @@ bool DependencyParser::estimate(const Tree *tree,
         } else {
           std::string n = "G1";
           n += gap_feature;
-          fpset.insert(n);
+          ADD_FEATURE(n);
         }
       }
     }
 
     // bracket status
     switch (bracket_status) {
-      case 0: fpset.insert("GNB1:1"); break;  // nothing
-      case 1: fpset.insert("GOB1:1"); break;  // open only
-      case 2: fpset.insert("GCB1:1"); break;  // close only
-      default: fpset.insert("GBB1:1"); break;  // both
+      case 0: ADD_FEATURE("GNB1:1"); break;  // nothing
+      case 1: ADD_FEATURE("GOB1:1"); break;  // open only
+      case 2: ADD_FEATURE("GCB1:1"); break;  // close only
+      default: ADD_FEATURE("GBB1:1"); break;  // both
     }
   }
 
@@ -298,17 +269,17 @@ bool DependencyParser::estimate(const Tree *tree,
         } else {
           std::string n = "G2";
           n += gap_feature;
-          fpset.insert(n);
+          ADD_FEATURE(n);
         }
       }
     }
 
     // bracket status
     switch (bracket_status) {
-      case 0: fpset.insert("GNB2:1"); break;  // nothing
-      case 1: fpset.insert("GOB2:1"); break;  // open only
-      case 2: fpset.insert("GCB2:1"); break;  // close only
-      default: fpset.insert("GBB2:1"); break;  // both
+      case 0: ADD_FEATURE("GNB2:1"); break;  // nothing
+      case 1: ADD_FEATURE("GOB2:1"); break;  // open only
+      case 2: ADD_FEATURE("GCB2:1"); break;  // close only
+      default: ADD_FEATURE("GBB2:1"); break;  // both
     }
   }
 
@@ -316,7 +287,7 @@ bool DependencyParser::estimate(const Tree *tree,
     const int child = hypo->children[src][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'a';
-      fpset.insert(data->dynamic_feature[child][j]);
+      ADD_FEATURE(data->dynamic_feature[child][j]);
     }
   }
 
@@ -327,7 +298,7 @@ bool DependencyParser::estimate(const Tree *tree,
       for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
         std::string n = "A1";
         n += data->dynamic_feature[child][j];
-        fpset.insert(n);
+        ADD_FEATURE(n);
       }
     }
 
@@ -337,36 +308,28 @@ bool DependencyParser::estimate(const Tree *tree,
       for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
         std::string n = "A2";
         n += data->dynamic_feature[child][j];
-        fpset.insert(n);
+        ADD_FEATURE(n);
       }
     }
   }
 
-  std::vector<const char *> fp;
-  for (std::set<std::string>::const_iterator it = fpset.begin();
-       it != fpset.end(); ++it) {
-    fp.push_back(it->c_str());
-  }
-
-  TreeAllocator *allocator = tree->allocator();
+  std::sort(fp->begin(), fp->end());
+  fp->erase(std::unique(fp->begin(), fp->end()), fp->end());
 
   if (action_mode() == PARSING_MODE) {
-    *score = svm_->classify(fp);
+    *score = svm_->classify(*fp);
     return *score > 0;
   } else {
     const int h = tree->chunk(src)->link;
     CHECK_DIE(h != -1 && h >= 0 && h < static_cast<int>(tree->size()));
+    CHECK_DIE(!fp->empty());
     if (h == dst2) {  // RIGHT
-      *(allocator->stream()) << "+1";
+      svm_->add(+1.0, *fp);
     } else if (h == dst1) {  // LEFT
-      *(allocator->stream()) << "-1";
+      svm_->add(-1.0, *fp);
     } else {
       CHECK_DIE(true) << "dst1 or dst2 must be a true head";
     }
-    for (size_t i = 0; i < fp.size(); ++i) {
-      *(allocator->stream()) << ' ' << fp[i];
-    }
-    *(allocator->stream()) << std::endl;
   }
 
   return false;
@@ -381,40 +344,41 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
   Hypothesis *hypo = data->hypothesis();
   CHECK_DIE(hypo);
 
-  data->fpset.clear();
+  std::vector<int> *fp = &data->fp;
+  fp->clear();
 
   // distance features
   const int dist = dst - src;
   if (dist == 1) {
-    data->fpset.insert("DIST:1");
+    ADD_FEATURE("DIST:1");
   } else if (dist >= 2 && dist <= 5) {
-    data->fpset.insert("DIST:2-5");
+    ADD_FEATURE("DIST:2-5");
   } else {
-    data->fpset.insert("DIST:6-");
+    ADD_FEATURE("DIST:6-");
   }
 
   // static features
   for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
     data->static_feature[src][i][0] = 'S';  // src
-    data->fpset.insert(data->static_feature[src][i]);
+    ADD_FEATURE(data->static_feature[src][i]);
   }
 
   for (size_t i = 0; i < data->static_feature[dst].size(); ++i) {
     data->static_feature[dst][i][0] = 'D';  // dst
-    data->fpset.insert(data->static_feature[dst][i]);
+    ADD_FEATURE(data->static_feature[dst][i]);
   }
 
   // left context features
   if (src > 0) {
     for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
-      data->fpset.insert(data->left_context_feature[src - 1][i]);
+      ADD_FEATURE(data->left_context_feature[src - 1][i]);
     }
   }
 
   // right context features
   if (dst < static_cast<int>(tree->chunk_size() - 1)) {
     for (size_t i = 0; i < data->right_context_feature[dst + 1].size(); ++i) {
-      data->fpset.insert(data->right_context_feature[dst + 1][i]);
+      ADD_FEATURE(data->right_context_feature[dst + 1][i]);
     }
   }
 
@@ -428,17 +392,17 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
       } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
         bracket_status |= 2;
       } else {
-        data->fpset.insert(gap_feature);
+        ADD_FEATURE(gap_feature);
       }
     }
   }
 
   // bracket status
   switch (bracket_status) {
-    case 0: data->fpset.insert("GNB:1"); break;  // nothing
-    case 1: data->fpset.insert("GOB:1"); break;  // open only
-    case 2: data->fpset.insert("GCB:1"); break;  // close only
-    default: data->fpset.insert("GBB:1"); break;  // both
+    case 0: ADD_FEATURE("GNB:1"); break;  // nothing
+    case 1: ADD_FEATURE("GOB:1"); break;  // open only
+    case 2: ADD_FEATURE("GCB:1"); break;  // close only
+    default: ADD_FEATURE("GBB:1"); break;  // both
   }
 
   // dynamic features
@@ -446,7 +410,7 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     const int child = hypo->children[dst][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'A';
-      data->fpset.insert(data->dynamic_feature[child][j]);
+      ADD_FEATURE(data->dynamic_feature[child][j]);
     }
   }
 
@@ -454,27 +418,20 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     const int child = hypo->children[src][i];
     for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
       data->dynamic_feature[child][j][0] = 'a';
-      data->fpset.insert(data->dynamic_feature[child][j]);
+      ADD_FEATURE(data->dynamic_feature[child][j]);
     }
   }
 
-  data->fp.clear();
-  std::copy(data->fpset.begin(), data->fpset.end(),
-            std::back_inserter(data->fp));
-
-  TreeAllocator *allocator = tree->allocator();
+  std::sort(fp->begin(), fp->end());
+  fp->erase(std::unique(fp->begin(), fp->end()), fp->end());
 
   if (action_mode() == PARSING_MODE) {
-    *score = svm_->classify(data->fp);
+    *score = svm_->classify(*fp);
     return *score > 0;
   } else {
-    std::sort(data->fp.begin(), data->fp.end(), cmpstr());
+    CHECK_DIE(!fp->empty());
     const bool isdep = (tree->chunk(src)->link == dst);
-    *(allocator->stream()) << (isdep ? "+1" : "-1");
-    for (size_t i = 0; i < data->fp.size(); ++i) {
-      *(allocator->stream()) << ' ' << data->fp[i];
-    }
-    *(allocator->stream()) << std::endl;
+    svm_->add(isdep ? +1 : -1, *fp);
     return isdep;
   }
 
@@ -546,7 +503,6 @@ bool DependencyParser::parseShiftReduce(Tree *tree) const {
     chunk->score = hypo->score[src];
   }
 
-  tree->set_output_layer(OUTPUT_DEP);
   return true;
 }
 #undef MYPOP
@@ -607,7 +563,6 @@ bool DependencyParser::parseTournament(Tree *tree) const {
     }
   }
 
-  tree->set_output_layer(OUTPUT_DEP);
   return true;
 }
 
@@ -618,6 +573,8 @@ bool DependencyParser::parse(Tree *tree) const {
     CHECK_DIE(tree->allocator()->dependency_parser_data);
   }
 
+  tree->set_output_layer(OUTPUT_DEP);
+
   if (tree->chunk_size() == 0) {
     return true;
   }
@@ -627,6 +584,8 @@ bool DependencyParser::parse(Tree *tree) const {
     tree->mutable_chunk(tree->chunk_size() - 1)->score = 0.0;
     return true;
   }
+
+  CHECK_DIE(svm_.get());
 
   // make features
   build(tree);

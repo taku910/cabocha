@@ -16,6 +16,7 @@
 namespace CaboCha {
 
 class SVMModelInterface;
+class SVMModel;
 
 class cmpstr {
  public:bool operator() (const char *s1, const char *s2) {
@@ -45,14 +46,26 @@ struct Hypothesis {
 //   std::vector<std::vector<Hypothesis *> > agenda_;
 // };
 
+struct ChunkFeatureSet {
+  std::vector<int> src_static_feature;
+  std::vector<int> dst1_static_feature;
+  std::vector<int> dst2_static_feature;
+  std::vector<int> left_context_feature;
+  std::vector<int> right1_context_feature;
+  std::vector<int> right2_context_feature;
+  std::vector<int> src_dynamic_feature;
+  std::vector<int> dst1_dynamic_feature;
+  std::vector<int> dst2_dynamic_feature;
+  void clear();
+};
+
 struct DependencyParserData {
   std::vector<std::vector <char *> > static_feature;
   std::vector<std::vector <char *> > left_context_feature;
   std::vector<std::vector <char *> > right_context_feature;
   std::vector<std::vector <char *> > gap_feature;
   std::vector<std::vector <char *> > dynamic_feature;
-  std::set<const char *, cmpstr> fpset;
-  std::vector<const char *> fp;
+  std::vector<int> fp;
 
   //  Agenda *agenda();
   void set_hypothesis(Hypothesis *hypothesis);
@@ -77,6 +90,11 @@ class DependencyParser: public Analyzer {
   int parsing_algorithm() const {
     return parsing_algorithm_;
   }
+
+  SVMModelInterface *mutable_svm_model() {
+    return svm_.get();
+  }
+
   explicit DependencyParser();
   virtual ~DependencyParser();
 
@@ -93,7 +111,7 @@ class DependencyParser: public Analyzer {
 
   scoped_ptr<SVMModelInterface> svm_;
   int parsing_algorithm_;
-  int beam_;
+  //  int beam_;
 };
 }
 #endif

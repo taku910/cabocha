@@ -35,40 +35,33 @@ bool DependencyTrainingWithSVM(const char *train_file,
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
   CHECK_DIE(parsing_algorithm == CABOCHA_TOURNAMENT ||
             parsing_algorithm == CABOCHA_SHIFT_REDUCE);
+  DependencyParser *dependency_parser = new DependencyParser;
+  dependency_parser->set_parsing_algorithm(parsing_algorithm);
 
-  const std::string str_train_file = std::string(model_file) + ".str";
-
-  scoped_fixed_array<char, BUF_SIZE * 32> buf;
-  scoped_fixed_array<char *, BUF_SIZE> column;
+  scoped_ptr<Analyzer> analyzer(dependency_parser);
+  scoped_ptr<Analyzer> selector(new Selector);
 
   {
-    progress_timer pg;
     Param param;
+    progress_timer pg;
 
     std::ifstream ifs(WPATH(train_file));
     CHECK_DIE(ifs) << "no such file or directory: " << train_file;
 
-    std::ofstream ofs(WPATH(str_train_file.c_str()));
-    CHECK_DIE(ofs) << "permission denied: " << str_train_file;
-
-    DependencyParser *dependency_parser = new DependencyParser;
-    dependency_parser->set_parsing_algorithm(parsing_algorithm);
-
-    scoped_ptr<Analyzer> analyzer(dependency_parser);
-    scoped_ptr<Analyzer> selector(new Selector);
-    Tree tree;
+    scoped_ptr<Tree> tree(new Tree);
     std::cout << "reading training data: " << std::flush;
 
-    tree.set_charset(charset);
-    tree.set_posset(posset);
-    tree.allocator()->set_stream(&ofs);
+    tree->set_charset(charset);
+    tree->set_posset(posset);
 
     analyzer->set_charset(charset);
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
+    analyzer->open(param);
 
     selector->set_charset(charset);
     selector->set_posset(posset);
+    selector->set_action_mode(TRAINING_MODE);
     selector->open(param);
 
     size_t line = 0;
@@ -78,11 +71,11 @@ bool DependencyTrainingWithSVM(const char *train_file,
       if (str.empty()) {
         break;
       }
-      CHECK_DIE(tree.read(str.c_str(), str.size(),
+      CHECK_DIE(tree->read(str.c_str(), str.size(),
                           INPUT_CHUNK)) << "cannot parse sentence";
-      CHECK_DIE(selector->parse(&tree)) << selector->what();
-      CHECK_DIE(analyzer->parse(&tree)) << analyzer->what();
-      CHECK_DIE(!tree.empty()) << "[" << str << "]";
+      CHECK_DIE(selector->parse(tree.get())) << selector->what();
+      CHECK_DIE(analyzer->parse(tree.get())) << analyzer->what();
+      CHECK_DIE(!tree->empty()) << "[" << str << "]";
       if (++line % 100 == 0) {
         std::cout << line << ".. " << std::flush;
       }
@@ -90,17 +83,24 @@ bool DependencyTrainingWithSVM(const char *train_file,
     std::cout << "\nDone! ";
   }
 
-  scoped_ptr<SVMModel> model(
-      SVMSolver::learn(str_train_file.c_str(),
-                       prev_model_file, cost));
+  scoped_ptr<SVMModel> prev_model(new SVMModel);
+  if (prev_model_file) {
+    CHECK_DIE(prev_model->open(prev_model_file))
+        << "no such file or directory: " << prev_model_file;
+  }
+
+  const SVMModel *svm_example =
+      static_cast<const SVMModel *>(dependency_parser->mutable_svm_model());
+  CHECK_DIE(svm_example);
+
+  scoped_ptr<SVMModel> model(SVMSolver::learn(*svm_example,
+                                              *prev_model.get(), cost));
   CHECK_DIE(model.get());
 
   model->set_param("parsing_algorithm", parsing_algorithm);
   model->set_param("charset", encode_charset(charset));
   model->set_param("posset",  encode_posset(posset));
   model->set_param("type", "dep");
-
-  Unlink(str_train_file.c_str());
 
   return model->save(model_file);
 }

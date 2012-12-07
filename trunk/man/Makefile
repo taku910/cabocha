@@ -49,8 +49,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = i386-apple-darwin12.2.0
-host_triplet = i386-apple-darwin12.2.0
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 subdir = man
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -100,23 +100,23 @@ am__installdirs = "$(DESTDIR)$(man1dir)"
 NROFF = nroff
 MANS = $(man_MANS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /Users/taku/proj/cabocha/missing --run aclocal-1.12
+ACLOCAL = ${SHELL} /home/taku/proj/cabocha/missing --run aclocal-1.12
 AMTAR = $${TAR-tar}
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} /Users/taku/proj/cabocha/missing --run autoconf
-AUTOHEADER = ${SHELL} /Users/taku/proj/cabocha/missing --run autoheader
-AUTOMAKE = ${SHELL} /Users/taku/proj/cabocha/missing --run automake-1.12
-AWK = awk
+AUTOCONF = ${SHELL} /home/taku/proj/cabocha/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/taku/proj/cabocha/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/taku/proj/cabocha/missing --run automake-1.12
+AWK = gawk
 CABOCHA_DEFAULT_RC = ${prefix}/etc/cabocharc
-CABOCHA_LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++ -liconv
+CABOCHA_LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++ 
 CABOCHA_MODEL_LIST = chunk.ipa.model chunk.juman.model chunk.unidic.model dep-tournament.ipa.model dep-tournament.juman.model dep-tournament.unidic.model dep.ipa.model dep.juman.model dep.unidic.model ne.ipa.model ne.juman.model ne.unidic.model
 CABOCHA_TXTMODEL_LIST = chunk.ipa.txt chunk.juman.txt chunk.unidic.txt dep-tournament.ipa.txt dep-tournament.juman.txt dep-tournament.unidic.txt dep.ipa.txt dep.juman.txt dep.unidic.txt ne.ipa.txt ne.juman.txt ne.unidic.txt
-CABOCHA_USE_UTF8_ONLY = 
+CABOCHA_USE_UTF8_ONLY = -DCABOCHA_USE_UTF8_ONLY
 CC = gcc
 CCDEPMODE = depmode=none
 CFLAGS = -O3  -Wno-deprecated -Wall
-CHARSET = EUC-JP
+CHARSET = UTF-8
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
@@ -127,44 +127,44 @@ CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = dlltool
-DSYMUTIL = dsymutil
+DSYMUTIL = 
 DUMPBIN = 
-ECHO_C = \c
-ECHO_N = 
+ECHO_C = 
+ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/bin/grep -E
+EGREP = /bin/grep -E
 EXEEXT = 
-FGREP = /usr/bin/grep -F
-GREP = /usr/bin/grep
+FGREP = /bin/grep -F
+GREP = /bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/llvm-gcc-4.2/libexec/gcc/i686-apple-darwin11/4.2.1/ld
+LD = /usr/bin/ld -m elf_x86_64
 LDFLAGS = 
-LIBICONV = -liconv
+LIBICONV = 
 LIBOBJS = 
-LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++ -liconv
+LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++ 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LIPO = lipo
+LIPO = 
 LN_S = ln -s
-LTLIBICONV = -liconv
+LTLIBICONV = 
 LTLIBOBJS = 
 LTVERSION = 4:0:0
-MAINT = 
-MAKEINFO = ${SHELL} /Users/taku/proj/cabocha/missing --run makeinfo
+MAINT = #
+MAKEINFO = ${SHELL} /home/taku/proj/cabocha/missing --run makeinfo
 MANIFEST_TOOL = :
 MECAB_CFLAGS = 
 MECAB_CONFIG = /usr/local/bin/mecab-config
-MKDIR_P = .././install-sh -c -d
+MKDIR_P = /bin/mkdir -p
 MODEL_VERSION = 101
-NM = /usr/bin/nm
-NMEDIT = nmedit
+NM = /usr/bin/nm -B
+NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
-OTOOL = otool
-OTOOL64 = :
+OTOOL = 
+OTOOL64 = 
 PACKAGE = cabocha
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = 
@@ -176,15 +176,15 @@ PATH_SEPARATOR = :
 POSSET = IPA
 POSSET2 = ipa
 RANLIB = ranlib
-SED = /usr/bin/sed
+SED = /bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
 VERSION = 0.65
-abs_builddir = /Users/taku/proj/cabocha/man
-abs_srcdir = /Users/taku/proj/cabocha/man
-abs_top_builddir = /Users/taku/proj/cabocha
-abs_top_srcdir = /Users/taku/proj/cabocha
+abs_builddir = /home/taku/proj/cabocha/man
+abs_srcdir = /home/taku/proj/cabocha/man
+abs_top_builddir = /home/taku/proj/cabocha
+abs_top_srcdir = /home/taku/proj/cabocha
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -195,26 +195,26 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = i386-apple-darwin12.2.0
+build = x86_64-unknown-linux-gnu
 build_alias = 
-build_cpu = i386
-build_os = darwin12.2.0
-build_vendor = apple
+build_cpu = x86_64
+build_os = linux-gnu
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = i386-apple-darwin12.2.0
+host = x86_64-unknown-linux-gnu
 host_alias = 
-host_cpu = i386
-host_os = darwin12.2.0
-host_vendor = apple
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/taku/proj/cabocha/install-sh
+install_sh = ${SHELL} /home/taku/proj/cabocha/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -239,7 +239,7 @@ EXTRA_DIST = $(man_MANS)
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -264,9 +264,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 

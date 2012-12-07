@@ -11,8 +11,8 @@ class SVMModel;
 
 class SVMSolver {
  public:
-  static SVMModel *learn(const char *training_file,
-                         const char *prev_model_file,
-                         double C);
+  static SVMModel *learn(const SVMModel &example,
+                         const SVMModel &prev_model,
+                         double cost);
 };
 }  // namespace

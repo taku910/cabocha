@@ -20,21 +20,22 @@ namespace {
 const double kEPS = 0.1;
 const double kINF = 1e+37;
 
-inline uint64 getIndex(int index, size_t size) {
+inline uint64 getIndex(int index) {
   return index + 1;   // index '0' is reserved for bias term.
 }
 
-inline uint64 getIndex(int index1, int index2, size_t size) {
-  return (index1 + 1) * (size + 1) + index2 + 1;
+inline uint64 getIndex(int index1, int index2) {
+  const uint64 result = index1 + 1;
+  return static_cast<uint64>(result << 32 | index2);
 }
 
-double classify(const int *x, int max_index,
+double classify(const std::vector<int> &x,
                 const std::vector<float> &w,
                 const hash_map<uint64, int> &dic) {
   double result = w[0];
 
-  for (size_t i = 0; x[i] >= 0; ++i) {
-    const uint64 index = getIndex(x[i], max_index + 1);
+  for (size_t i = 0; i < x.size(); ++i) {
+    const uint64 index = getIndex(x[i]);
     const hash_map<uint64, int>::const_iterator
         it = dic.find(index);
     if (it != dic.end()) {
@@ -42,9 +43,9 @@ double classify(const int *x, int max_index,
     }
   }
 
-  for (size_t i = 0; x[i] >= 0; ++i) {
-    for (size_t j = i + 1; x[j] >= 0; ++j) {
-      const uint64 index = getIndex(x[i], x[j], max_index + 1);
+  for (size_t i = 0; i < x.size(); ++i) {
+    for (size_t j = i + 1; j < x.size(); ++j) {
+      const uint64 index = getIndex(x[i], x[j]);
       const hash_map<uint64, int>::const_iterator
           it = dic.find(index);
       if (it != dic.end()) {
@@ -56,13 +57,14 @@ double classify(const int *x, int max_index,
   return result;
 }
 
-void update(const int *x, int max_index, double d,
+void update(const std::vector<int> &x,
+            double d,
             std::vector<float> *w,
             hash_map<uint64, int> *dic) {
   (*w)[0] += d;
 
-  for (size_t i = 0; x[i] >= 0; ++i) {
-    const uint64 index = getIndex(x[i], max_index + 1);
+  for (size_t i = 0; i < x.size(); ++i) {
+    const uint64 index = getIndex(x[i]);
     int n = dic->size();
     std::pair<hash_map<uint64, int>::iterator, bool>
         r = dic->insert(std::make_pair(index, n));
@@ -75,9 +77,9 @@ void update(const int *x, int max_index, double d,
     (*w)[n] += 3 * d;
   }
 
-  for (size_t i = 0; x[i] >= 0; ++i) {
-    for (size_t j = i + 1; x[j] >= 0; ++j) {
-      const uint64 index = getIndex(x[i], x[j], max_index + 1);
+  for (size_t i = 0; i < x.size(); ++i) {
+    for (size_t j = i + 1; j < x.size(); ++j) {
+      const uint64 index = getIndex(x[i], x[j]);
       int n = dic->size();
       std::pair<hash_map<uint64, int>::iterator, bool>
           r = dic->insert(std::make_pair(index, n));
@@ -93,7 +95,7 @@ void update(const int *x, int max_index, double d,
 }
 
 bool solveParameters(const std::vector<double> &y,
-                     const std::vector<const int *> &x,
+                     const std::vector<std::vector<int> > &x,
                      double C,
                      std::vector<double> *alpha_) {
   std::vector<double> alpha(*alpha_);
@@ -115,13 +117,10 @@ bool solveParameters(const std::vector<double> &y,
   // index for the bias.
   dic[0] = 0;
 
-  int max_index = 0;
-
   for (size_t i = 0; i < l; ++i) {
     index[i] = i;
     int s = 0;
-    for (size_t j = 0; x[i][j] >= 0; ++j) {
-      max_index = std::max(x[i][j], max_index);
+    for (size_t j = 0; j < x[i].size(); ++j) {
       ++s;  // x[i].value * x[i].value == 1 (always)
     }
     QD[i] = (1 + s) * (1 + s);   // 2nd polynomial kernel
@@ -130,7 +129,7 @@ bool solveParameters(const std::vector<double> &y,
   // initialize primal parameters
   for (size_t i = 0; i < l; ++i) {
     if (alpha[i] > 0) {
-      update(x[i], max_index, y[i] * alpha[i], &w, &dic);
+      update(x[i], y[i] * alpha[i], &w, &dic);
     }
   }
 
@@ -142,7 +141,7 @@ bool solveParameters(const std::vector<double> &y,
 
     for (size_t s = 0; s < active_size; ++s) {
       const size_t i = index[s];
-      const double margin = classify(x[i], max_index, w, dic);
+      const double margin = classify(x[i], w, dic);
       GA[i] = margin * y[i] - 1;
       const double G = GA[i];
       double PG = 0.0;
@@ -174,9 +173,9 @@ bool solveParameters(const std::vector<double> &y,
 
       if (std::fabs(PG) > 1.0e-12) {
         const double alpha_old = alpha[i];
-        alpha[i] =std::min(std::max(alpha[i] - G / QD[i], 0.0), C);
+        alpha[i] = std::min(std::max(alpha[i] - G / QD[i], 0.0), C);
         const double d = (alpha[i] - alpha_old) * y[i];
-        update(x[i], max_index, d, &w, &dic);
+        update(x[i], d, &w, &dic);
       }
     }
 
@@ -246,96 +245,67 @@ bool solveParameters(const std::vector<double> &y,
 }  // namespace
 
 // static
-SVMModel *SVMSolver::learn(const char *training_file,
-                           const char *prev_model_file,
+SVMModel *SVMSolver::learn(const SVMModel &example,
+                           const SVMModel &prev_model,
                            double cost) {
-  SVMModel prev_model;
+  CHECK_DIE(example.size() > 0) << "example size is 0";
+
+  std::vector<std::vector<int> > x;
+  std::vector<double> y;
+  std::vector<double> alpha;
+
   SVMModel *model = new SVMModel;
+  *(model->mutable_dic()) = example.dic();
+  model->set_param("C", cost);
+  model->set_param("degree", 2);
+  model->set_param("bias",   0.0);
 
-  scoped_fixed_array<char, BUF_SIZE * 32> buf;
-  scoped_fixed_array<char *, BUF_SIZE> column;
-
-  if (prev_model_file) {
-    CHECK_DIE(prev_model.open(prev_model_file))
-        << "no such file or directory: " << prev_model_file;
+  for (size_t i = 0; i < example.size(); ++i) {
+    x.push_back(example.x(i));
+    y.push_back(example.alpha(i) > 0 ? +1 : -1);
+    alpha.push_back(0.0);
   }
 
-  // copy old dictionary
-  std::map<std::string, int> *dic = model->mutable_dic();
-  *dic = prev_model.dic();
-
-  // create feature_string => id maping
-  {
-    int id = dic->size();
-    std::ifstream ifs(WPATH(training_file));
-    CHECK_DIE(ifs) << "no such file or directory: " << training_file;
-    while (ifs.getline(buf.get(), buf.size())) {
-      const size_t size = tokenize(buf.get(), " ",
-                                   column.get(), column.size());
-      CHECK_DIE(size >= 2);
-      for (size_t i = 1; i < size; ++i) {
-        const std::string key = column[i];
-        if (dic->find(key) == dic->end()) {
-          (*dic)[key] = id;
-          ++id;
-        }
-      }
-    }
-  }
-
-  // make training data
-  {
-    std::vector<const int *> x;
-    std::vector<double> y;
-    std::vector<double> alpha;
-    std::ifstream ifs(WPATH(training_file));
-    CHECK_DIE(ifs) << "no such file or directory: " << training_file;
-
-    // load training data
-    while (ifs.getline(buf.get(), buf.size())) {
-      const size_t size = tokenize(buf.get(), " ", column.get(),
-                                   column.size());
-      CHECK_DIE(size >= 2);
-      int *fp = model->alloc(size);
-      for (size_t i = 1; i < size; ++i) {
-        const std::string key = column[i];
-        CHECK_DIE(dic->find(key) != dic->end());
-        fp[i - 1] = (*dic)[key];
-      }
-      std::sort(fp, fp + size - 1);
-      fp[size - 1] = -1;
-
-      x.push_back(fp);
-      y.push_back(std::atof(column[0]));
-      alpha.push_back(0.0);
+  if (prev_model.size() > 0) {
+    const std::map<std::string, int> &dic = prev_model.dic();
+    CHECK_DIE(!dic.empty());
+    std::map<int, int> old2new;
+    for (std::map<std::string, int>::const_iterator it = dic.begin();
+         it != dic.end(); ++it) {
+      CHECK_DIE(!it->first.empty());
+      CHECK_DIE(it->second >= 0);
+      const int id = model->id(it->first);
+      CHECK_DIE(id != -1);
+      old2new[it->second] = id;
     }
 
-    // add prev model
     for (size_t i = 0; i < prev_model.size(); ++i) {
-      x.push_back(prev_model.x(i));
+      std::vector<int> tmp = prev_model.x(i);  // copy
+      CHECK_DIE(!tmp.empty());
+      for (size_t j = 0; j < tmp.size(); ++j) {
+        tmp[j] = old2new[tmp[j]];
+      }
+      x.push_back(tmp);
       y.push_back(prev_model.alpha(i) > 0 ? +1 : -1);
       alpha.push_back(std::fabs(prev_model.alpha(i)));
     }
-
-    CHECK_DIE(x.size() >= 2) << "training data is too small";
-    CHECK_DIE(x.size() == y.size());
-    CHECK_DIE(alpha.size() == y.size());
-
-    CHECK_DIE(solveParameters(y, x, cost, &alpha));
-
-    for (size_t i = 0; i < alpha.size(); ++i) {
-      if (alpha[i] > 0.0) {
-        model->add(y[i] * alpha[i], x[i]);
-      }
-    }
-
-    model->set_param("C", cost);
-    model->set_param("degree", 2);
-    model->set_param("bias",   0.0);
-    model->compress();
-
-    std::cout << "Done!\n\n";
   }
+
+  CHECK_DIE(x.size() >= 2) << "training data is too small";
+  CHECK_DIE(x.size() == y.size());
+  CHECK_DIE(alpha.size() == y.size());
+
+  CHECK_DIE(solveParameters(y, x, cost, &alpha));
+
+  for (size_t i = 0; i < alpha.size(); ++i) {
+    if (alpha[i] > 0.0) {
+      model->add(y[i] * alpha[i], x[i]);
+    }
+  }
+
+  model->compress();
+
+  std::cout << "Done!\n\n";
 
   return model;
 }
