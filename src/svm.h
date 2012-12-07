@@ -31,10 +31,16 @@ class SVMModelInterface {
   std::map<std::string, std::string> *mutable_param() { return &param_; }
 
   virtual bool open(const char *filename) = 0;
+  virtual bool save(const char *filename) const = 0;
+  virtual bool compress() = 0;
   virtual void close() = 0;
-  virtual double classify(const std::vector<const char *> &features) const = 0;
+  virtual int id(const std::string &key) const = 0;
   virtual double classify(const std::vector<int> &x) const = 0;
-  //  virtual const int id(const char *key) const = 0;
+
+  // make const method as this is used in parser.
+  virtual void add(double alpha, const std::vector<int> &x) const = 0;
+
+  virtual double classify(const std::vector<std::string> &features) const;
 
  protected:
   whatlog what_;
@@ -45,35 +51,30 @@ class SVMModel : public SVMModelInterface {
  public:
   size_t size() const { return alpha_.size(); }
   double alpha(size_t i) const { return alpha_[i]; }
-  const int *x(size_t i) const { return x_[i]; }
-
-  int *alloc(size_t size);
+  double y(size_t i) const { return alpha_[i] > 0 ? +1 : -1; }
+  const std::vector<int> &x(size_t i) const { return x_[i]; }
   const std::map<std::string, int> &dic() const { return dic_; }
   std::map<std::string, int> *mutable_dic() { return &dic_; }
 
-  //  int id(const char *key) const;
-
-  void add(double alpha, const int *x) {
+  virtual bool open(const char *filename);
+  virtual void close();
+  virtual int id(const std::string &key) const;
+  virtual double classify(const std::vector<int> &x) const;
+  virtual void add(double alpha, const std::vector<int> &x) const {
     alpha_.push_back(alpha);
     x_.push_back(x);
   }
 
-  virtual bool open(const char *filename);
-  virtual void close();
-  virtual double classify(const std::vector<const char *> &features) const;
-  virtual double classify(const std::vector<int> &x) const;
-
-  bool save(const char *filename) const;
-  bool compress();
+  virtual bool save(const char *filename) const;
+  virtual bool compress();
 
   SVMModel();
   virtual ~SVMModel();
 
- private:
-  std::vector<double> alpha_;
-  std::vector<const int *> x_;
-  std::map<std::string, int> dic_;
-  FreeList<int> feature_freelist_;
+ protected:
+  mutable std::vector<double> alpha_;
+  mutable std::vector<std::vector<int> > x_;
+  mutable std::map<std::string, int> dic_;
 };
 
 class FastSVMModel : public SVMModelInterface {
@@ -82,9 +83,14 @@ class FastSVMModel : public SVMModelInterface {
   virtual ~FastSVMModel();
   virtual bool open(const char *filename);
   virtual void close();
-  virtual double classify(const std::vector<const char *> &features) const;
+  virtual int id(const std::string &key) const;
   virtual double classify(const std::vector<int> &x) const;
-  //  virtual int id(const char *key) const;
+
+  virtual void add(double alpha, const std::vector<int> &x) const {
+    return;
+  }
+  virtual bool save(const char *filename) const { return false; }
+  virtual bool compress() { return false; }
 
   static bool compile(const char *filename,
                       const char *output,

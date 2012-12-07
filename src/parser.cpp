@@ -25,7 +25,10 @@ const CaboCha::Option long_options[] = {
   {"output-format",   'f', 0, "TYPE",
    "set output format style\n\t\t\t    "
    "0 - tree(default)\n\t\t\t    "
-   "1 - lattice\n\t\t\t    2 - tree + lattice\n\t\t\t    3 - XML"},
+   "1 - lattice\n\t\t\t    "
+   "2 - tree + lattice\n\t\t\t    "
+   "3 - XML\n\t\t\t    "
+   "4 - CoNLL" },
   {"input-layer",     'I', 0,
    "LAYER", "set input layer\n\t\t\t    "
    "0 - raw sentence layer(default)\n\t\t\t    "

@@ -24,20 +24,21 @@
 
 namespace CaboCha {
 
-inline int dot(const int *x1, const int *x2) {
+inline int dot(const std::vector<int> &x1, const std::vector<int> &x2) {
   int n = 0;
-  while (*x1 >= 0 && *x2 >= 0) {
-    if (*x1 == *x2) {
+  size_t i1 = 0;
+  size_t i2 = 0;
+  while (i1 < x1.size() && i2 < x2.size()) {
+    if (x1[i1] == x2[i2]) {
       ++n;
-      ++x1;
-      ++x2;
-    } else if (*x1 > *x2) {
-      ++x2;
-    } else if (*x1 < *x2) {
-      ++x1;
+      ++i1;
+      ++i2;
+    } else if (x1[i1] > x2[i2]) {
+      ++i2;
+    } else if (x1[i1] < x2[i2]) {
+      ++i1;
     }
   }
-
   return n;
 }
 
@@ -314,7 +315,9 @@ bool FastSVMModel::open(const char *filename) {
   eda_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
   ptr += fsize;
 
-  degree_ = std::atoi(get_param("degree"));
+  const char *sdegree = get_param("degree");
+  CHECK_FALSE(sdegree) << "degree is not defined";
+  degree_ = std::atoi(sdegree);
   CHECK_FALSE(degree_ >= 1 && degree_ <= 3)
       << "degree must be 1<=degree<=3";
 
@@ -324,12 +327,16 @@ bool FastSVMModel::open(const char *filename) {
   return true;
 }
 
-double FastSVMModel::classify(const std::vector<const char *> &features) const {
+int FastSVMModel::id(const std::string &key) const {
+  return da_.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
+}
+
+double SVMModelInterface::classify(
+    const std::vector<std::string> &features) const {
   std::vector<int> dot_buf;
   dot_buf.reserve(features.size());
   for (size_t i = 0; i < features.size(); ++i) {
-    const int r =
-        da_.exactMatchSearch<Darts::DoubleArray::result_type>(features[i]);
+    const int r = id(features[i]);
     if (r != -1) {
       dot_buf.push_back(r);
     }
@@ -488,8 +495,12 @@ bool FastSVMModel::compile(const char *filename, const char *output,
   int bias = 0;
   int degree = 0;
   {
-    degree = std::atoi(model.get_param("degree"));
-    double fbias = std::atof(model.get_param("bias"));
+    const char *sdegree = model.get_param("degree");
+    const char *sbias = model.get_param("bias");
+    CHECK_DIE(sdegree) << "degree is not defined";
+    CHECK_DIE(sbias) << "bias is not defined";
+    degree = std::atoi(sdegree);
+    double fbias = std::atof(sbias);
 
     CHECK_DIE(2 == degree) << "degree must be 2";
     CHECK_DIE(0.0 == fbias) << "bias must be 0.0";
@@ -506,8 +517,9 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         w.push_back(alpha);
         fbias -= kWeight[degree][0] * alpha;
         transaction.resize(transaction.size() + 1);
-        for (const int *x = model.x(i); *x >= 0; ++x) {
-          transaction.back().push_back(*x);
+        const std::vector<int> &x = model.x(i);
+        for (size_t j = 0; j < x.size(); ++j) {
+          transaction.back().push_back(x[j]);
         }
       }
       CHECK_DIE(w.size() == transaction.size());
@@ -592,7 +604,7 @@ bool FastSVMModel::compile(const char *filename, const char *output,
   return true;
 }
 
-SVMModel::SVMModel() : feature_freelist_(8192) {}
+SVMModel::SVMModel() {}
 SVMModel::~SVMModel() {}
 
 void SVMModel::close() {
@@ -600,42 +612,22 @@ void SVMModel::close() {
   x_.clear();
   dic_.clear();
   param_.clear();
-  feature_freelist_.free();
 }
 
 double SVMModel::classify(const std::vector<int> &x) const {
-  std::vector<int> ary(x);
-  std::sort(ary.begin(), ary.end());
-  ary.push_back(-1);
   double result = 0.0;
   for (size_t i = 0; i < x_.size(); ++i) {
-    const int s = dot(&ary[0], x_[i]);
+    const int s = dot(x, x_[i]);
     result += alpha_[i] * (s + 1) * (s + 1);
   }
   return result;
 }
 
-double SVMModel::classify(const std::vector<const char *> &features) const {
-  std::vector<int> ary;
-  for (size_t i = 0; i < features.size(); ++i) {
-    std::map<std::string, int>::const_iterator it = dic_.find(features[i]);
-    if (it != dic_.end()) {
-      ary.push_back(it->second);
-    }
-  }
-  std::sort(ary.begin(), ary.end());
-  return classify(ary);
-}
-
-int *SVMModel::alloc(size_t size) {
-  return feature_freelist_.alloc(size);
-}
-
 bool SVMModel::compress() {
   std::set<int> active_feature;
   for (size_t i = 0; i < size(); ++i) {
-    for (const int *fp = x(i); *fp >= 0; ++fp) {
-      active_feature.insert(*fp);
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      active_feature.insert(x_[i][j]);
     }
   }
 
@@ -661,14 +653,12 @@ bool SVMModel::compress() {
 
   for (size_t i = 0; i < size(); ++i) {
     std::vector<int> new_x;
-    for (const int *fp = x(i); *fp >= 0; ++fp) {
-      CHECK_FALSE(old2new.find(*fp) != old2new.end());
-      new_x.push_back(old2new[*fp]);
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      CHECK_FALSE(old2new.find(x_[i][j]) != old2new.end());
+      new_x.push_back(old2new[x_[i][j]]);
     }
     std::sort(new_x.begin(), new_x.end());
-    int *x = const_cast<int *>(x_[i]);
-    std::copy(new_x.begin(), new_x.end(), x);
-    x[new_x.size()] = -1;
+    x_[i] = new_x;
   }
 
   dic_ = new_dic;
@@ -697,8 +687,8 @@ bool SVMModel::save(const char *filename) const {
 
   for (size_t i = 0; i < size(); ++i) {
     ofs << alpha_[i];
-    for (const int *fp = x_[i]; *fp >= 0; ++fp) {
-      ofs << ' ' << *fp;
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      ofs << ' ' << x_[i][j];
     }
     ofs << '\n';
   }
@@ -741,14 +731,13 @@ bool SVMModel::open(const char *filename) {
     const size_t size = tokenize(buf.get(), " ",
                                  column.get(), column.size());
     CHECK_FALSE(size >= 2);
-    int *fp = alloc(size);
+    std::vector<int> x;
     for (size_t i = 1; i < size; ++i) {
-      fp[i - 1] = std::atoi(column[i]);
+      x.push_back(std::atoi(column[i]));
     }
-    std::sort(fp, fp + size - 1);
-    fp[size - 1] = -1;
     const double alpha = std::atof(column[0]);
-    add(alpha, fp);
+    std::sort(x.begin(), x.end());
+    add(alpha, x);
   }
 
   CHECK_FALSE(!param_.empty());
@@ -756,6 +745,16 @@ bool SVMModel::open(const char *filename) {
   CHECK_FALSE(alpha_.size() == x_.size());
 
   return true;
+}
+
+int SVMModel::id(const std::string &key) const {
+  std::map<std::string, int>::const_iterator it = dic_.find(key);
+  if (it != dic_.end()) {
+    return it->second;
+  }
+  const int id = dic_.size();
+  dic_.insert(std::make_pair(key, id));
+  return id;
 }
 }
 
