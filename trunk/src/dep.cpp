@@ -58,8 +58,7 @@ DependencyParserData::DependencyParserData() : hypothesis_(0) {}
 DependencyParserData::~DependencyParserData() {}
 
 DependencyParser::DependencyParser()
-    : svm_(0), parsing_algorithm_(SHIFT_REDUCE),
-      beam_(1) {}
+    : svm_(0), parsing_algorithm_(SHIFT_REDUCE) {}
 
 DependencyParser::~DependencyParser() {}
 
@@ -111,40 +110,22 @@ void DependencyParser::close() {
   svm_.reset(0);
 }
 
-#define INIT_FEATURE(array) do {                \
-    array.clear();                              \
-    array.resize(size);                         \
-  } while (false)
-
-void DependencyParser::build(Tree *tree) const {
-  const size_t size  = tree->chunk_size();
-
-  DependencyParserData *data
-      = tree->allocator()->dependency_parser_data;
-  CHECK_DIE(data);
-
-  INIT_FEATURE(data->static_feature);
-  INIT_FEATURE(data->left_context_feature);
-  INIT_FEATURE(data->right_context_feature);
-  INIT_FEATURE(data->gap_feature);
-  INIT_FEATURE(data->dynamic_feature);
-
-  // collect all features from each chunk.
-  for (size_t i = 0; i < tree->chunk_size(); ++i) {
-    Chunk *chunk = tree->mutable_chunk(i);
-    for (size_t k = 0; k < chunk->feature_list_size; ++k) {
-      char *feature = const_cast<char *>(chunk->feature_list[k]);
-      switch (feature[0]) {
-        case 'F': data->static_feature[i].push_back(feature); break;
-        case 'L': data->left_context_feature[i].push_back(feature); break;
-        case 'R': data->right_context_feature[i].push_back(feature); break;
-        case 'G': data->gap_feature[i].push_back(feature);    break;
-        case 'A': data->dynamic_feature[i].push_back(feature);  break;
-        default:
-          CHECK_DIE(true) << "Unknown feature " << feature;
-      }
-    }
-  }
+void ChunkInfo::clear() {
+  str_static_feature.clear();
+  str_gap_feature.clear();
+  str_left_context_feature.clear();
+  str_right_context_feature.clear();
+  str_child_feature.clear();
+  src_static_feature.clear();
+  dst1_static_feature.clear();
+  dst2_static_feature.clear();
+  left_context_feature.clear();
+  right1_context_feature.clear();
+  right2_context_feature.clear();
+  src_child_feature.clear();
+  dst1_child_feature.clear();
+  dst2_child_feature.clear();
+  gap_feature.clear();
 }
 
 #define ADD_FEATURE(key) do { \
@@ -152,9 +133,61 @@ void DependencyParser::build(Tree *tree) const {
   if (id != -1) { fp->push_back(id); }          \
   } while (0)
 
+#define ADD_FEATURE2(key, array) do {           \
+  const int id = svm_->id(key);                 \
+    if (id != -1) { (array).push_back(id); }    \
+  } while (0)
+
+#define COPY_FEATURE(src_array) do { \
+    std::copy((src_array).begin(), (src_array).end(), \
+              std::back_inserter(*fp));               \
+  } while (0)
+
+void DependencyParser::build(Tree *tree) const {
+  DependencyParserData *data
+      = tree->allocator()->dependency_parser_data;
+  CHECK_DIE(data);
+
+  data->chunk_info.resize(tree->chunk_size());
+  for (size_t i = 0; i < data->chunk_info.size(); ++i) {
+    data->chunk_info[i].clear();
+  }
+
+  // collect all features from each chunk.
+  for (size_t i = 0; i < tree->chunk_size(); ++i) {
+    Chunk *chunk = tree->mutable_chunk(i);
+    ChunkInfo *chunk_info = &data->chunk_info[i];
+    CHECK_DIE(chunk_info);
+    for (size_t k = 0; k < chunk->feature_list_size; ++k) {
+      char *feature = const_cast<char *>(chunk->feature_list[k]);
+      CHECK_DIE(feature);
+      switch (feature[0]) {
+        case 'F':
+          chunk_info->str_static_feature.push_back(feature);
+          break;
+        case 'L':
+          chunk_info->str_left_context_feature.push_back(feature);
+          break;
+        case 'R':
+          chunk_info->str_right_context_feature.push_back(feature);
+          break;
+        case 'G':
+          chunk_info->str_gap_feature.push_back(feature);
+          break;
+        case 'A':
+          chunk_info->str_child_feature.push_back(feature);
+          break;
+        default:
+          CHECK_DIE(true) << "Unknown feature " << feature;
+      }
+    }
+  }
+}
+
 bool DependencyParser::estimate(const Tree *tree,
                                 int src, int dst1, int dst2,
                                 double *score) const {
+#if 0
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
@@ -331,6 +364,7 @@ bool DependencyParser::estimate(const Tree *tree,
       CHECK_DIE(true) << "dst1 or dst2 must be a true head";
     }
   }
+#endif
 
   return false;
 }
@@ -357,36 +391,86 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     ADD_FEATURE("DIST:6-");
   }
 
-  // static features
-  for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
-    data->static_feature[src][i][0] = 'S';  // src
-    ADD_FEATURE(data->static_feature[src][i]);
+  {
+    ChunkInfo *chunk_info = &data->chunk_info[src];
+    if (chunk_info->src_static_feature.empty()) {
+      for (size_t i = 0; i < chunk_info->str_static_feature.size(); ++i) {
+        chunk_info->str_static_feature[i][0] = 'S';
+        ADD_FEATURE2(chunk_info->str_static_feature[i],
+                     chunk_info->src_static_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->src_static_feature);
   }
 
-  for (size_t i = 0; i < data->static_feature[dst].size(); ++i) {
-    data->static_feature[dst][i][0] = 'D';  // dst
-    ADD_FEATURE(data->static_feature[dst][i]);
+  {
+    ChunkInfo *chunk_info = &data->chunk_info[dst];
+    if (chunk_info->dst1_static_feature.empty()) {
+      for (size_t i = 0; i < chunk_info->str_static_feature.size(); ++i) {
+        chunk_info->str_static_feature[i][0] = 'D';
+        ADD_FEATURE2(chunk_info->str_static_feature[i],
+                     chunk_info->dst1_static_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst1_static_feature);
   }
 
-  // left context features
   if (src > 0) {
-    for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
-      ADD_FEATURE(data->left_context_feature[src - 1][i]);
+    ChunkInfo *chunk_info = &data->chunk_info[src - 1];
+    if (chunk_info->left_context_feature.empty()) {
+      for (size_t i = 0;
+           i < chunk_info->str_left_context_feature.size(); ++i) {
+        ADD_FEATURE2(chunk_info->str_left_context_feature[i],
+                     chunk_info->left_context_feature);
+      }
     }
+    COPY_FEATURE(chunk_info->left_context_feature);
   }
 
-  // right context features
   if (dst < static_cast<int>(tree->chunk_size() - 1)) {
-    for (size_t i = 0; i < data->right_context_feature[dst + 1].size(); ++i) {
-      ADD_FEATURE(data->right_context_feature[dst + 1][i]);
+    ChunkInfo *chunk_info = &data->chunk_info[dst + 1];
+    if (chunk_info->right1_context_feature.empty()) {
+      for (size_t i = 0;
+           i < chunk_info->str_right_context_feature.size(); ++i) {
+        ADD_FEATURE2(chunk_info->str_right_context_feature[i],
+                     chunk_info->right1_context_feature);
+      }
     }
+    COPY_FEATURE(chunk_info->right1_context_feature);
+  }
+
+  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
+    const int child = hypo->children[src][i];
+    ChunkInfo *chunk_info = &data->chunk_info[child];
+    if (chunk_info->src_child_feature.empty()) {
+      for (size_t j = 0; j < chunk_info->str_child_feature.size(); ++j) {
+        chunk_info->str_child_feature[j][0] = 'a';
+        ADD_FEATURE2(chunk_info->str_child_feature[j],
+                     chunk_info->src_child_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->src_child_feature);
+  }
+
+  for (size_t i = 0; i < hypo->children[dst].size(); ++i) {
+    const int child = hypo->children[dst][i];
+    ChunkInfo *chunk_info = &data->chunk_info[child];
+    if (chunk_info->dst1_child_feature.empty()) {
+      for (size_t j = 0; j < chunk_info->str_child_feature.size(); ++j) {
+        chunk_info->str_child_feature[j][0] = 'A';
+        ADD_FEATURE2(chunk_info->str_child_feature[j],
+                     chunk_info->dst1_child_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst1_child_feature);
   }
 
   // gap features
   int bracket_status = 0;
   for (int k = src + 1; k <= dst - 1; ++k) {
-    for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
-      const char *gap_feature = data->gap_feature[k][i];
+    ChunkInfo *chunk_info = &data->chunk_info[k];
+    for (size_t i = 0; i < chunk_info->str_gap_feature.size(); ++i) {
+      const char *gap_feature = chunk_info->str_gap_feature[i];
       if (std::strcmp(gap_feature, "GOB:1") == 0) {
         bracket_status |= 1;
       } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
@@ -403,23 +487,6 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     case 1: ADD_FEATURE("GOB:1"); break;  // open only
     case 2: ADD_FEATURE("GCB:1"); break;  // close only
     default: ADD_FEATURE("GBB:1"); break;  // both
-  }
-
-  // dynamic features
-  for (size_t i = 0; i < hypo->children[dst].size(); ++i) {
-    const int child = hypo->children[dst][i];
-    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
-      data->dynamic_feature[child][j][0] = 'A';
-      ADD_FEATURE(data->dynamic_feature[child][j]);
-    }
-  }
-
-  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
-    const int child = hypo->children[src][i];
-    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
-      data->dynamic_feature[child][j][0] = 'a';
-      ADD_FEATURE(data->dynamic_feature[child][j]);
-    }
   }
 
   std::sort(fp->begin(), fp->end());

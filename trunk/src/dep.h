@@ -46,25 +46,29 @@ struct Hypothesis {
 //   std::vector<std::vector<Hypothesis *> > agenda_;
 // };
 
-struct ChunkFeatureSet {
+struct ChunkInfo {
+  std::vector<char *> str_static_feature;
+  std::vector<char *> str_gap_feature;
+  std::vector<char *> str_left_context_feature;
+  std::vector<char *> str_right_context_feature;
+  std::vector<char *> str_child_feature;
+
   std::vector<int> src_static_feature;
   std::vector<int> dst1_static_feature;
   std::vector<int> dst2_static_feature;
   std::vector<int> left_context_feature;
   std::vector<int> right1_context_feature;
   std::vector<int> right2_context_feature;
-  std::vector<int> src_dynamic_feature;
-  std::vector<int> dst1_dynamic_feature;
-  std::vector<int> dst2_dynamic_feature;
+  std::vector<int> src_child_feature;
+  std::vector<int> dst1_child_feature;
+  std::vector<int> dst2_child_feature;
+  std::vector<int> gap_feature;
+
   void clear();
 };
 
 struct DependencyParserData {
-  std::vector<std::vector <char *> > static_feature;
-  std::vector<std::vector <char *> > left_context_feature;
-  std::vector<std::vector <char *> > right_context_feature;
-  std::vector<std::vector <char *> > gap_feature;
-  std::vector<std::vector <char *> > dynamic_feature;
+  std::vector<ChunkInfo> chunk_info;
   std::vector<int> fp;
 
   //  Agenda *agenda();
@@ -72,7 +76,6 @@ struct DependencyParserData {
   Hypothesis *hypothesis();
 
   Hypothesis *hypothesis_;                   // current hypothesis
-  //  scoped_ptr<Agenda> agenda_;  // used in n-best parsing with beam search
   scoped_ptr<Hypothesis> hypothesis_data_;  // used in greedy parsing
 
   DependencyParserData();
