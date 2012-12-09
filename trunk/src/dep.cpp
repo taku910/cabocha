@@ -187,7 +187,6 @@ void DependencyParser::build(Tree *tree) const {
 bool DependencyParser::estimate(const Tree *tree,
                                 int src, int dst1, int dst2,
                                 double *score) const {
-#if 0
   DependencyParserData *data
       = tree->allocator()->dependency_parser_data;
   CHECK_DIE(data);
@@ -219,55 +218,126 @@ bool DependencyParser::estimate(const Tree *tree,
     ADD_FEATURE("DIST2:6-");
   }
 
-  // static features
-  for (size_t i = 0; i < data->static_feature[src].size(); ++i) {
-    data->static_feature[src][i][0] = 'S';  // src
-    ADD_FEATURE(data->static_feature[src][i]);
-  }
-
-  for (size_t i = 0; i < data->static_feature[dst1].size(); ++i) {
-    std::string n = "D1";
-    n += data->static_feature[dst1][i];
-    ADD_FEATURE(n);
-  }
-
-  for (size_t i = 0; i < data->static_feature[dst2].size(); ++i) {
-    std::string n = "D2";
-    n += data->static_feature[dst2][i];
-    ADD_FEATURE(n);
-  }
-
-  // left context features
-  if (src > 0) {
-    for (size_t i = 0; i < data->left_context_feature[src - 1].size(); ++i) {
-      ADD_FEATURE(data->left_context_feature[src - 1][i]);
+  {
+    ChunkInfo *chunk_info = &data->chunk_info[src];
+    if (chunk_info->src_static_feature.empty()) {
+      for (size_t i = 0; i < chunk_info->str_static_feature.size(); ++i) {
+        chunk_info->str_static_feature[i][0] = 'S';
+        ADD_FEATURE2(chunk_info->str_static_feature[i],
+                     chunk_info->src_static_feature);
+      }
     }
-  }
-
-  // right context features
-  if (dst1 < static_cast<int>(tree->chunk_size() - 1)) {
-    for (size_t i = 0; i < data->right_context_feature[dst1 + 1].size(); ++i) {
-      std::string n = "R1";
-      n += data->right_context_feature[dst1 + 1][i];
-      ADD_FEATURE(n);
-    }
-  }
-
-  // right context features
-  if (dst2 < static_cast<int>(tree->chunk_size() - 1)) {
-    for (size_t i = 0; i < data->right_context_feature[dst2 + 1].size(); ++i) {
-      std::string n = "R2";
-      n += data->right_context_feature[dst2 + 1][i];
-      ADD_FEATURE(n);
-    }
+    COPY_FEATURE(chunk_info->src_static_feature);
   }
 
   {
-    // gap features
+    ChunkInfo *chunk_info = &data->chunk_info[dst1];
+    if (chunk_info->dst1_static_feature.empty()) {
+      for (size_t i = 0; i < chunk_info->str_static_feature.size(); ++i) {
+        std::string n = "D1";
+        n += chunk_info->str_static_feature[i];
+        ADD_FEATURE2(n, chunk_info->dst1_static_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst1_static_feature);
+  }
+
+  {
+    ChunkInfo *chunk_info = &data->chunk_info[dst2];
+    if (chunk_info->dst2_static_feature.empty()) {
+      for (size_t i = 0; i < chunk_info->str_static_feature.size(); ++i) {
+        std::string n = "D2";
+        n += chunk_info->str_static_feature[i];
+        ADD_FEATURE2(n, chunk_info->dst2_static_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst2_static_feature);
+  }
+
+  if (src > 0) {
+    ChunkInfo *chunk_info = &data->chunk_info[src - 1];
+    if (chunk_info->left_context_feature.empty()) {
+      for (size_t i = 0;
+           i < chunk_info->str_left_context_feature.size(); ++i) {
+        ADD_FEATURE2(chunk_info->str_left_context_feature[i],
+                     chunk_info->left_context_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->left_context_feature);
+  }
+
+  if (dst1 < static_cast<int>(tree->chunk_size() - 1)) {
+    ChunkInfo *chunk_info = &data->chunk_info[dst1 + 1];
+    if (chunk_info->right1_context_feature.empty()) {
+      for (size_t i = 0;
+           i < chunk_info->str_right_context_feature.size(); ++i) {
+        std::string n = "R1";
+        n += chunk_info->str_right_context_feature[i];
+        ADD_FEATURE2(n,  chunk_info->right1_context_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->right1_context_feature);
+  }
+
+  if (dst2 < static_cast<int>(tree->chunk_size() - 1)) {
+    ChunkInfo *chunk_info = &data->chunk_info[dst2 + 1];
+    if (chunk_info->right2_context_feature.empty()) {
+      for (size_t i = 0;
+           i < chunk_info->str_right_context_feature.size(); ++i) {
+        std::string n = "R2";
+        n += chunk_info->str_right_context_feature[i];
+        ADD_FEATURE2(n,  chunk_info->right2_context_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->right2_context_feature);
+  }
+
+  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
+      const int child = hypo->children[src][i];
+    ChunkInfo *chunk_info = &data->chunk_info[child];
+    if (chunk_info->src_child_feature.empty()) {
+      for (size_t j = 0; j < chunk_info->str_child_feature.size(); ++j) {
+        chunk_info->str_child_feature[j][0] = 'a';
+        ADD_FEATURE2(chunk_info->str_child_feature[j],
+                     chunk_info->src_child_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->src_child_feature);
+  }
+
+  for (size_t i = 0; i < hypo->children[dst1].size(); ++i) {
+    const int child = hypo->children[dst1][i];
+    ChunkInfo *chunk_info = &data->chunk_info[child];
+    if (chunk_info->dst1_child_feature.empty()) {
+      for (size_t j = 0; j < chunk_info->str_child_feature.size(); ++j) {
+        std::string n = "A1";
+        n += chunk_info->str_child_feature[j];
+        ADD_FEATURE2(n, chunk_info->dst1_child_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst1_child_feature);
+  }
+
+  for (size_t i = 0; i < hypo->children[dst2].size(); ++i) {
+    const int child = hypo->children[dst2][i];
+    ChunkInfo *chunk_info = &data->chunk_info[child];
+    if (chunk_info->dst2_child_feature.empty()) {
+      for (size_t j = 0; j < chunk_info->str_child_feature.size(); ++j) {
+        std::string n = "A2";
+        n += chunk_info->str_child_feature[j];
+        ADD_FEATURE2(n, chunk_info->dst2_child_feature);
+      }
+    }
+    COPY_FEATURE(chunk_info->dst2_child_feature);
+  }
+
+  // gap features
+  {
     int bracket_status = 0;
     for (int k = src + 1; k <= dst1 - 1; ++k) {
-      for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
-        const char *gap_feature = data->gap_feature[k][i];
+      ChunkInfo *chunk_info = &data->chunk_info[k];
+      for (size_t i = 0; i < chunk_info->str_gap_feature.size(); ++i) {
+        const char *gap_feature = chunk_info->str_gap_feature[i];
         if (std::strcmp(gap_feature, "GOB:1") == 0) {
           bracket_status |= 1;
         } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
@@ -290,11 +360,11 @@ bool DependencyParser::estimate(const Tree *tree,
   }
 
   {
-    // gap features
     int bracket_status = 0;
     for (int k = src + 1; k <= dst2 - 1; ++k) {
-      for (size_t i = 0; i < data->gap_feature[k].size(); ++i) {
-        const char *gap_feature = data->gap_feature[k][i];
+      ChunkInfo *chunk_info = &data->chunk_info[k];
+      for (size_t i = 0; i < chunk_info->str_gap_feature.size(); ++i) {
+        const char *gap_feature = chunk_info->str_gap_feature[i];
         if (std::strcmp(gap_feature, "GOB:1") == 0) {
           bracket_status |= 1;
         } else if (std::strcmp(gap_feature, "GCB:1") == 0) {
@@ -316,36 +386,6 @@ bool DependencyParser::estimate(const Tree *tree,
     }
   }
 
-  for (size_t i = 0; i < hypo->children[src].size(); ++i) {
-    const int child = hypo->children[src][i];
-    for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
-      data->dynamic_feature[child][j][0] = 'a';
-      ADD_FEATURE(data->dynamic_feature[child][j]);
-    }
-  }
-
-  {
-    // dynamic features
-    for (size_t i = 0; i < hypo->children[dst1].size(); ++i) {
-      const int child = hypo->children[dst1][i];
-      for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
-        std::string n = "A1";
-        n += data->dynamic_feature[child][j];
-        ADD_FEATURE(n);
-      }
-    }
-
-    // dynamic features
-    for (size_t i = 0; i < hypo->children[dst2].size(); ++i) {
-      const int child = hypo->children[dst2][i];
-      for (size_t j = 0; j < data->dynamic_feature[child].size(); ++j) {
-        std::string n = "A2";
-        n += data->dynamic_feature[child][j];
-        ADD_FEATURE(n);
-      }
-    }
-  }
-
   std::sort(fp->begin(), fp->end());
   fp->erase(std::unique(fp->begin(), fp->end()), fp->end());
 
@@ -364,7 +404,6 @@ bool DependencyParser::estimate(const Tree *tree,
       CHECK_DIE(true) << "dst1 or dst2 must be a true head";
     }
   }
-#endif
 
   return false;
 }

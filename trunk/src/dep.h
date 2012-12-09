@@ -16,12 +16,6 @@
 namespace CaboCha {
 
 class SVMModelInterface;
-class SVMModel;
-
-class cmpstr {
- public:bool operator() (const char *s1, const char *s2) {
-   return (strcmp(s1, s2) < 0); }
-};
 
 struct Hypothesis {
   void init(size_t size);
