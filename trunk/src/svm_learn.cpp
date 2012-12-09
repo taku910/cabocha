@@ -20,11 +20,11 @@ namespace {
 const double kEPS = 0.1;
 const double kINF = 1e+37;
 
-inline uint64 getIndex(int index) {
+inline uint64 hash(int index) {
   return index + 1;   // index '0' is reserved for bias term.
 }
 
-inline uint64 getIndex(int index1, int index2) {
+inline uint64 hash(int index1, int index2) {
   const uint64 result = index1 + 1;
   return static_cast<uint64>(result << 32 | index2);
 }
@@ -35,7 +35,7 @@ double classify(const std::vector<int> &x,
   double result = w[0];
 
   for (size_t i = 0; i < x.size(); ++i) {
-    const uint64 index = getIndex(x[i]);
+    const uint64 index = hash(x[i]);
     const hash_map<uint64, int>::const_iterator
         it = dic.find(index);
     if (it != dic.end()) {
@@ -45,7 +45,7 @@ double classify(const std::vector<int> &x,
 
   for (size_t i = 0; i < x.size(); ++i) {
     for (size_t j = i + 1; j < x.size(); ++j) {
-      const uint64 index = getIndex(x[i], x[j]);
+      const uint64 index = hash(x[i], x[j]);
       const hash_map<uint64, int>::const_iterator
           it = dic.find(index);
       if (it != dic.end()) {
@@ -64,7 +64,7 @@ void update(const std::vector<int> &x,
   (*w)[0] += d;
 
   for (size_t i = 0; i < x.size(); ++i) {
-    const uint64 index = getIndex(x[i]);
+    const uint64 index = hash(x[i]);
     int n = dic->size();
     std::pair<hash_map<uint64, int>::iterator, bool>
         r = dic->insert(std::make_pair(index, n));
@@ -79,7 +79,7 @@ void update(const std::vector<int> &x,
 
   for (size_t i = 0; i < x.size(); ++i) {
     for (size_t j = i + 1; j < x.size(); ++j) {
-      const uint64 index = getIndex(x[i], x[j]);
+      const uint64 index = hash(x[i], x[j]);
       int n = dic->size();
       std::pair<hash_map<uint64, int>::iterator, bool>
           r = dic->insert(std::make_pair(index, n));
@@ -255,6 +255,7 @@ SVMModel *SVMSolver::learn(const SVMModel &example,
   std::vector<double> alpha;
 
   SVMModel *model = new SVMModel;
+  CHECK_DIE(model);
   *(model->mutable_dic()) = example.dic();
   model->set_param("C", cost);
   model->set_param("degree", 2);

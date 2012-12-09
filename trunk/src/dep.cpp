@@ -71,7 +71,7 @@ bool DependencyParser::open(const Param &param) {
     svm_.reset(new FastSVMModel);
     if (!svm_->open(filename.c_str())) {
       WHAT << svm_->what() << "\n";
-      svm_.reset(new SVMModel);
+      svm_.reset(new ImmutableSVMModel);
       if (!svm_->open(filename.c_str())) {
         WHAT << svm_->what();
         failed = true;
