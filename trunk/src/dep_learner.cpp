@@ -89,9 +89,11 @@ bool DependencyTrainingWithSVM(const char *train_file,
         << "no such file or directory: " << prev_model_file;
   }
 
-  const SVMModel *svm_example =
-      static_cast<const SVMModel *>(dependency_parser->mutable_svm_model());
+  SVMModel *svm_example =
+      static_cast<SVMModel *>(dependency_parser->mutable_svm_model());
   CHECK_DIE(svm_example);
+
+  svm_example->sortByFreq();
 
   scoped_ptr<SVMModel> model(SVMSolver::learn(*svm_example,
                                               *prev_model.get(), cost));

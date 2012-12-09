@@ -385,31 +385,6 @@ double FastSVMModel::classify(const std::vector<int> &ary) const {
       }
       break;
 
-    case 3:
-      for (size_t i1 = 0; i1 < size; ++i1) {
-        size_t pos1 = 0;
-        p = 0;
-        encodeBER(ary[i1], key, &len);
-        r = eda_.traverse(reinterpret_cast<const char*>(key), pos1, p, len);
-        if (r == -2) continue;
-        if (r >= 0) score += (r - kPKEBase);
-        for (size_t i2 = i1+1; i2 < size; ++i2) {
-          size_t pos2 = pos1;
-          p = 0;
-          encodeBER(ary[i2], key, &len);
-          r = eda_.traverse(reinterpret_cast<const char*>(key), pos2, p, len);
-          if (r == -2) continue;
-          if (r >= 0) score += (r - kPKEBase);
-          for (size_t i3 = i2+1; i3 < size; ++i3) {
-            size_t pos3 = pos2;
-            p = 0;
-            encodeBER(ary[i3], key, &len);
-            r = eda_.traverse(reinterpret_cast<const char*>(key), pos3, p, len);
-            if (r >= 0) score += (r - kPKEBase);
-          }
-        }
-      }
-      break;
     default:
       break;
   }
@@ -631,23 +606,20 @@ bool SVMModel::compress() {
     }
   }
 
-  std::map<int, int> old2new;
-  int id = 0;
+  std::vector<std::string> dic_vec(dic_.size());
   for (std::map<std::string, int>::const_iterator it = dic_.begin();
        it != dic_.end(); ++it) {
-    if (active_feature.find(it->second) != active_feature.end()) {
-      if (old2new.find(it->second) == old2new.end()) {
-        old2new[it->second] = id;
-        ++id;
-      }
-    }
+    dic_vec[it->second] = it->first;
   }
 
+  int id = 0;
+  std::map<int, int> old2new;
   std::map<std::string, int> new_dic;
-  for (std::map<std::string, int>::const_iterator it = dic_.begin();
-       it != dic_.end(); ++it) {
-    if (old2new.find(it->second) != old2new.end()) {
-      new_dic[it->first] = old2new[it->second];
+  for (size_t i = 0; i < dic_vec.size(); ++i) {
+    if (active_feature.find(i) != active_feature.end()) {
+      old2new[i] = id;
+      new_dic[dic_vec[i]] = id;
+      ++id;
     }
   }
 
@@ -662,6 +634,50 @@ bool SVMModel::compress() {
   }
 
   dic_ = new_dic;
+
+  return true;
+}
+
+bool SVMModel::sortByFreq() {
+  int max_id = 0;
+  for (size_t i = 0; i < size(); ++i) {
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      max_id = std::max(max_id, x_[i][j]);
+    }
+  }
+
+  std::vector<std::pair<int, int> > freq(max_id + 1);
+  for (size_t i = 0; i < size(); ++i) {
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      freq[x_[i][j]].first++;
+      freq[x_[i][j]].second = x_[i][j];
+    }
+  }
+
+  // sort by freq. if freq is the same, keep the original
+  // order as much as possible.
+  std::stable_sort(freq.begin(), freq.end(),
+                   std::greater<std::pair<int, int> >());
+
+  std::vector<int> old2new(freq.size(), -1);
+  for (size_t i = 0; i < freq.size(); ++i) {
+    old2new[freq[i].second] = i;
+  }
+
+  for (size_t i = 0; i < old2new.size(); ++i) {
+    CHECK_DIE(old2new[i] >= 0);
+  }
+
+  for (std::map<std::string, int>::iterator it = dic_.begin();
+       it != dic_.end(); ++it) {
+    it->second = old2new[it->second];
+  }
+
+  for (size_t i = 0; i < size(); ++i) {
+    for (size_t j = 0; j < x_[i].size(); ++j) {
+      x_[i][j] = old2new[x_[i][j]];
+    }
+  }
 
   return true;
 }

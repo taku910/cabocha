@@ -125,7 +125,6 @@ void ChunkInfo::clear() {
   src_child_feature.clear();
   dst1_child_feature.clear();
   dst2_child_feature.clear();
-  gap_feature.clear();
 }
 
 #define ADD_FEATURE(key) do { \
