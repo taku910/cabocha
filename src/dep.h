@@ -25,28 +25,12 @@ struct Hypothesis {
   double hscore;
 };
 
-// // stack-based agenda.
-// struct Agenda {
-//  public:
-//   Agenda();
-//   ~Agenda();
-//   void init(size_t size);
-//   Hypothesis *alloc();
-//   void push(Hypothesis *hypo, size_t index);
-//   Hypothesis *pop(size_t index);
-
-//  private:
-//   FreeList<Hypothesis> freelist_;
-//   std::vector<std::vector<Hypothesis *> > agenda_;
-// };
-
 struct ChunkInfo {
   std::vector<char *> str_static_feature;
   std::vector<char *> str_gap_feature;
   std::vector<char *> str_left_context_feature;
   std::vector<char *> str_right_context_feature;
   std::vector<char *> str_child_feature;
-
   std::vector<int> src_static_feature;
   std::vector<int> dst1_static_feature;
   std::vector<int> dst2_static_feature;
@@ -56,8 +40,7 @@ struct ChunkInfo {
   std::vector<int> src_child_feature;
   std::vector<int> dst1_child_feature;
   std::vector<int> dst2_child_feature;
-  std::vector<int> gap_feature;
-
+//  std::vector<int> gap_feature;
   void clear();
 };
 
@@ -108,7 +91,6 @@ class DependencyParser: public Analyzer {
 
   scoped_ptr<SVMModelInterface> svm_;
   int parsing_algorithm_;
-  //  int beam_;
 };
 }
 #endif
