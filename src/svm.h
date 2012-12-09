@@ -77,6 +77,11 @@ class SVMModel : public SVMModelInterface {
   mutable std::map<std::string, int> dic_;
 };
 
+class ImmutableSVMModel : public SVMModel {
+ public:
+  virtual int id(const std::string &key) const;
+};
+
 class FastSVMModel : public SVMModelInterface {
  public:
   FastSVMModel();

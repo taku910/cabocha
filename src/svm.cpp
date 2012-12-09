@@ -756,6 +756,14 @@ int SVMModel::id(const std::string &key) const {
   dic_.insert(std::make_pair(key, id));
   return id;
 }
+
+int ImmutableSVMModel::id(const std::string &key) const {
+  std::map<std::string, int>::const_iterator it = dic_.find(key);
+  if (it != dic_.end()) {
+    return it->second;
+  }
+  return -1;
+}
 }
 
 #if 0
