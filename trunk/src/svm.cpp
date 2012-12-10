@@ -345,23 +345,33 @@ double SVMModelInterface::classify(
   return classify(dot_buf);
 }
 
+namespace {
+struct FeatureKey {
+  unsigned char id[7];
+  unsigned int len : 8;
+};
+}
+
 double FastSVMModel::classify(const std::vector<int> &ary) const {
   const size_t size = ary.size();
   size_t p = 0;
   int r = 0;
   int score = -bias_;
 
-  unsigned int len = 0;
-  unsigned char key[16];
+  std::vector<FeatureKey> key(size);
+  for (size_t i = 0; i < size; ++i) {
+    unsigned int len = 0;
+    encodeBER(ary[i], key[i].id, &len);
+    key[i].len = len;
+  }
 
   switch (degree_) {
     case 1:
       for (size_t i1 = 0; i1 < size; ++i1) {
         size_t pos1 = 0;
         p = 0;
-        encodeBER(ary[i1], key, &len);
-        r = eda_.traverse(reinterpret_cast<const char*>(key), pos1, p, len);
-        if (r == -2) continue;
+        r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
+                          pos1, p, key[i1].len);
         if (r >= 0) score += (r - kPKEBase);
       }
       break;
@@ -370,15 +380,15 @@ double FastSVMModel::classify(const std::vector<int> &ary) const {
       for (size_t i1 = 0; i1 < size; ++i1) {
         size_t pos1 = 0;
         p = 0;
-        encodeBER(ary[i1], key, &len);
-        r = eda_.traverse(reinterpret_cast<const char*>(key), pos1, p, len);
+        r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
+                          pos1, p, key[i1].len);
         if (r == -2) continue;
         if (r >= 0) score += (r - kPKEBase);
-        for (size_t i2 = i1+1; i2 < size; ++i2) {
+        for (size_t i2 = i1 + 1; i2 < size; ++i2) {
           size_t pos2 = pos1;
           p = 0;
-          encodeBER(ary[i2], key, &len);
-          r = eda_.traverse(reinterpret_cast<const char*>(key), pos2, p, len);
+          r = eda_.traverse(reinterpret_cast<const char *>(key[i2].id),
+                            pos2, p, key[i2].len);
           if (r == -2) continue;
           if (r >= 0) score += (r - kPKEBase);
         }
