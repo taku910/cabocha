@@ -33,7 +33,8 @@ class SVMModelInterface {
   virtual bool open(const char *filename) = 0;
   virtual bool save(const char *filename) const = 0;
   virtual bool compress() = 0;
-  virtual bool sortByFreq() = 0;
+  virtual bool sortFeatures() = 0;
+  virtual bool sortInstances() = 0;
   virtual void close() = 0;
   virtual int id(const std::string &key) const = 0;
   virtual double classify(const std::vector<int> &x) const = 0;
@@ -68,7 +69,8 @@ class SVMModel : public SVMModelInterface {
 
   virtual bool save(const char *filename) const;
   virtual bool compress();
-  virtual bool sortByFreq();
+  virtual bool sortFeatures();
+  virtual bool sortInstances();
 
   SVMModel();
   virtual ~SVMModel();
@@ -98,7 +100,8 @@ class FastSVMModel : public SVMModelInterface {
   }
   virtual bool save(const char *filename) const { return false; }
   virtual bool compress() { return false; }
-  virtual bool sortByFreq() { return false; }
+  virtual bool sortFeatures() { return false; }
+  virtual bool sortInstances() { return false; }
 
   static bool compile(const char *filename,
                       const char *output,

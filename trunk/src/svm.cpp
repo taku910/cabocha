@@ -648,7 +648,25 @@ bool SVMModel::compress() {
   return true;
 }
 
-bool SVMModel::sortByFreq() {
+bool SVMModel::sortInstances() {
+  std::vector<std::pair<std::vector<int>, size_t> > tmp(x_.size());
+  for (size_t i = 0; i < x_.size(); ++i) {
+    tmp[i].first = x_[i];
+    tmp[i].second = i;
+  }
+  std::stable_sort(tmp.begin(), tmp.end());
+
+  std::vector<double> alpha(tmp.size());
+  for (size_t i = 0; i < tmp.size(); ++i) {
+    x_[i] = tmp[i].first;
+    alpha[i] = alpha_[tmp[i].second];
+  }
+
+  alpha_ = alpha;
+  return true;
+}
+
+bool SVMModel::sortFeatures() {
   int max_id = 0;
   for (size_t i = 0; i < size(); ++i) {
     for (size_t j = 0; j < x_[i].size(); ++j) {
