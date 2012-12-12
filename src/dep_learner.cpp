@@ -93,7 +93,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
       static_cast<SVMModel *>(dependency_parser->mutable_svm_model());
   CHECK_DIE(svm_example);
 
-  svm_example->sortByFreq();
+  svm_example->sortFeatures();
 
   scoped_ptr<SVMModel> model(SVMSolver::learn(*svm_example,
                                               *prev_model.get(), cost));
@@ -103,6 +103,8 @@ bool DependencyTrainingWithSVM(const char *train_file,
   model->set_param("charset", encode_charset(charset));
   model->set_param("posset",  encode_posset(posset));
   model->set_param("type", "dep");
+
+  model->sortInstances();
 
   return model->save(model_file);
 }
