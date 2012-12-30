@@ -5831,6 +5831,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_LATTICE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_LATTICE)));
   SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE_LATTICE)));
   SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_XML",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_XML)));
+  SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_CONLL",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_CONLL)));
   SWIG_Python_SetConstant(d, "CABOCHA_FORMAT_NONE",SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_NONE)));
   SWIG_Python_SetConstant(d, "CABOCHA_INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_RAW_SENTENCE)));
   SWIG_Python_SetConstant(d, "CABOCHA_INPUT_POS",SWIG_From_int(static_cast< int >(CABOCHA_INPUT_POS)));
@@ -5858,6 +5859,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "FORMAT_LATTICE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_LATTICE)));
   SWIG_Python_SetConstant(d, "FORMAT_TREE_LATTICE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_TREE_LATTICE)));
   SWIG_Python_SetConstant(d, "FORMAT_XML",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_XML)));
+  SWIG_Python_SetConstant(d, "FORMAT_CONLL",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_CONLL)));
   SWIG_Python_SetConstant(d, "FORMAT_NONE",SWIG_From_int(static_cast< int >(CaboCha::FORMAT_NONE)));
   SWIG_Python_SetConstant(d, "INPUT_RAW_SENTENCE",SWIG_From_int(static_cast< int >(CaboCha::INPUT_RAW_SENTENCE)));
   SWIG_Python_SetConstant(d, "INPUT_POS",SWIG_From_int(static_cast< int >(CaboCha::INPUT_POS)));
@@ -5874,7 +5876,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, "TRAIN_DEP",SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
   SWIG_Python_SetConstant(d, "SHIFT_REDUCE",SWIG_From_int(static_cast< int >(CaboCha::SHIFT_REDUCE)));
   SWIG_Python_SetConstant(d, "TOURNAMENT",SWIG_From_int(static_cast< int >(CaboCha::TOURNAMENT)));
-  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.65"));
+  SWIG_Python_SetConstant(d, "VERSION",SWIG_FromCharPtr("0.66"));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

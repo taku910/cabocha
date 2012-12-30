@@ -587,6 +587,32 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1XML_
 }
 
 
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1CONLL_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (int)CABOCHA_FORMAT_CONLL; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1FORMAT_1NONE_1get(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
   int result;
@@ -1559,6 +1585,32 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_FORMAT_1XML_1get(JNIE
   {
     try {
       result = (CaboCha::FormatType)CaboCha::FORMAT_XML; 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_FORMAT_1CONLL_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  CaboCha::FormatType result;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (CaboCha::FormatType)CaboCha::FORMAT_CONLL; 
     }
     catch (char *e) {
       {
@@ -2900,7 +2952,7 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEn
   
   (void)jenv;
   (void)jcls;
-  result = (char *)("0.65");
+  result = (char *)("0.66");
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
