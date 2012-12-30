@@ -4058,6 +4058,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "CABOCHA_FORMAT_LATTICE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_LATTICE)));
   rb_define_const(mCaboCha, "CABOCHA_FORMAT_TREE_LATTICE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_TREE_LATTICE)));
   rb_define_const(mCaboCha, "CABOCHA_FORMAT_XML", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_XML)));
+  rb_define_const(mCaboCha, "CABOCHA_FORMAT_CONLL", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_CONLL)));
   rb_define_const(mCaboCha, "CABOCHA_FORMAT_NONE", SWIG_From_int(static_cast< int >(CABOCHA_FORMAT_NONE)));
   rb_define_const(mCaboCha, "CABOCHA_INPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_RAW_SENTENCE)));
   rb_define_const(mCaboCha, "CABOCHA_INPUT_POS", SWIG_From_int(static_cast< int >(CABOCHA_INPUT_POS)));
@@ -4114,6 +4115,7 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "FORMAT_LATTICE", SWIG_From_int(static_cast< int >(CaboCha::FORMAT_LATTICE)));
   rb_define_const(mCaboCha, "FORMAT_TREE_LATTICE", SWIG_From_int(static_cast< int >(CaboCha::FORMAT_TREE_LATTICE)));
   rb_define_const(mCaboCha, "FORMAT_XML", SWIG_From_int(static_cast< int >(CaboCha::FORMAT_XML)));
+  rb_define_const(mCaboCha, "FORMAT_CONLL", SWIG_From_int(static_cast< int >(CaboCha::FORMAT_CONLL)));
   rb_define_const(mCaboCha, "FORMAT_NONE", SWIG_From_int(static_cast< int >(CaboCha::FORMAT_NONE)));
   rb_define_const(mCaboCha, "INPUT_RAW_SENTENCE", SWIG_From_int(static_cast< int >(CaboCha::INPUT_RAW_SENTENCE)));
   rb_define_const(mCaboCha, "INPUT_POS", SWIG_From_int(static_cast< int >(CaboCha::INPUT_POS)));
@@ -4171,6 +4173,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
   rb_define_module_function(mCaboCha, "getLastError", VALUEFUNC(_wrap_getLastError), -1);
-  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.65"));
+  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.66"));
 }
 

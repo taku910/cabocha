@@ -22,6 +22,7 @@ public interface CaboChaConstants {
   public final static int CABOCHA_FORMAT_LATTICE = CaboChaJNI.CABOCHA_FORMAT_LATTICE_get();
   public final static int CABOCHA_FORMAT_TREE_LATTICE = CaboChaJNI.CABOCHA_FORMAT_TREE_LATTICE_get();
   public final static int CABOCHA_FORMAT_XML = CaboChaJNI.CABOCHA_FORMAT_XML_get();
+  public final static int CABOCHA_FORMAT_CONLL = CaboChaJNI.CABOCHA_FORMAT_CONLL_get();
   public final static int CABOCHA_FORMAT_NONE = CaboChaJNI.CABOCHA_FORMAT_NONE_get();
 
   public final static int CABOCHA_INPUT_RAW_SENTENCE = CaboChaJNI.CABOCHA_INPUT_RAW_SENTENCE_get();

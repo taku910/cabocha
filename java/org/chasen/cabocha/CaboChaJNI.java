@@ -20,6 +20,7 @@ public class CaboChaJNI {
   public final static native int CABOCHA_FORMAT_LATTICE_get();
   public final static native int CABOCHA_FORMAT_TREE_LATTICE_get();
   public final static native int CABOCHA_FORMAT_XML_get();
+  public final static native int CABOCHA_FORMAT_CONLL_get();
   public final static native int CABOCHA_FORMAT_NONE_get();
   public final static native int CABOCHA_INPUT_RAW_SENTENCE_get();
   public final static native int CABOCHA_INPUT_POS_get();
@@ -64,6 +65,7 @@ public class CaboChaJNI {
   public final static native int FORMAT_LATTICE_get();
   public final static native int FORMAT_TREE_LATTICE_get();
   public final static native int FORMAT_XML_get();
+  public final static native int FORMAT_CONLL_get();
   public final static native int FORMAT_NONE_get();
   public final static native int INPUT_RAW_SENTENCE_get();
   public final static native int INPUT_POS_get();

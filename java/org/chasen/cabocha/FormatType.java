@@ -13,6 +13,7 @@ public final class FormatType {
   public final static FormatType FORMAT_LATTICE = new FormatType("FORMAT_LATTICE", CaboChaJNI.FORMAT_LATTICE_get());
   public final static FormatType FORMAT_TREE_LATTICE = new FormatType("FORMAT_TREE_LATTICE", CaboChaJNI.FORMAT_TREE_LATTICE_get());
   public final static FormatType FORMAT_XML = new FormatType("FORMAT_XML", CaboChaJNI.FORMAT_XML_get());
+  public final static FormatType FORMAT_CONLL = new FormatType("FORMAT_CONLL", CaboChaJNI.FORMAT_CONLL_get());
   public final static FormatType FORMAT_NONE = new FormatType("FORMAT_NONE", CaboChaJNI.FORMAT_NONE_get());
 
   public final int swigValue() {
@@ -49,7 +50,7 @@ public final class FormatType {
     swigNext = this.swigValue+1;
   }
 
-  private static FormatType[] swigValues = { FORMAT_TREE, FORMAT_LATTICE, FORMAT_TREE_LATTICE, FORMAT_XML, FORMAT_NONE };
+  private static FormatType[] swigValues = { FORMAT_TREE, FORMAT_LATTICE, FORMAT_TREE_LATTICE, FORMAT_XML, FORMAT_CONLL, FORMAT_NONE };
   private static int swigNext = 0;
   private final int swigValue;
   private final String swigName;
