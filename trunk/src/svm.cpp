@@ -365,38 +365,21 @@ double FastSVMModel::classify(const std::vector<int> &ary) const {
     key[i].len = len;
   }
 
-  switch (degree_) {
-    case 1:
-      for (size_t i1 = 0; i1 < size; ++i1) {
-        size_t pos1 = 0;
-        p = 0;
-        r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
-                          pos1, p, key[i1].len);
-        if (r >= 0) score += (r - kPKEBase);
-      }
-      break;
-
-    case 2:
-      for (size_t i1 = 0; i1 < size; ++i1) {
-        size_t pos1 = 0;
-        p = 0;
-        r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
-                          pos1, p, key[i1].len);
-        if (r == -2) continue;
-        if (r >= 0) score += (r - kPKEBase);
-        for (size_t i2 = i1 + 1; i2 < size; ++i2) {
-          size_t pos2 = pos1;
-          p = 0;
-          r = eda_.traverse(reinterpret_cast<const char *>(key[i2].id),
-                            pos2, p, key[i2].len);
-          if (r == -2) continue;
-          if (r >= 0) score += (r - kPKEBase);
-        }
-      }
-      break;
-
-    default:
-      break;
+  for (size_t i1 = 0; i1 < size; ++i1) {
+    size_t pos1 = 0;
+    p = 0;
+    r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
+                      pos1, p, key[i1].len);
+    if (r == -2) continue;
+    if (r >= 0) score += (r - kPKEBase);
+    for (size_t i2 = i1 + 1; i2 < size; ++i2) {
+      size_t pos2 = pos1;
+      p = 0;
+      r = eda_.traverse(reinterpret_cast<const char *>(key[i2].id),
+                        pos2, p, key[i2].len);
+      if (r == -2) continue;
+      if (r >= 0) score += (r - kPKEBase);
+    }
   }
 
   return score * normalzie_factor_;
