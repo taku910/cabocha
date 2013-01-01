@@ -236,7 +236,7 @@ class PKEMine {
   }
 };
 
-FastSVMModel::FastSVMModel(): normalzie_factor_(1.0) {}
+FastSVMModel::FastSVMModel(): normalize_factor_(1.0) {}
 FastSVMModel::~FastSVMModel() {}
 
 void FastSVMModel::close() {
@@ -301,14 +301,14 @@ bool FastSVMModel::open(const char *filename) {
 
   unsigned int dsize = 0;
   unsigned int fsize = 0;
-  read_static<double>(&ptr, normalzie_factor_);
+  read_static<double>(&ptr, normalize_factor_);
   read_static<int>(&ptr, bias_);
   read_static<unsigned int>(&ptr, dsize);  // double array
   read_static<unsigned int>(&ptr, fsize);  // trie
 
   CHECK_FALSE(dsize != 0);
   CHECK_FALSE(fsize != 0);
-  CHECK_FALSE(normalzie_factor_ > 0.0);
+  CHECK_FALSE(normalize_factor_ > 0.0);
 
   da_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
   ptr += dsize;
@@ -382,7 +382,7 @@ double FastSVMModel::classify(const std::vector<int> &ary) const {
     }
   }
 
-  return score * normalzie_factor_;
+  return score * normalize_factor_;
 }
 
 struct RuleCompare {
