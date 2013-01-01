@@ -112,7 +112,7 @@ class FastSVMModel : public SVMModelInterface {
  private:
   unsigned int degree_;
   int bias_;
-  double normalzie_factor_;
+  double normalize_factor_;
   Mmap<char> mmap_;
   Darts::DoubleArray da_;   // str -> id double array
   Darts::DoubleArray eda_;   // trie -> cost double array
