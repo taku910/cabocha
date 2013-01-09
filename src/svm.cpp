@@ -23,6 +23,14 @@
 #include "utils.h"
 
 namespace CaboCha {
+namespace {
+struct FeatureKey {
+  unsigned char id[7];
+  unsigned int len : 8;
+};
+
+const unsigned int kDictionaryMagicID = 0xef522177u;
+const int kPKEBase = 0xfffff;  // 1048575
 
 inline int dot(const std::vector<int> &x1, const std::vector<int> &x2) {
   int n = 0;
@@ -62,181 +70,33 @@ void inline encodeBER(unsigned int value,
   }
 }
 
-void inline encodeBERArray(unsigned int *begin,
-                           unsigned int *end,
-                           unsigned char *output,
-                           unsigned int *output_len) {
-  unsigned char *str = output;
-  for (unsigned int *p = begin; p < end; ++p) {
-    unsigned int n = 0;
-    encodeBER(*p, str, &n);
-    str += n;
-  }
-  *output_len = static_cast<unsigned int>(str - output);
+std::string encodeBER(unsigned int value) {
+  unsigned char buf[16];
+  unsigned int len = 0;
+  encodeBER(value, buf, &len);
+  return std::string(reinterpret_cast<const char *>(buf), len);
 }
 
-const unsigned int kDictionaryMagicID = 0xef522177u;
+uint64 encodeToUint64(int i1, int i2) {
+  return (static_cast<uint64>(i1) << 32 |
+          static_cast<uint64>(i2));
+}
 
-const int kWeight[4][5] = {
-  {0, 0, 0, 0, 0},   // 0
-  {1, 1, 0, 0, 0},   // 1
-  {1, 3, 2, 0, 0},   // 2
-  {1, 7, 12, 6, 0}   // 3
-};
+void decodeFromUint64(uint64 n, unsigned int *i1, unsigned int *i2) {
+  *i1 = static_cast<int>(0xFFFFFFFF & n >> 32);
+  *i2 = static_cast<int>(0xFFFFFFFF & n);
+}
 
-static const int kMaxWeight[5] = { 0, 1, 3, 12 };
+std::string encodeFeatureID(int i1, int i2) {
+  return encodeBER(i1) + encodeBER(i2);
+}
+}  // namespace
 
-static const int kPKEBase = 0xfffff;  // 1048575
+FastSVMModel::FastSVMModel()
+    : degree_(0), bias_(0), normalize_factor_(0.0),
+      feature_size_(0), freq_feature_size_(0),
+      node_pos_(0), weight1_(0), weight2_(0) {}
 
-class PKEMine {
- public:
-  PKEMine():
-      transaction_(0), w_(0), out_rules_(0),
-      char_freelist_(8192 * 8192), rule_freelist_(8192 * 1024),
-      sigma_pos_(0.0), sigma_neg_(0.0),
-      minsup_(0), degree_(0) {}
-
-  struct Rule {
-    unsigned char *f;  // feature
-    unsigned int len;  // length
-    float w;
-  };
-
-  bool run(const std::vector<std::vector<unsigned int> > &transaction,
-           const std::vector<float> &w,  // weight
-           float sigma,
-           size_t minsup,
-           size_t degree,
-           std::vector<Rule *> *rules) {
-    transaction_ = &transaction;
-    w_ = &w;
-    out_rules_ = rules;
-    minsup_ = minsup;
-    degree_ = degree;
-    char_freelist_.free();
-    rule_freelist_.free();
-
-    CHECK_DIE(w.size() == transaction.size())
-        << "w.size() != transaction.size()";
-    CHECK_DIE(out_rules_) << "rules is NULL";
-    CHECK_DIE(minsup_ > 0) << "minsup should not be 0";
-    CHECK_DIE(sigma > 0.0) << "sigma should not be 0";
-    CHECK_DIE(degree_ >= 1 && degree_ <= 3)
-        << "degree should be 1<=degree<=3";
-    CHECK_DIE(w_);
-    CHECK_DIE(transaction_);
-
-    std::vector<std::pair<size_t, int> > root;
-    size_t pos_num = 0;
-    size_t neg_num = 0;
-    for (size_t i = 0; i < transaction_->size(); i++) {
-      root.push_back(std::make_pair(i, -1));
-      if (w[i] > 0) {
-        ++pos_num;
-      } else {
-        ++neg_num;
-      }
-    }
-
-    sigma_pos_ =  1.0 * sigma * pos_num / (pos_num + neg_num);
-    sigma_neg_ = -1.0 * sigma * neg_num / (pos_num + neg_num);
-
-    CHECK_DIE(sigma_pos_ != 0.0);
-    CHECK_DIE(sigma_neg_ != 0.0);
-
-    pattern_.clear();
-    project(root, true);
-
-    return true;
-  }
-
- private:
-  const std::vector<std::vector<unsigned int> >  *transaction_;
-  const std::vector<float> *w_;  // weight
-  std::vector<Rule *> *out_rules_;
-  std::vector<unsigned int> pattern_;
-  FreeList<unsigned char> char_freelist_;
-  FreeList<Rule> rule_freelist_;
-  float sigma_pos_;
-  float sigma_neg_;
-  unsigned int minsup_;
-  unsigned int degree_;
-
-  bool prune(const std::vector<std::pair<size_t, int> > &projected) {
-    const size_t sup = projected.size();
-    if (sup < minsup_) {
-      return true;
-    }
-
-    float mu_pos = 0.0;
-    float mu_neg = 0.0;
-    float w = 0.0;
-    for (size_t i = 0; i < projected.size(); ++i) {
-      w += kWeight[degree_][pattern_.size()] * (*w_)[projected[i].first];
-      if ((*w_)[projected[i].first] > 0) {
-        mu_pos += kMaxWeight[degree_] * (*w_)[projected[i].first];
-      } else {
-        mu_neg += kMaxWeight[degree_] * (*w_)[projected[i].first];
-      }
-    }
-
-    // output vector
-    if (w <= sigma_neg_ || w >= sigma_pos_) {
-      Rule *rule = rule_freelist_.alloc(1);
-      rule->w = w;
-      unsigned char tmp[128];
-      encodeBERArray(&pattern_[0], &pattern_[0] + pattern_.size(),
-                     tmp, &(rule->len));
-      rule->f = char_freelist_.alloc(rule->len);
-      std::copy(tmp, tmp + rule->len, rule->f);
-      out_rules_->push_back(rule);
-    }
-
-    if (mu_pos < sigma_pos_ && mu_neg > sigma_neg_) {
-      return true;
-    }
-
-    return false;
-  }
-
-  void project(const std::vector<std::pair<size_t, int> > &projected,
-               bool is_root) {
-    if (pattern_.size() >= degree_ || projected.empty()) {
-      return;
-    }
-
-    std::map<unsigned int, std::vector<std::pair<size_t, int> > > counter;
-    for (size_t i = 0; i < projected.size(); ++i) {
-      const size_t id   = projected[i].first;
-      const int    pos  = projected[i].second;
-      const size_t size = (*transaction_)[id].size();
-      for (size_t j = pos + 1; j < size; ++j) {
-        counter[(*transaction_)[id][j]].push_back
-            (std::make_pair(id, j));
-      }
-    }
-
-    const size_t root_size = counter.size();
-    size_t processed = 0;
-
-    for (std::map<
-             unsigned int, std::vector<std::pair<size_t, int> > >
-             ::const_iterator l = counter.begin();
-         l != counter.end(); ++l) {
-      if (is_root) {
-        progress_bar("mining features ", processed+1, root_size);
-        ++processed;
-      }
-      pattern_.push_back(l->first);
-      if (!prune(l->second)) {
-        project(l->second, false);
-      }
-      pattern_.resize(pattern_.size() - 1);
-    }
-  }
-};
-
-FastSVMModel::FastSVMModel(): normalize_factor_(1.0) {}
 FastSVMModel::~FastSVMModel() {}
 
 void FastSVMModel::close() {
@@ -299,36 +159,55 @@ bool FastSVMModel::open(const char *filename) {
   }
   ptr += all_psize;
 
-  unsigned int dsize = 0;
-  unsigned int fsize = 0;
-  read_static<double>(&ptr, normalize_factor_);
-  read_static<int>(&ptr, bias_);
-  read_static<unsigned int>(&ptr, dsize);  // double array
-  read_static<unsigned int>(&ptr, fsize);  // trie
+  unsigned int dic_da_size = 0;
+  unsigned int feature_da_size = 0;
 
-  CHECK_FALSE(dsize != 0);
-  CHECK_FALSE(fsize != 0);
+  read_static<float>(&ptr, normalize_factor_);
+  read_static<int>(&ptr, bias_);
+  read_static<unsigned int>(&ptr, feature_size_);  // trie
+  read_static<unsigned int>(&ptr, freq_feature_size_);  // trie
+  read_static<unsigned int>(&ptr, dic_da_size);  // double array
+  read_static<unsigned int>(&ptr, feature_da_size);  // trie
+
+  CHECK_FALSE(feature_size_ > 0);
+  CHECK_FALSE(freq_feature_size_ > 0);
+  CHECK_FALSE(dic_da_size > 0);
+  CHECK_FALSE(feature_da_size > 0);
   CHECK_FALSE(normalize_factor_ > 0.0);
 
-  da_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
-  ptr += dsize;
-  eda_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
-  ptr += fsize;
+  dic_da_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
+  ptr += dic_da_size;
+
+  feature_da_.set_array(reinterpret_cast<void *>(const_cast<char *>(ptr)));
+  ptr += feature_da_size;
+
+  node_pos_ = reinterpret_cast<unsigned int *>(const_cast<char *>(ptr));
+  ptr += sizeof(node_pos_[0]) * feature_size_;
+
+  weight1_= reinterpret_cast<int *>(const_cast<char *>(ptr));
+  ptr += sizeof(weight1_[0]) * feature_size_;
+
+  weight2_ = reinterpret_cast<int *>(const_cast<char *>(ptr));
+  ptr += sizeof(weight2_[0]) * (freq_feature_size_ * (freq_feature_size_ - 1)) / 2;
 
   const char *sdegree = get_param("degree");
   CHECK_FALSE(sdegree) << "degree is not defined";
   degree_ = std::atoi(sdegree);
-  CHECK_FALSE(degree_ >= 1 && degree_ <= 3)
-      << "degree must be 1<=degree<=3";
-
+  CHECK_FALSE(degree_ == 2) << "degree must be 1<=degree<=3";
   CHECK_FALSE(ptr == mmap_.end())
       << "dictionary file is broken: " << filename;
+
+  keys_.resize(feature_size_);
+  keys_len_.resize(feature_size_, 0);
+  //  for (size_t i = 0; i < feature_size_; ++i) {
+  //    const std::string key = encodeBER(i);
+  //  }
 
   return true;
 }
 
 int FastSVMModel::id(const std::string &key) const {
-  return da_.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
+  return dic_da_.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
 }
 
 double SVMModelInterface::classify(
@@ -345,63 +224,83 @@ double SVMModelInterface::classify(
   return classify(dot_buf);
 }
 
-namespace {
-struct FeatureKey {
-  unsigned char id[7];
-  unsigned int len : 8;
-};
-}
-
-double FastSVMModel::classify(const std::vector<int> &ary) const {
-  const size_t size = ary.size();
-  size_t p = 0;
-  int r = 0;
+double FastSVMModel::classify(const std::vector<int> &x) const {
+  const size_t size = x.size();
   int score = -bias_;
 
+  //  std::cout << "================ START =============" << std::endl;
+
+  size_t freq_size = 0;
   std::vector<FeatureKey> key(size);
   for (size_t i = 0; i < size; ++i) {
+    if (x[i] < static_cast<int>(freq_feature_size_)) {
+      freq_size = i;
+    }
     unsigned int len = 0;
-    encodeBER(ary[i], key[i].id, &len);
+    encodeBER(x[i], key[i].id, &len);
     key[i].len = len;
   }
+  ++freq_size;
 
-  for (size_t i1 = 0; i1 < size; ++i1) {
-    size_t pos1 = 0;
-    p = 0;
-    r = eda_.traverse(reinterpret_cast<const char *>(key[i1].id),
-                      pos1, p, key[i1].len);
-    if (r == -2) continue;
-    if (r >= 0) score += (r - kPKEBase);
-    for (size_t i2 = i1 + 1; i2 < size; ++i2) {
-      size_t pos2 = pos1;
-      p = 0;
-      r = eda_.traverse(reinterpret_cast<const char *>(key[i2].id),
-                        pos2, p, key[i2].len);
-      if (r == -2) continue;
-      if (r >= 0) score += (r - kPKEBase);
+  const size_t rare_size = size - freq_size;
+  const double bound = 10 * 0.0018 * rare_size * (rare_size + 2 * freq_size + 2);
+
+  const int kOffset = 2 * freq_feature_size_ - 3;
+  for (size_t i1 = 0; i1 < freq_size; ++i1) {
+    score += weight1_[i1];
+    const int index = x[i1] * (kOffset - x[i1]) / 2 - 1;
+    for (size_t i2 = i1 + 1; i2 < freq_size; ++i2) {
+      score += weight2_[index + x[i2]];
     }
   }
+
+  const float prev = normalize_factor_ * score;
+
+  for (size_t i1 = 0; i1 < freq_size; ++i1) {
+    const size_t node_pos = node_pos_[x[i1]];
+    if (node_pos == 0) {
+      continue;
+    }
+    for (size_t i2 = freq_size; i2 < size; ++i2) {
+      size_t node_pos2 = node_pos;
+      size_t key_pos = 0;
+      const int result = feature_da_.traverse(
+          reinterpret_cast<const char *>(key[i2].id),
+          node_pos2, key_pos, key[i2].len);
+      if (result >= 0) {
+        //        std::cout << "H Found: " << x[i1] << " " << x[i2] << std::endl;
+        score += (result - kPKEBase);
+      } else {
+        //        std::cout << "H Not Found: " << x[i1] << " " << x[i2] << std::endl;
+      }
+    }
+  }
+
+  for (size_t i1 = freq_size; i1 < size; ++i1) {
+    const size_t node_pos = node_pos_[x[i1]];
+    if (node_pos == 0) {
+      continue;
+    }
+    for (size_t i2 = i1 + 1; i2 < size; ++i2) {
+      size_t node_pos2 = node_pos;
+      size_t key_pos = 0;
+      const int result = feature_da_.traverse(
+          reinterpret_cast<const char *>(key[i2].id),
+          node_pos2, key_pos, key[i2].len);
+      if (result >= 0) {
+        //        std::cout << "L Found: " << x[i1] << " " << x[i2] << std::endl;
+        score += (result - kPKEBase);
+      } else {
+        //        std::cout << "L Not Found: " << x[i1] << " " << x[i2] << std::endl;
+      }
+    }
+  }
+
+  const float after = normalize_factor_ * score;
+  std::cout << prev << " " << after << " " << bound << " " << x[freq_size] << std::endl;
 
   return score * normalize_factor_;
 }
-
-struct RuleCompare {
-  bool operator()(const PKEMine::Rule *f1,
-                  const PKEMine::Rule *f2) {
-    const unsigned char *p1 = f1->f;
-    const unsigned char *p2 = f2->f;
-    const unsigned int l = std::min(f1->len, f2->len);
-    for (size_t i = 0; i < l; i++) {
-      if (static_cast<unsigned int>(p1[i])
-          > static_cast<unsigned int>(p2[i]))
-        return false;
-      else if (static_cast<unsigned int>(p1[i])
-               < static_cast<unsigned int>(p2[i]))
-        return true;
-    }
-    return f1->len < f2->len;
-  }
-};
 
 bool FastSVMModel::compile(const char *filename, const char *output,
                            double sigma, size_t minsup, Iconv *iconv) {
@@ -416,6 +315,14 @@ bool FastSVMModel::compile(const char *filename, const char *output,
 
   std::string param_str;
   Darts::DoubleArray dic_da;
+  Darts::DoubleArray feature_da;
+  std::vector<int> weight1, weight2;
+  std::vector<unsigned int> node_pos;
+  float normalize_factor = 0.0;
+  size_t feature_size = 0;
+  size_t freq_feature_size = 3000;
+  int bias = 0;
+
   {
     const std::map<std::string, int> &dic = model.dic();
     const std::map<std::string, std::string> &param = model.param();
@@ -446,11 +353,11 @@ bool FastSVMModel::compile(const char *filename, const char *output,
       pair_dic.push_back(std::make_pair(key, it->second));
     }
     std::sort(pair_dic.begin(), pair_dic.end());
-    std::vector<char *> str;
-    std::vector<Darts::DoubleArray::value_type> val;
+    std::vector<char *> str(pair_dic.size());
+    std::vector<Darts::DoubleArray::value_type> val(pair_dic.size());
     for (size_t i = 0; i < pair_dic.size(); ++i) {
-      str.push_back(const_cast<char *>(pair_dic[i].first.c_str()));
-      val.push_back(pair_dic[i].second);
+      str[i] = const_cast<char *>(pair_dic[i].first.c_str());
+      val[i] = pair_dic[i].second;
     }
     CHECK_DIE(0 ==
               dic_da.build(str.size(), &str[0], 0, &val[0],
@@ -458,84 +365,215 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         << "unkown error in building double-array";
   }
 
-  Darts::DoubleArray feature_da;
-  double normalize_factor = 0.0;
-  int bias = 0;
-  int degree = 0;
   {
     const char *sdegree = model.get_param("degree");
     const char *sbias = model.get_param("bias");
     CHECK_DIE(sdegree) << "degree is not defined";
     CHECK_DIE(sbias) << "bias is not defined";
-    degree = std::atoi(sdegree);
+    const int degree = std::atoi(sdegree);
     double fbias = std::atof(sbias);
 
     CHECK_DIE(2 == degree) << "degree must be 2";
     CHECK_DIE(0.0 == fbias) << "bias must be 0.0";
 
-    // PKE mine
-    PKEMine pkemine;
-    std::vector<PKEMine::Rule *> rules;
-    {
-      std::vector<std::vector<unsigned int> >  transaction;
-      std::vector<float> w;
-
-      for (size_t i = 0; i < model.size(); ++i) {
-        const float alpha = model.alpha(i);
-        w.push_back(alpha);
-        fbias -= kWeight[degree][0] * alpha;
-        transaction.resize(transaction.size() + 1);
-        const std::vector<int> &x = model.x(i);
-        for (size_t j = 0; j < x.size(); ++j) {
-          transaction.back().push_back(x[j]);
-        }
+    for (size_t i = 0; i < model.size(); ++i) {
+      const std::vector<int> &x = model.x(i);
+      for (size_t i1 = 0; i1 < x.size(); ++i1) {
+        feature_size = std::max(feature_size, static_cast<size_t>(x[i1]));
       }
-      CHECK_DIE(w.size() == transaction.size());
-      pkemine.run(transaction, w, sigma, minsup, degree, &rules);
+    }
+    CHECK_DIE(feature_size != 0);
+    ++feature_size;
+
+    freq_feature_size = std::min(freq_feature_size, feature_size);
+
+    std::vector<float> fweight1(feature_size, 0.0);
+    std::vector<float> fweight2(freq_feature_size * (freq_feature_size - 1) / 2, 0.0);
+    std::vector<std::pair<std::string, float> > feature_trie_output;
+
+    // 0th-degree feature (bias)
+    for (size_t i = 0; i < model.size(); ++i) {
+      const float alpha = model.alpha(i);
+      fbias -= alpha;
     }
 
-    // make trie from rules
+    // 1st-degree feature
+    for (size_t i = 0; i < model.size(); ++i) {
+      const std::vector<int> &x = model.x(i);
+      const float alpha = model.alpha(i);
+      for (size_t i1 = 0; i1 < x.size(); ++i1) {
+        fweight1[x[i1]] += 3 * alpha;
+      }
+    }
+
+    // 2nd-degree feature
     {
-      std::sort(rules.begin(), rules.end(), RuleCompare());
-      std::vector<size_t> len(rules.size());
-      std::vector<Darts::DoubleArray::value_type> val(rules.size());
-      std::vector<char *> str(rules.size());
-
-      for (size_t i = 0; i < rules.size(); i++) {
-        normalize_factor = std::max(static_cast<double>(std::abs(rules[i]->w)),
-                                    normalize_factor);
+      // This part can be replaced with buscket mining (prefixspan) algorithm.
+      hash_map<uint64, std::pair<unsigned char, float> > pair_weight;
+      for (size_t i = 0; i < model.size(); ++i) {
+        const std::vector<int> &x = model.x(i);
+        const float alpha = model.alpha(i);
+        for (size_t i1 = 0; i1 < x.size(); ++i1) {
+          for (size_t i2 = i1 + 1; i2 < x.size(); ++i2) {
+            const uint64 key = encodeToUint64(x[i1], x[i2]);
+            std::pair<unsigned char, float> *elm = &pair_weight[key];
+            elm->first++;
+            elm->second += 2 * alpha;
+          }
+        }
       }
 
-      normalize_factor /= kPKEBase;
-      bias = static_cast<int>(fbias / normalize_factor);
-
-      for (size_t i = 0; i < rules.size(); ++i) {
-        len[i] = rules[i]->len;
-        str[i] = reinterpret_cast<char *>(rules[i]->f);
-        val[i] = static_cast<int>(rules[i]->w / normalize_factor) + kPKEBase;
-        CHECK_DIE(val[i] >= 0);
+      size_t pos_num = 0;
+      size_t neg_num = 0;
+      for (size_t i = 0; i < model.size(); ++i) {
+        if (model.alpha(i) > 0) {
+          ++pos_num;
+        } else {
+          ++neg_num;
+        }
       }
 
-      CHECK_DIE(0 ==
-                feature_da.build(rules.size(), &str[0], &len[0], &val[0],
-                                 &progress_bar_trie))
-          << "unkown error in building double-array";
+      const float sigma_pos =  1.0 * sigma * pos_num / (pos_num + neg_num);
+      const float sigma_neg = -1.0 * sigma * neg_num / (pos_num + neg_num);
+      CHECK_DIE(sigma_pos >= 0.0);
+      CHECK_DIE(sigma_neg <= 0.0);
+      CHECK_DIE(sigma_neg <= sigma_pos);
+
+      // extract valid patterns only.
+      for (hash_map<uint64, std::pair<unsigned char, float> >::const_iterator it =
+               pair_weight.begin(); it != pair_weight.end(); ++it) {
+        const size_t freq = static_cast<size_t>(it->second.first);
+        const float w = it->second.second;
+        unsigned int i1 = 0;
+        unsigned int i2 = 0;
+        decodeFromUint64(it->first, &i1, &i2);
+        CHECK_DIE(i1 < i2);
+        CHECK_DIE(i1 < feature_size);
+        CHECK_DIE(i2 < feature_size);
+        if (i1 < freq_feature_size && i2 < freq_feature_size) {
+          const size_t index = i1 * (2 * freq_feature_size - 3 - i1) / 2 - 1 + i2;
+          CHECK_DIE(index >= 0 && index < fweight2.size());
+          fweight2[index] = w;
+        } else if (freq >= minsup && (w <= sigma_neg || w >= sigma_pos)) {
+          const std::string key = encodeFeatureID(i1, i2);
+          feature_trie_output.push_back(std::make_pair(key, w));
+        }
+      }
+    }
+
+    for (size_t i = 0; i < fweight1.size(); ++i) {
+      normalize_factor = std::max(std::abs(fweight1[i]), normalize_factor);
+    }
+
+    for (size_t i = 0; i < fweight2.size(); ++i) {
+      normalize_factor = std::max(std::abs(fweight2[i]), normalize_factor);
+    }
+
+    for (size_t i = 0; i < feature_trie_output.size(); ++i) {
+      normalize_factor = std::max(std::abs(feature_trie_output[i].second),
+                                  normalize_factor);
+    }
+
+    normalize_factor /= kPKEBase;
+    bias = static_cast<int>(fbias / normalize_factor);
+
+    weight1.resize(fweight1.size(), 0);
+    weight2.resize(fweight2.size(), 0);
+    node_pos.resize(feature_size, 0);
+
+    for (size_t i = 0; i < fweight1.size(); ++i) {
+      weight1[i] = static_cast<int>(fweight1[i] / normalize_factor);
+    }
+
+    for (size_t i = 0; i < fweight2.size(); ++i) {
+      weight2[i] = static_cast<int>(fweight2[i] / normalize_factor);
+    }
+
+    std::sort(feature_trie_output.begin(), feature_trie_output.end());
+    std::vector<size_t> len(feature_trie_output.size());
+    std::vector<Darts::DoubleArray::value_type> val(feature_trie_output.size());
+    std::vector<char *> str(feature_trie_output.size());
+
+    for (size_t i = 0; i < feature_trie_output.size(); ++i) {
+      len[i] = feature_trie_output[i].first.size();
+      str[i] = const_cast<char *>(feature_trie_output[i].first.c_str());
+      val[i] = static_cast<int>(feature_trie_output[i].second / normalize_factor) +
+          kPKEBase;
+      CHECK_DIE(val[i] >= 0);
+    }
+
+    CHECK_DIE(0 ==
+              feature_da.build(feature_trie_output.size(),
+                               &str[0], &len[0], &val[0],
+                               &progress_bar_trie))
+        << "unkown error in building double-array";
+
+    for (size_t i = 0; i < feature_size; ++i) {
+      std::string key = encodeBER(i);
+      CHECK_DIE(key.size() <= 3);
+      size_t key_pos = 0;
+      size_t n_pos = 0;
+      const int result = feature_da.traverse(key.c_str(), n_pos, key_pos, key.size());
+      CHECK_DIE(result == -1 || result == -2);
+      if (result == -1) {
+        CHECK_DIE(n_pos > 0);
+        node_pos[i] = n_pos;
+      }
+    }
+
+    CHECK_DIE(weight1.size() == feature_size);
+    CHECK_DIE(weight2.size() == (freq_feature_size * (freq_feature_size - 1) / 2));
+    CHECK_DIE(node_pos.size() == feature_size);
+
+    CHECK_DIE(weight1.size() > 0);
+    CHECK_DIE(weight2.size() > 0);
+    CHECK_DIE(node_pos.size() > 0);
+  }
+
+  {
+    // bound
+    std::vector<float> upper(feature_size, 0);
+    std::vector<float> lower(feature_size, 0);
+    std::vector<int>   freq(feature_size, 0);
+    for (size_t i = 0; i < model.size(); ++i) {
+      const std::vector<int> &x = model.x(i);
+      const float alpha = model.alpha(i);
+      for (size_t j = 0; j < x.size(); ++j) {
+        if (alpha > 0) {
+          upper[x[j]] = std::max(upper[x[j]], alpha);
+        } else {
+          lower[x[j]] = std::min(lower[x[j]], alpha);
+        }
+        freq[x[j]]++;
+      }
+    }
+
+    for (size_t i = 0; i < upper.size(); ++i) {
+      std::cout << i << " " << freq[i] << " " << lower[i] << " " << upper[i] << std::endl;
     }
   }
 
   {
     const unsigned int version = MODEL_VERSION;
-    const unsigned int psize = param_str.size();
-    const unsigned int dsize = dic_da.unit_size() * dic_da.size();
-    const unsigned int fsize = feature_da.unit_size() * feature_da.size();
+    const unsigned int param_size = param_str.size();
+    const unsigned int feature_size2 = feature_size;
+    const unsigned int freq_feature_size2 = freq_feature_size;
+    const unsigned int dic_da_size = dic_da.unit_size() * dic_da.size();
+    const unsigned int feature_da_size = feature_da.unit_size() * feature_da.size();
 
-    unsigned int magic =
-        sizeof(version) * 5 +    // (magic,version,psize,dsize,fsize)
+    unsigned int file_size =
+        sizeof(version) * 7 +
+        // (magic,version,param_size,feature_size2,freq_feature_size2,
+        // dic_da_size,feature_da_size)
         sizeof(normalize_factor) +  // (normalize_factor)
         sizeof(bias) +
-        param_str.size() + dsize + fsize;
+        param_str.size() +
+        dic_da_size + feature_da_size +
+        node_pos.size() * sizeof(node_pos[0]) +
+        weight1.size() * sizeof(weight1[0]) +
+        weight2.size() * sizeof(weight2[0]);
 
-    magic ^= kDictionaryMagicID;
+    unsigned int magic = file_size ^ kDictionaryMagicID;
 
     std::ofstream bofs(WPATH(output), std::ios::binary|std::ios::out);
     CHECK_DIE(bofs) << "permission denied: " << output;
@@ -544,28 +582,41 @@ bool FastSVMModel::compile(const char *filename, const char *output,
                sizeof(magic));
     bofs.write(reinterpret_cast<const char *>(&version),
                sizeof(version));
-    bofs.write(reinterpret_cast<const char *>(&psize),
-               sizeof(psize));
+    bofs.write(reinterpret_cast<const char *>(&param_size),
+               sizeof(param_size));
     bofs.write(param_str.data(), param_str.size());
     bofs.write(reinterpret_cast<const char *>(&normalize_factor),
                sizeof(normalize_factor));
     bofs.write(reinterpret_cast<const char *>(&bias),
                sizeof(bias));
-    bofs.write(reinterpret_cast<const char *>(&dsize),
-               sizeof(dsize));
-    bofs.write(reinterpret_cast<const char *>(&fsize),
-               sizeof(fsize));
-    bofs.write(reinterpret_cast<const char*>(dic_da.array()), dsize);
-    bofs.write(reinterpret_cast<const char*>(feature_da.array()), fsize);
+    bofs.write(reinterpret_cast<const char *>(&feature_size2),
+               sizeof(feature_size2));
+    bofs.write(reinterpret_cast<const char *>(&freq_feature_size2),
+               sizeof(freq_feature_size2));
+    bofs.write(reinterpret_cast<const char *>(&dic_da_size),
+               sizeof(dic_da_size));
+    bofs.write(reinterpret_cast<const char *>(&feature_da_size),
+               sizeof(feature_da_size));
+    bofs.write(reinterpret_cast<const char *>(dic_da.array()), dic_da_size);
+    bofs.write(reinterpret_cast<const char *>(feature_da.array()), feature_da_size);
+    bofs.write(reinterpret_cast<const char *>(&node_pos[0]),
+               node_pos.size() * sizeof(node_pos[0]));
+    bofs.write(reinterpret_cast<const char *>(&weight1[0]),
+               weight1.size() * sizeof(weight1[0]));
+    bofs.write(reinterpret_cast<const char *>(&weight2[0]),
+               weight2.size() * sizeof(weight2[0]));
+
+    CHECK_DIE(file_size  == static_cast<size_t>(bofs.tellp()));
 
     std::cout << std::endl;
-    std::cout << "double array size : " << dsize << std::endl;
-    std::cout << "trie         size : " << fsize << std::endl;
-    std::cout << "degree            : " << degree << std::endl;
+    std::cout << "double array size : " << dic_da_size << std::endl;
+    std::cout << "trie         size : " << feature_da_size << std::endl;
+    std::cout << "feature size      : " << feature_size << std::endl;
+    std::cout << "freq feature size : " << freq_feature_size << std::endl;
     std::cout << "minsup            : " << minsup << std::endl;
     std::cout << "bias              : " << bias << std::endl;
+    std::cout << "sigma             : " << sigma << std::endl;
     std::cout << "normalize factor  : " << normalize_factor << std::endl;
-    std::cout << "feature size      : " << model.dic().size() << std::endl;
     std::cout << "Done!\n";
   }
 
@@ -592,10 +643,14 @@ double SVMModel::classify(const std::vector<int> &x) const {
 }
 
 bool SVMModel::compress() {
-  std::set<int> active_feature;
+  return compress(0);
+}
+
+bool SVMModel::compress(size_t freq) {
+  std::map<int, size_t> active_feature;
   for (size_t i = 0; i < size(); ++i) {
     for (size_t j = 0; j < x_[i].size(); ++j) {
-      active_feature.insert(x_[i][j]);
+      active_feature[x_[i][j]]++;
     }
   }
 
@@ -609,7 +664,8 @@ bool SVMModel::compress() {
   std::map<int, int> old2new;
   std::map<std::string, int> new_dic;
   for (size_t i = 0; i < dic_vec.size(); ++i) {
-    if (active_feature.find(i) != active_feature.end()) {
+    std::map<int, size_t>::const_iterator it = active_feature.find(i);
+    if (it != active_feature.end() && it->second >= freq) {
       old2new[i] = id;
       new_dic[dic_vec[i]] = id;
       ++id;
@@ -623,6 +679,7 @@ bool SVMModel::compress() {
       new_x.push_back(old2new[x_[i][j]]);
     }
     std::sort(new_x.begin(), new_x.end());
+    CHECK_DIE(!new_x.empty()) << "|freq| seems to be too small.";
     x_[i] = new_x;
   }
 
@@ -823,17 +880,17 @@ int main(int argc, char **argv) {
   CHECK_DIE(ifs.getline(buf.get(), buf.size()));
   CHECK_DIE(ifs.getline(buf.get(), buf.size()));
 
-  std::vector<int> ary;
+  std::vector<int> x;
   while (ifs.getline(buf.get(), buf.size())) {
     const size_t size = tokenize(buf.get(), " ", column, buf.size());
     if (size < 2) {
       continue;
     }
-    ary.clear();
+    x.clear();
     for (size_t i = 1; i < size; ++i) {
-      ary.push_back(std::atoi(column[i]));
+      x.push_back(std::atoi(column[i]));
     }
-    svm.classify(ary);
+    svm.classify(x);
   }
 }
 #endif
