@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "common.h"
 #include "darts.h"
 #include "freelist.h"
 #include "mmap.h"
@@ -33,6 +34,7 @@ class SVMModelInterface {
   virtual bool open(const char *filename) = 0;
   virtual bool save(const char *filename) const = 0;
   virtual bool compress() = 0;
+  virtual bool compress(size_t freq) = 0;
   virtual bool sortFeatures() = 0;
   virtual bool sortInstances() = 0;
   virtual void close() = 0;
@@ -69,6 +71,7 @@ class SVMModel : public SVMModelInterface {
 
   virtual bool save(const char *filename) const;
   virtual bool compress();
+  virtual bool compress(size_t freq);
   virtual bool sortFeatures();
   virtual bool sortInstances();
 
@@ -100,6 +103,7 @@ class FastSVMModel : public SVMModelInterface {
   }
   virtual bool save(const char *filename) const { return false; }
   virtual bool compress() { return false; }
+  virtual bool compress(size_t freq) { return false; }
   virtual bool sortFeatures() { return false; }
   virtual bool sortInstances() { return false; }
 
@@ -110,12 +114,20 @@ class FastSVMModel : public SVMModelInterface {
                       Iconv *iconv);
 
  private:
+  Mmap<char> mmap_;
   unsigned int degree_;
   int bias_;
-  double normalize_factor_;
-  Mmap<char> mmap_;
-  Darts::DoubleArray da_;   // str -> id double array
-  Darts::DoubleArray eda_;   // trie -> cost double array
+  float normalize_factor_;
+  unsigned int feature_size_;
+  unsigned int freq_feature_size_;
+  unsigned int *node_pos_;
+  int *weight1_;
+  int *weight2_;
+  Darts::DoubleArray dic_da_;   // str -> id double array
+  Darts::DoubleArray feature_da_;   // trie -> cost double array
+
+  std::vector<std::string> keys_;
+  std::vector<size_t> keys_len_;
 };
 }
 #endif
