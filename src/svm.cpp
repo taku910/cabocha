@@ -188,7 +188,8 @@ bool FastSVMModel::open(const char *filename) {
   ptr += sizeof(weight1_[0]) * feature_size_;
 
   weight2_ = reinterpret_cast<int *>(const_cast<char *>(ptr));
-  ptr += sizeof(weight2_[0]) * (freq_feature_size_ * (freq_feature_size_ - 1)) / 2;
+  ptr += sizeof(weight2_[0]) *
+      (freq_feature_size_ * (freq_feature_size_ - 1)) / 2;
 
   const char *sdegree = get_param("degree");
   CHECK_FALSE(sdegree) << "degree is not defined";
@@ -273,7 +274,9 @@ double FastSVMModel::classify(const std::vector<int> &x) const {
 }
 
 bool FastSVMModel::compile(const char *filename, const char *output,
-                           double sigma, size_t minsup, Iconv *iconv) {
+                           double sigma, size_t minsup,
+                           size_t freq_feature_size,
+                           Iconv *iconv) {
   progress_timer timer;
 
   SVMModel model;
@@ -290,7 +293,7 @@ bool FastSVMModel::compile(const char *filename, const char *output,
   std::vector<unsigned int> node_pos;
   float normalize_factor = 0.0;
   size_t feature_size = 0;
-  size_t freq_feature_size = 3000;
+  //  size_t freq_feature_size = 3000;
   int bias = 0;
 
   {
@@ -358,7 +361,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
     freq_feature_size = std::min(freq_feature_size, feature_size);
 
     std::vector<float> fweight1(feature_size, 0.0);
-    std::vector<float> fweight2(freq_feature_size * (freq_feature_size - 1) / 2, 0.0);
+    std::vector<float> fweight2(freq_feature_size *
+                                (freq_feature_size - 1) / 2, 0.0);
     std::vector<std::pair<std::string, float> > feature_trie_output;
 
     // 0th-degree feature (bias)
@@ -411,8 +415,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
       CHECK_DIE(sigma_neg <= sigma_pos);
 
       // extract valid patterns only.
-      for (hash_map<uint64, std::pair<unsigned char, float> >::const_iterator it =
-               pair_weight.begin(); it != pair_weight.end(); ++it) {
+      for (hash_map<uint64, std::pair<unsigned char, float> >::const_iterator
+               it = pair_weight.begin(); it != pair_weight.end(); ++it) {
         const size_t freq = static_cast<size_t>(it->second.first);
         const float w = it->second.second;
         unsigned int i1 = 0;
@@ -422,7 +426,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         CHECK_DIE(i1 < feature_size);
         CHECK_DIE(i2 < feature_size);
         if (i1 < freq_feature_size && i2 < freq_feature_size) {
-          const size_t index = i1 * (2 * freq_feature_size - 3 - i1) / 2 - 1 + i2;
+          const size_t index =
+              i1 * (2 * freq_feature_size - 3 - i1) / 2 - 1 + i2;
           CHECK_DIE(index >= 0 && index < fweight2.size());
           fweight2[index] = w;
         } else if (freq >= minsup && (w <= sigma_neg || w >= sigma_pos)) {
@@ -468,7 +473,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
     for (size_t i = 0; i < feature_trie_output.size(); ++i) {
       len[i] = feature_trie_output[i].first.size();
       str[i] = const_cast<char *>(feature_trie_output[i].first.c_str());
-      val[i] = static_cast<int>(feature_trie_output[i].second / normalize_factor) +
+      val[i] = static_cast<int>(
+          feature_trie_output[i].second / normalize_factor) +
           kPKEBase;
       CHECK_DIE(val[i] >= 0);
     }
@@ -484,7 +490,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
       CHECK_DIE(key.size() <= 3);
       size_t key_pos = 0;
       size_t n_pos = 0;
-      const int result = feature_da.traverse(key.c_str(), n_pos, key_pos, key.size());
+      const int result = feature_da.traverse(key.c_str(),
+                                             n_pos, key_pos, key.size());
       CHECK_DIE(result == -1 || result == -2);
       if (result == -1) {
         CHECK_DIE(n_pos > 0);
@@ -493,7 +500,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
     }
 
     CHECK_DIE(weight1.size() == feature_size);
-    CHECK_DIE(weight2.size() == (freq_feature_size * (freq_feature_size - 1) / 2));
+    CHECK_DIE(weight2.size() ==
+              (freq_feature_size * (freq_feature_size - 1) / 2));
     CHECK_DIE(node_pos.size() == feature_size);
 
     CHECK_DIE(weight1.size() > 0);
@@ -507,7 +515,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
     const unsigned int feature_size2 = feature_size;
     const unsigned int freq_feature_size2 = freq_feature_size;
     const unsigned int dic_da_size = dic_da.unit_size() * dic_da.size();
-    const unsigned int feature_da_size = feature_da.unit_size() * feature_da.size();
+    const unsigned int feature_da_size =
+        feature_da.unit_size() * feature_da.size();
 
     unsigned int file_size =
         sizeof(version) * 7 +
@@ -546,7 +555,8 @@ bool FastSVMModel::compile(const char *filename, const char *output,
     bofs.write(reinterpret_cast<const char *>(&feature_da_size),
                sizeof(feature_da_size));
     bofs.write(reinterpret_cast<const char *>(dic_da.array()), dic_da_size);
-    bofs.write(reinterpret_cast<const char *>(feature_da.array()), feature_da_size);
+    bofs.write(reinterpret_cast<const char *>(feature_da.array()),
+               feature_da_size);
     bofs.write(reinterpret_cast<const char *>(&node_pos[0]),
                node_pos.size() * sizeof(node_pos[0]));
     bofs.write(reinterpret_cast<const char *>(&weight1[0]),
@@ -800,7 +810,8 @@ bool SVMModel::open(const char *filename) {
       for (int i = 1; i < real_weight_feature_size; ++i) {
         real_x.push_back(std::atof(column[i]));
       }
-      for (int i = real_weight_feature_size + 1; i < static_cast<int>(size); ++i) {
+      for (int i = real_weight_feature_size + 1;
+           i < static_cast<int>(size); ++i) {
         x.push_back(std::atoi(column[i]));
       }
     }
@@ -846,7 +857,8 @@ void SVMModel::add(double alpha, const std::vector<int> &x,
   x_.push_back(x);
   // When using this method, keep to use this method.
   if (real_x_.size() > 0) {
-    CHECK_DIE(real_x_.back().size() == real_x.size()) << real_x_.back().size() << " " << real_x.size();
+    CHECK_DIE(real_x_.back().size() == real_x.size())
+        << real_x_.back().size() << " " << real_x.size();
   }
   real_x_.push_back(real_x);
 };

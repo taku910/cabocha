@@ -171,7 +171,8 @@ bool solveParameters(const std::vector<double> &y,
 
     for (size_t s = 0; s < active_size; ++s) {
       const size_t i = index[s];
-      const double margin = classify(x[i], w, dic) + classify(real_x[i], real_w);
+      const double margin =
+          classify(x[i], w, dic) + classify(real_x[i], real_w);
       GA[i] = margin * y[i] - 1;
       const double G = GA[i];
       double PG = 0.0;

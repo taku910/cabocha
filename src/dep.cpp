@@ -58,7 +58,8 @@ DependencyParserData::DependencyParserData() : hypothesis_(0) {}
 DependencyParserData::~DependencyParserData() {}
 
 DependencyParser::DependencyParser()
-    : svm_(0), parsing_algorithm_(SHIFT_REDUCE) {}
+    : svm_(0), parsing_algorithm_(SHIFT_REDUCE),
+      feature_extractor_name_(0) {}
 
 DependencyParser::~DependencyParser() {}
 
@@ -97,6 +98,8 @@ bool DependencyParser::open(const Param &param) {
     CHECK_FALSE(decode_posset(p) == posset())
         << "model posset and dependency parser's posset are different: "
         << p << " != " << encode_posset(posset());
+
+    feature_extractor_name_ = svm_->get_param("feature_extractor");
   }
 
   if (action_mode() == TRAINING_MODE) {
@@ -527,8 +530,8 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     default: ADD_FEATURE("GBB:1"); break;  // both
   }
 
-  FeatureEvent event;
   if (feature_extractor()) {
+    FeatureEvent event;
     feature_extractor()->extractDepFeatures(*tree, src, dst, &event);
     const std::vector<std::string> &general_feature =
         event.mutable_feature_event_manager()->general_feature;
@@ -547,7 +550,6 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     CHECK_DIE(!fp->empty());
     const bool isdep = (tree->chunk(src)->link == dst);
     svm_->add(isdep ? +1 : -1, *fp);
-    // svm_->add(isdep ? +1 : -1, *fp, event.mutable_feature_event_manager()->real_feature);
     return isdep;
   }
 
@@ -687,6 +689,23 @@ bool DependencyParser::parse(Tree *tree) const {
     tree->allocator()->dependency_parser_data
         = new DependencyParserData;
     CHECK_DIE(tree->allocator()->dependency_parser_data);
+  }
+
+  // Chck feature extractor
+  if (action_mode() == PARSING_MODE) {
+    CHECK_TREE_FALSE((feature_extractor_name_ && feature_extractor()) ||
+                     (!feature_extractor_name_ && !feature_extractor()));
+    if (feature_extractor()) {
+      CHECK_TREE_FALSE(feature_extractor()->name()) <<
+          "FeatureExtractorInterface::name() is not implemnted";
+      CHECK_TREE_FALSE(feature_extractor_name_)
+          "Current model has no feature_extractor_name field";
+      CHECK_TREE_FALSE(std::strcmp(feature_extractor_name_,
+                                   feature_extractor()->name()) == 0)
+          << "Using different feature_extractor: "
+          << feature_extractor_name_ << " vs "
+          << feature_extractor()->name();
+    }
   }
 
   tree->set_output_layer(OUTPUT_DEP);

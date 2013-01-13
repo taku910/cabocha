@@ -40,7 +40,8 @@ class SVMModelInterface {
   virtual void close() = 0;
   virtual int id(const std::string &key) const = 0;
   virtual double classify(const std::vector<int> &x) const = 0;
-  virtual double real_classify(const std::vector<float> &real_features) const = 0;
+  virtual double real_classify(
+      const std::vector<float> &real_features) const = 0;
   virtual double classify(const std::vector<int> &x,
                           const std::vector<float> &real_features) const {
     return classify(x) + real_classify(real_features);
@@ -126,6 +127,7 @@ class FastSVMModel : public SVMModelInterface {
                       const char *output,
                       double sigma,
                       size_t minsup,
+                      size_t freq_feature_size,
                       Iconv *iconv);
 
  private:

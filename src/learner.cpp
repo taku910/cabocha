@@ -79,6 +79,8 @@ int cabocha_model_index(int argc, char **argv) {
     { "model-charset",  'f',  CABOCHA_DEFAULT_CHARSET,
       "ENC", "assume charset of input text-model as ENC (default "
       CABOCHA_DEFAULT_CHARSET ")" },
+    {"freq-feature-size", 'F', "3000", "INT",
+     "size of frequent features (default 3000)" },
     {"version",  'v', 0,        0,       "show the version and exit" },
     {"help",     'h', 0,        0,       "show this help and exit" },
     {0, 0, 0, 0, 0}
@@ -101,6 +103,7 @@ int cabocha_model_index(int argc, char **argv) {
   const std::string to =   param.get<std::string>("charset");
   const std::string input = rest[0];
   const ParserType type = guess_text_model_type(input.c_str());
+  const size_t freq_feature_size = param.get<std::size_t>("freq-feature-size");
 
   Iconv iconv;
   CHECK_DIE(iconv.open(from.c_str(), to.c_str()))
@@ -113,6 +116,7 @@ int cabocha_model_index(int argc, char **argv) {
                                              rest[1].c_str(),
                                              sigma,
                                              minsup,
+                                             freq_feature_size,
                                              &iconv));
   } else if (type == TRAIN_NE) {
     std::string tmp_input = convert_character_encoding(input.c_str(),
@@ -145,6 +149,8 @@ int cabocha_learn(int argc, char **argv) {
      "set minimum feature weight for PKE approximation (default 0.001)" },
     {"minsup",   'n', "2",  "INT",
      "set minimum frequency support for PKE approximation (default 2)" },
+    {"freq-feature-size", 'F', "3000", "INT",
+     "size of frequent features (default 3000)" },
     {"old-model", 'M', 0, "FILE",
      "set FILE as old SVM model file" },
     {"parsing-algorithm", 'a', "0", "INT",
@@ -177,6 +183,7 @@ int cabocha_learn(int argc, char **argv) {
   const std::string old_model_file = param.get<std::string>("old-model");
   const ParserType type = parser_type(stype.c_str());
   CHECK_DIE(type != -1) <<  "unknown parser type: " << stype;
+  const size_t freq_feature_size = param.get<std::size_t>("freq-feature-size");
 
   const PossetType posset =
       decode_posset(param.get<std::string>("posset").c_str());
@@ -204,7 +211,8 @@ int cabocha_learn(int argc, char **argv) {
     CHECK_DIE(CaboCha::FastSVMModel::compile(text_model_file.c_str(),
                                              rest[1].c_str(),
                                              sigma,
-                                             minsup, &iconv));
+                                             minsup,
+                                             freq_feature_size, &iconv));
   } else if (type == TRAIN_CHUNK || type == TRAIN_NE) {
     CHECK_DIE(old_model_file.empty())
         << "old-model is not supported in CHUNK|NE mode";

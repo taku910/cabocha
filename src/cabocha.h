@@ -335,7 +335,7 @@ class FeatureEvent {
 
 class FeatureExtractorInterface {
  public:
-  virtual void char *name() const { return 0; }
+  virtual const char *name() const { return 0; }
   virtual void extractChunkFeatures(const Tree &tree, size_t chunk_index,
                                     FeatureEvent *event) const {}
   virtual void extractDepFeatures(const Tree &tree,

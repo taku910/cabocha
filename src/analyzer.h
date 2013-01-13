@@ -41,7 +41,8 @@ class Analyzer {
   PossetType posset() const { return posset_; }
   void set_posset(PossetType posset) { posset_ = posset; }
 
-  void setFeatureExtractor(const FeatureExtractorInterface *feature_extractor) {
+  void setFeatureExtractor(
+      const FeatureExtractorInterface *feature_extractor) {
     feature_extractor_ = feature_extractor;
   }
 
