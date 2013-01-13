@@ -14,25 +14,6 @@
 #include "ucs.h"
 #include "svm.h"
 
-namespace CaboCha {
-bool ChunkingTrainingWithCRFPP(ParserType type,
-                               CharsetType charset,
-                               PossetType posset,
-                               int freq,
-                               const char *train_file,
-                               const char *model_file,
-                               const char *prev_model_file,
-                               const char *crfpp_param);
-
-bool DependencyTrainingWithSVM(const char *train_file,
-                               const char *model_file,
-                               const char *prev_model_file,
-                               CharsetType charset,
-                               PossetType posset,
-                               int parsing_algorithm,
-                               double cost);
-}
-
 namespace {
 using namespace CaboCha;
 
@@ -91,7 +72,7 @@ int cabocha_model_index(int argc, char **argv) {
     {"sigma",    's', "0.0001",  "FLOAT",
      "set minimum feature weight for PKE approximation (default 0.0001)" },
     {"minsup",   'n', "2",  "INT",
-     "set minimum frequency support for PKE approximation (default 2)" },
+     "set minimum frequency support for PKE approximation (default 1)" },
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
       "make charset of binary dictionary ENC (default "
       CABOCHA_DEFAULT_CHARSET ")" },
@@ -156,8 +137,6 @@ int cabocha_learn(int argc, char **argv) {
   static const CaboCha::Option long_options[] = {
     {"parser-type", 'e', "dep",   "STRING",
      "choose from ne/chunk/dep (default dep)" },
-    {"crfpp-param", 'p', "-f 2",  "STRING",
-     "parameter for CRF++ (default -f 2)" },
     {"freq",     'f', "1",      "INT",
      "use features that occuer no less than INT (default 1)" },
     {"cost",     'c', "0.0015",    "FLOAT",
@@ -204,20 +183,22 @@ int cabocha_learn(int argc, char **argv) {
   const CharsetType charset =
       decode_charset(param.get<std::string>("charset").c_str());
 
+  const double cost   = param.get<double>("cost");
+  const int    freq   = param.get<int>("freq");
+  const float  sigma  = param.get<float>("sigma");
+  const size_t minsup = param.get<size_t>("minsup");
+
   if (type == TRAIN_DEP) {
-    const float cost       = param.get<float>("cost");
-    const int   parsing_algorithm = param.get<int>("parsing-algorithm");
+    const int    parsing_algorithm = param.get<int>("parsing-algorithm");
     const std::string text_model_file = rest[1] + ".txt";
-    CHECK_DIE(CaboCha::DependencyTrainingWithSVM(
+    CHECK_DIE(CaboCha::runDependencyTraining(
                   rest[0].c_str(),
                   text_model_file.c_str(),
                   old_model_file.empty() ? 0 : old_model_file.c_str(),
                   charset,
                   posset,
                   parsing_algorithm,
-                  cost));
-    const float  sigma  = param.get<float>("sigma");
-    const size_t minsup = param.get<size_t>("minsup");
+                  cost, freq, 0));
     CaboCha::Iconv iconv;
     iconv.open(charset, charset);
     CHECK_DIE(CaboCha::FastSVMModel::compile(text_model_file.c_str(),
@@ -225,19 +206,25 @@ int cabocha_learn(int argc, char **argv) {
                                              sigma,
                                              minsup, &iconv));
   } else if (type == TRAIN_CHUNK || type == TRAIN_NE) {
-    const std::string crfpp_param = param.get<std::string>("crfpp-param");
-    const int freq = param.get<int>("freq");
     CHECK_DIE(old_model_file.empty())
         << "old-model is not supported in CHUNK|NE mode";
-    CHECK_DIE(CaboCha::ChunkingTrainingWithCRFPP(
-                  type,
-                  charset,
-                  posset,
-                  freq,
-                  rest[0].c_str(),
-                  rest[1].c_str(),
-                  old_model_file.empty() ? 0 : old_model_file.c_str(),
-                  crfpp_param.c_str()));
+    if (type == TRAIN_CHUNK) {
+      CHECK_DIE(CaboCha::runChunkingTraining(
+                    rest[0].c_str(),
+                    rest[1].c_str(),
+                    old_model_file.empty() ? 0 : old_model_file.c_str(),
+                    charset,
+                    posset,
+                    cost, freq, 0));
+    } else if (type == TRAIN_NE) {
+      CHECK_DIE(CaboCha::runNETraining(
+                    rest[0].c_str(),
+                    rest[1].c_str(),
+                    old_model_file.empty() ? 0 : old_model_file.c_str(),
+                    charset,
+                    posset,
+                    cost, freq, 0));
+    }
   }
 
   return 0;

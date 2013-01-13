@@ -527,6 +527,16 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     default: ADD_FEATURE("GBB:1"); break;  // both
   }
 
+  FeatureEvent event;
+  if (feature_extractor()) {
+    feature_extractor()->extractDepFeatures(*tree, src, dst, &event);
+    const std::vector<std::string> &general_feature =
+        event.mutable_feature_event_manager()->general_feature;
+    for (size_t i = 0; i < general_feature.size(); ++i) {
+      ADD_FEATURE(general_feature[i]);
+    }
+  }
+
   std::sort(fp->begin(), fp->end());
   fp->erase(std::unique(fp->begin(), fp->end()), fp->end());
 
@@ -537,6 +547,7 @@ bool DependencyParser::estimate(const Tree *tree, int src, int dst,
     CHECK_DIE(!fp->empty());
     const bool isdep = (tree->chunk(src)->link == dst);
     svm_->add(isdep ? +1 : -1, *fp);
+    // svm_->add(isdep ? +1 : -1, *fp, event.mutable_feature_event_manager()->real_feature);
     return isdep;
   }
 

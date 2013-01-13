@@ -315,6 +315,39 @@ class CABOCHA_DLL_CLASS_EXTERN Tree {
   OutputLayerType             output_layer_;
 };
 
+#ifndef SIWG
+class FeatureEventManager;
+
+class FeatureEvent {
+ public:
+  void addRealEvent(size_t index, float value);
+  void addGeneralEvent(const char *feature);
+  FeatureEventManager *mutable_feature_event_manager() {
+    return feature_event_manager_;
+  }
+
+  FeatureEvent();
+  virtual ~FeatureEvent();
+
+ private:
+  FeatureEventManager *feature_event_manager_;
+};
+
+class FeatureExtractorInterface {
+ public:
+  virtual void char *name() const { return 0; }
+  virtual void extractChunkFeatures(const Tree &tree, size_t chunk_index,
+                                    FeatureEvent *event) const {}
+  virtual void extractDepFeatures(const Tree &tree,
+                                  size_t src_index, size_t dst_index,
+                                  FeatureEvent *event) const {}
+  virtual void extractDepFeatures(const Tree &tree,
+                                  size_t src_index,
+                                  size_t dst_index1, size_t dst_index2,
+                                  FeatureEvent *event) const {}
+};
+#endif
+
 class CABOCHA_DLL_CLASS_EXTERN Parser {
  public:
   virtual const Tree *parse(const char *input)                          = 0;
@@ -322,6 +355,7 @@ class CABOCHA_DLL_CLASS_EXTERN Parser {
   virtual const Tree *parse(Tree *tree) const                           = 0;
 
 #ifndef SWIG
+  virtual void setFeatureExtractor(const FeatureExtractorInterface *feature_extractor) = 0;
   virtual const Tree *parse(const char *input, size_t length)           = 0;
   virtual const char *parseToString(const char *input, size_t length)   = 0;
   virtual const char *parseToString(const char *input, size_t length,
@@ -343,6 +377,38 @@ CABOCHA_DLL_EXTERN Parser *createParser(int argc, char **argv);
 CABOCHA_DLL_EXTERN Parser *createParser(const char *arg);
 CABOCHA_DLL_EXTERN const char *getParserError();
 CABOCHA_DLL_EXTERN const char *getLastError();
+
+// API for training
+CABOCHA_DLL_EXTERN bool runDependencyTraining(
+    const char *train_file,
+    const char *model_file,
+    const char *prev_model_file,
+    CharsetType charset,
+    PossetType posset,
+    int parsing_algorithm,
+    double cost,
+    int freq,
+    FeatureExtractorInterface *feature_extractor);
+
+CABOCHA_DLL_EXTERN bool runChunkingTraining(
+    const char *train_file,
+    const char *model_file,
+    const char *prev_model_file,
+    CharsetType charset,
+    PossetType posset,
+    double cost,
+    int freq,
+    FeatureExtractorInterface *feature_extractor);
+
+CABOCHA_DLL_EXTERN bool runNETraining(
+    const char *train_file,
+    const char *model_file,
+    const char *prev_model_file,
+    CharsetType charset,
+    PossetType posset,
+    double cost,
+    int freq,
+    FeatureExtractorInterface *feature_extractor);
 }
 #endif
 #endif

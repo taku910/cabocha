@@ -25,16 +25,19 @@
 
 namespace CaboCha {
 
-bool DependencyTrainingWithSVM(const char *train_file,
-                               const char *model_file,
-                               const char *prev_model_file,
-                               CharsetType charset,
-                               PossetType posset,
-                               int parsing_algorithm,
-                               double cost) {
+bool runDependencyTraining(const char *train_file,
+                           const char *model_file,
+                           const char *prev_model_file,
+                           CharsetType charset,
+                           PossetType posset,
+                           int parsing_algorithm,
+                           double cost,
+                           int freq,
+                           FeatureExtractorInterface *feature_extractor) {
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
   CHECK_DIE(parsing_algorithm == CABOCHA_TOURNAMENT ||
             parsing_algorithm == CABOCHA_SHIFT_REDUCE);
+  CHECK_DIE(freq == 1) << "freq > 1 is not supported";
   DependencyParser *dependency_parser = new DependencyParser;
   dependency_parser->set_parsing_algorithm(parsing_algorithm);
 
@@ -58,6 +61,7 @@ bool DependencyTrainingWithSVM(const char *train_file,
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
     analyzer->open(param);
+    analyzer->setFeatureExtractor(feature_extractor);
 
     selector->set_charset(charset);
     selector->set_posset(posset);

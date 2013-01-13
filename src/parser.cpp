@@ -140,14 +140,18 @@ class ParserImpl: public Parser {
   const char *parseToString(const char*, size_t);
   const char *parseToString(const char*, size_t,
                             char*, size_t);
+  void        setFeatureExtractor(const FeatureExtractorInterface *feature_extractor) {
+    feature_extractor_ = feature_extractor;
+  }
   const char *what() { return what_.str(); }
   const char *version();
 
-  ParserImpl(): tree_(0),
-                output_format_(FORMAT_TREE),
-                input_layer_(INPUT_RAW_SENTENCE),
-                output_layer_(OUTPUT_DEP),
-                charset_(EUC_JP), posset_(IPA) {}
+  ParserImpl() : tree_(0),
+                 output_format_(FORMAT_TREE),
+                 input_layer_(INPUT_RAW_SENTENCE),
+                 output_layer_(OUTPUT_DEP),
+                 charset_(EUC_JP), posset_(IPA),
+                 feature_extractor_(0) {}
   virtual ~ParserImpl() { this->close(); }
 
  private:
@@ -158,6 +162,7 @@ class ParserImpl: public Parser {
   OutputLayerType         output_layer_;
   CharsetType             charset_;
   PossetType              posset_;
+  const FeatureExtractorInterface *feature_extractor_;
   whatlog                 what_;
 };
 
@@ -191,6 +196,7 @@ bool ParserImpl::open(const char *arg) {
     CHECK_FALSE(analyzer) << "allocation failed";       \
     analyzer->set_charset(charset_);                    \
     analyzer->set_posset(posset_);                      \
+    analyzer->setFeatureExtractor(feature_extractor_);  \
     if (!analyzer->open(*param)) {                      \
       WHAT << analyzer->what();                         \
       delete analyzer;                                  \
@@ -425,6 +431,25 @@ const char *ParserImpl::parseToString(const char* str, size_t len) {
 
 const char *ParserImpl::parseToString(const char* str) {
   return parseToString(str, std::strlen(str));
+}
+
+FeatureEvent::FeatureEvent() :
+    feature_event_manager_(new FeatureEventManager) {}
+
+FeatureEvent::~FeatureEvent() {
+  delete feature_event_manager_;
+  feature_event_manager_ = 0;
+}
+
+void FeatureEvent::addRealEvent(size_t index, float value) {
+  if (index + 1 >= feature_event_manager_->real_feature.size()) {
+    feature_event_manager_->real_feature.resize(index + 1);
+  }
+  feature_event_manager_->real_feature[index] = value;
+}
+
+void FeatureEvent::addGeneralEvent(const char *feature) {
+  feature_event_manager_->general_feature.push_back(feature);
 }
 
 Parser *Parser::create(int argc, char **argv) {
