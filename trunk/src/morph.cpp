@@ -174,13 +174,12 @@ bool MorphAnalyzer::open(const Param &param) {
 
   const mecab_dictionary_info_t *dinfo =
       mecab_dictionary_info_f(mecab_);
-  if (dinfo) {
-    CHECK_FALSE(charset() ==
-                decode_charset(dinfo->charset))
-        << "Incompatible charset: MeCab charset is "
-        << dinfo->charset
-        << ", Your charset is " << encode_charset(charset());
-  }
+  CHECK_FALSE(dinfo) << "dictionary info is not available";
+  CHECK_FALSE(charset() ==
+              decode_charset(dinfo->charset))
+      << "Incompatible charset: MeCab charset is "
+      << dinfo->charset
+      << ", Your charset is " << encode_charset(charset());
 
   return true;
 }

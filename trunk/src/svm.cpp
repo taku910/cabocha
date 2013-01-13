@@ -197,12 +197,6 @@ bool FastSVMModel::open(const char *filename) {
   CHECK_FALSE(ptr == mmap_.end())
       << "dictionary file is broken: " << filename;
 
-  keys_.resize(feature_size_);
-  keys_len_.resize(feature_size_, 0);
-  //  for (size_t i = 0; i < feature_size_; ++i) {
-  //    const std::string key = encodeBER(i);
-  //  }
-
   return true;
 }
 
@@ -210,25 +204,14 @@ int FastSVMModel::id(const std::string &key) const {
   return dic_da_.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
 }
 
-double SVMModelInterface::classify(
-    const std::vector<std::string> &features) const {
-  std::vector<int> dot_buf;
-  dot_buf.reserve(features.size());
-  for (size_t i = 0; i < features.size(); ++i) {
-    const int r = id(features[i]);
-    if (r != -1) {
-      dot_buf.push_back(r);
-    }
-  }
-  std::sort(dot_buf.begin(), dot_buf.end());
-  return classify(dot_buf);
+double FastSVMModel::real_classify(const std::vector<float> &real_x) const {
+  CHECK_DIE(false) << "not implemented";
+  return 0.0;
 }
 
 double FastSVMModel::classify(const std::vector<int> &x) const {
   const size_t size = x.size();
   int score = -bias_;
-
-  //  std::cout << "================ START =============" << std::endl;
 
   size_t freq_size = 0;
   std::vector<FeatureKey> key(size);
@@ -242,19 +225,14 @@ double FastSVMModel::classify(const std::vector<int> &x) const {
   }
   ++freq_size;
 
-  const size_t rare_size = size - freq_size;
-  const double bound = 10 * 0.0018 * rare_size * (rare_size + 2 * freq_size + 2);
-
   const int kOffset = 2 * freq_feature_size_ - 3;
   for (size_t i1 = 0; i1 < freq_size; ++i1) {
-    score += weight1_[i1];
-    const int index = x[i1] * (kOffset - x[i1]) / 2 - 1;
+    score += weight1_[x[i1]];
+    const int *w = &weight2_[x[i1] * (kOffset - x[i1]) / 2 - 1];
     for (size_t i2 = i1 + 1; i2 < freq_size; ++i2) {
-      score += weight2_[index + x[i2]];
+      score += w[x[i2]];
     }
   }
-
-  const float prev = normalize_factor_ * score;
 
   for (size_t i1 = 0; i1 < freq_size; ++i1) {
     const size_t node_pos = node_pos_[x[i1]];
@@ -268,15 +246,13 @@ double FastSVMModel::classify(const std::vector<int> &x) const {
           reinterpret_cast<const char *>(key[i2].id),
           node_pos2, key_pos, key[i2].len);
       if (result >= 0) {
-        //        std::cout << "H Found: " << x[i1] << " " << x[i2] << std::endl;
         score += (result - kPKEBase);
-      } else {
-        //        std::cout << "H Not Found: " << x[i1] << " " << x[i2] << std::endl;
       }
     }
   }
 
   for (size_t i1 = freq_size; i1 < size; ++i1) {
+    score += weight1_[x[i1]];
     const size_t node_pos = node_pos_[x[i1]];
     if (node_pos == 0) {
       continue;
@@ -288,16 +264,10 @@ double FastSVMModel::classify(const std::vector<int> &x) const {
           reinterpret_cast<const char *>(key[i2].id),
           node_pos2, key_pos, key[i2].len);
       if (result >= 0) {
-        //        std::cout << "L Found: " << x[i1] << " " << x[i2] << std::endl;
         score += (result - kPKEBase);
-      } else {
-        //        std::cout << "L Not Found: " << x[i1] << " " << x[i2] << std::endl;
       }
     }
   }
-
-  const float after = normalize_factor_ * score;
-  std::cout << prev << " " << after << " " << bound << " " << x[freq_size] << std::endl;
 
   return score * normalize_factor_;
 }
@@ -415,6 +385,7 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         const float alpha = model.alpha(i);
         for (size_t i1 = 0; i1 < x.size(); ++i1) {
           for (size_t i2 = i1 + 1; i2 < x.size(); ++i2) {
+            CHECK_DIE(x[i1] < x[i2]);
             const uint64 key = encodeToUint64(x[i1], x[i2]);
             std::pair<unsigned char, float> *elm = &pair_weight[key];
             elm->first++;
@@ -447,7 +418,7 @@ bool FastSVMModel::compile(const char *filename, const char *output,
         unsigned int i1 = 0;
         unsigned int i2 = 0;
         decodeFromUint64(it->first, &i1, &i2);
-        CHECK_DIE(i1 < i2);
+        CHECK_DIE(i1 < i2) << i1 << " " << i2;
         CHECK_DIE(i1 < feature_size);
         CHECK_DIE(i2 < feature_size);
         if (i1 < freq_feature_size && i2 < freq_feature_size) {
@@ -531,29 +502,6 @@ bool FastSVMModel::compile(const char *filename, const char *output,
   }
 
   {
-    // bound
-    std::vector<float> upper(feature_size, 0);
-    std::vector<float> lower(feature_size, 0);
-    std::vector<int>   freq(feature_size, 0);
-    for (size_t i = 0; i < model.size(); ++i) {
-      const std::vector<int> &x = model.x(i);
-      const float alpha = model.alpha(i);
-      for (size_t j = 0; j < x.size(); ++j) {
-        if (alpha > 0) {
-          upper[x[j]] = std::max(upper[x[j]], alpha);
-        } else {
-          lower[x[j]] = std::min(lower[x[j]], alpha);
-        }
-        freq[x[j]]++;
-      }
-    }
-
-    for (size_t i = 0; i < upper.size(); ++i) {
-      std::cout << i << " " << freq[i] << " " << lower[i] << " " << upper[i] << std::endl;
-    }
-  }
-
-  {
     const unsigned int version = MODEL_VERSION;
     const unsigned int param_size = param_str.size();
     const unsigned int feature_size2 = feature_size;
@@ -629,6 +577,8 @@ SVMModel::~SVMModel() {}
 void SVMModel::close() {
   alpha_.clear();
   x_.clear();
+  real_x_.clear();
+  real_weight_.clear();
   dic_.clear();
   param_.clear();
 }
@@ -638,6 +588,15 @@ double SVMModel::classify(const std::vector<int> &x) const {
   for (size_t i = 0; i < x_.size(); ++i) {
     const int s = dot(x, x_[i]);
     result += alpha_[i] * (s + 1) * (s + 1);
+  }
+  return result;
+}
+
+double SVMModel::real_classify(const std::vector<float> &real_x) const {
+  CHECK_DIE(real_weight_.size() == real_x.size());
+  double result = 0.0;
+  for (size_t i = 0; i < real_x.size(); ++i) {
+    result += real_weight_[i] * real_x[i];
   }
   return result;
 }
@@ -771,6 +730,13 @@ bool SVMModel::save(const char *filename) const {
 
   for (size_t i = 0; i < size(); ++i) {
     ofs << alpha_[i];
+    if (!real_x_.empty()) {
+      CHECK_DIE(real_x_.size() == size());
+      for (size_t j = 0; j < real_x_[i].size(); ++j) {
+        ofs << ' ' << real_x_[i][j];
+      }
+      ofs << " |||";
+    }
     for (size_t j = 0; j < x_[i].size(); ++j) {
       ofs << ' ' << x_[i][j];
     }
@@ -814,22 +780,76 @@ bool SVMModel::open(const char *filename) {
   while (ifs.getline(buf.get(), buf.size())) {
     const size_t size = tokenize(buf.get(), " ",
                                  column.get(), column.size());
-    CHECK_FALSE(size >= 2);
-    std::vector<int> x;
+    int real_weight_feature_size = -1;
     for (size_t i = 1; i < size; ++i) {
-      x.push_back(std::atoi(column[i]));
+      if (std::strcmp(column[i], "|||") == 0) {
+        real_weight_feature_size = i;
+        break;
+      }
     }
+
     const double alpha = std::atof(column[0]);
+    std::vector<float> real_x;
+    std::vector<int> x;
+
+    if (real_weight_feature_size == -1) {
+      for (size_t i = 1; i < size; ++i) {
+        x.push_back(std::atoi(column[i]));
+      }
+    } else {
+      for (int i = 1; i < real_weight_feature_size; ++i) {
+        real_x.push_back(std::atof(column[i]));
+      }
+      for (int i = real_weight_feature_size + 1; i < static_cast<int>(size); ++i) {
+        x.push_back(std::atoi(column[i]));
+      }
+    }
+
     std::sort(x.begin(), x.end());
-    add(alpha, x);
+    CHECK_DIE(!x.empty());
+    add(alpha, x, real_x);
   }
 
   CHECK_FALSE(!param_.empty());
   CHECK_FALSE(!dic_.empty());
   CHECK_FALSE(alpha_.size() == x_.size());
+  CHECK_FALSE(!alpha_.empty());
+
+  if (!real_x_.empty()) {
+    CHECK_FALSE(real_x_.size() == x_.size());
+    real_weight_.resize(real_x_.front().size(), 0.0);
+    for (size_t i = 0; i < size(); ++i) {
+      CHECK_DIE(real_weight_.size() == real_x_[i].size());
+      for (size_t j = 0; j < real_weight_.size(); ++j) {
+        real_weight_[j] += alpha(i) * real_x_[i][j];
+      }
+    }
+  }
 
   return true;
 }
+
+void SVMModel::add(double alpha, const std::vector<int> &x) const {
+  CHECK_DIE(real_x_.empty());
+  alpha_.push_back(alpha);
+  x_.push_back(x);
+}
+
+void SVMModel::add(double alpha, const std::vector<int> &x,
+                   const std::vector<float> &real_x) const {
+  if (real_x.empty()) {
+    add(alpha, x);
+    return;
+  }
+  CHECK_DIE(x_.size() == real_x_.size()) << x_.size() << " " << real_x_.size();
+  alpha_.push_back(alpha);
+  x_.push_back(x);
+  // When using this method, keep to use this method.
+  if (real_x_.size() > 0) {
+    CHECK_DIE(real_x_.back().size() == real_x.size()) << real_x_.back().size() << " " << real_x.size();
+  }
+  real_x_.push_back(real_x);
+};
 
 int SVMModel::id(const std::string &key) const {
   std::map<std::string, int>::const_iterator it = dic_.find(key);

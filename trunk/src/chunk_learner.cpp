@@ -19,7 +19,7 @@
 #include "tree_allocator.h"
 
 namespace {
-static const char *chunk_crfpp_template =
+const char chunk_crfpp_template[] =
     "U00:%x[-2,0]\n"
     "U01:%x[-1,0]\n"
     "U02:%x[0,0]\n"
@@ -41,7 +41,7 @@ static const char *chunk_crfpp_template =
     "U22:%x[0,1]/%x[1,1]/%x[2,1]\n"
     "B\n";
 
-static const char *ne_crfpp_template =
+const char ne_crfpp_template[] =
     "U00:%x[-2,0]\n"
     "U01:%x[-1,0]\n"
     "U02:%x[0,0]\n"
@@ -78,16 +78,18 @@ static const char *ne_crfpp_template =
 }
 
 namespace CaboCha {
-
-bool ChunkingTrainingWithCRFPP(ParserType type,
-                               CharsetType charset,
-                               PossetType posset,
-                               int freq,
-                               const char *train_file,
-                               const char *model_file,
-                               const char *prev_model_file,
-                               const char *crfpp_param) {
+namespace {
+bool runChunkingTrainingWithCRFPP(ParserType type,
+                                  const char *train_file,
+                                  const char *model_file,
+                                  const char *prev_model_file,
+                                  CharsetType charset,
+                                  PossetType posset,
+                                  double cost,
+                                  int freq,
+                                  FeatureExtractorInterface *feature_extractor) {
   CHECK_DIE(freq >= 1);
+  CHECK_DIE(cost > 0.0);
   const char *template_str = type == TRAIN_CHUNK ?
       chunk_crfpp_template : ne_crfpp_template;
 
@@ -152,19 +154,19 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
 
     std::vector<const char *> argv;
     argv.push_back("cabocha_learn");
+
+    char buf1[256];
+    snprintf(buf1, sizeof(buf1), "--freq=%d", freq);
+    argv.push_back(buf1);
+
+    char buf2[256];
+    snprintf(buf2, sizeof(buf2), "--cost=%f", cost);
+    argv.push_back(buf2);
+    argv.push_back("-t");
+
     argv.push_back(templ_file.c_str());
     argv.push_back(tmp_train_file.c_str());
     argv.push_back(model_file);
-
-    char buf[32];
-    snprintf(buf, sizeof(buf),
-             "-f%d", freq);
-    argv.push_back(buf);
-
-    scoped_array<char> tmp(new char[std::strlen(crfpp_param) + 1]);
-    std::strncpy(tmp.get(), crfpp_param, std::strlen(crfpp_param));
-    tokenize(tmp.get(), "\t ", std::back_inserter(argv), 128);
-    argv.push_back("-t");
 
     CHECK_DIE(0 == crfpp_learn(static_cast<int>(argv.size()),
                                const_cast<char **>(&argv[0])))
@@ -175,5 +177,44 @@ bool ChunkingTrainingWithCRFPP(ParserType type,
   }
 
   return true;
+}
+}  // namespace
+
+bool runChunkingTraining(const char *train_file,
+                         const char *model_file,
+                         const char *prev_model_file,
+                         CharsetType charset,
+                         PossetType posset,
+                         double cost,
+                         int freq,
+                         FeatureExtractorInterface *feature_extractor) {
+  return runChunkingTrainingWithCRFPP(TRAIN_CHUNK,
+                                      train_file,
+                                      model_file,
+                                      prev_model_file,
+                                      charset,
+                                      posset,
+                                      cost,
+                                      freq,
+                                      feature_extractor);
+}
+
+bool runNETraining(const char *train_file,
+                   const char *model_file,
+                   const char *prev_model_file,
+                   CharsetType charset,
+                   PossetType posset,
+                   double cost,
+                   int freq,
+                   FeatureExtractorInterface *feature_extractor) {
+  return runChunkingTrainingWithCRFPP(TRAIN_NE,
+                                      train_file,
+                                      model_file,
+                                      prev_model_file,
+                                      charset,
+                                      posset,
+                                      cost,
+                                      freq,
+                                      feature_extractor);
 }
 }

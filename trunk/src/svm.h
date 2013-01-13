@@ -20,7 +20,7 @@ class Iconv;
 
 class SVMModelInterface {
  public:
-  explicit SVMModelInterface() {}
+  explicit SVMModelInterface() : real_features_size_(0) {}
   virtual ~SVMModelInterface() {}
   const char *what() { return what_.str(); }
 
@@ -40,35 +40,43 @@ class SVMModelInterface {
   virtual void close() = 0;
   virtual int id(const std::string &key) const = 0;
   virtual double classify(const std::vector<int> &x) const = 0;
+  virtual double real_classify(const std::vector<float> &real_features) const = 0;
+  virtual double classify(const std::vector<int> &x,
+                          const std::vector<float> &real_features) const {
+    return classify(x) + real_classify(real_features);
+  }
 
   // make const method as this is used in parser.
   virtual void add(double alpha, const std::vector<int> &x) const = 0;
-
-  virtual double classify(const std::vector<std::string> &features) const;
+  virtual void add(double alpha, const std::vector<int> &x,
+                   const std::vector<float> &real_x) const = 0;
 
  protected:
   whatlog what_;
+  size_t real_features_size_;
   std::map<std::string, std::string> param_;
 };
 
 class SVMModel : public SVMModelInterface {
  public:
   size_t size() const { return alpha_.size(); }
+  size_t real_size() const { return real_x_.size(); }
   double alpha(size_t i) const { return alpha_[i]; }
   double y(size_t i) const { return alpha_[i] > 0 ? +1 : -1; }
+  const std::vector<float> &real_weight() const { return real_weight_; }
   const std::vector<int> &x(size_t i) const { return x_[i]; }
+  const std::vector<float> &real_x(size_t i) const { return real_x_[i]; }
   const std::map<std::string, int> &dic() const { return dic_; }
   std::map<std::string, int> *mutable_dic() { return &dic_; }
 
   virtual bool open(const char *filename);
   virtual void close();
   virtual int id(const std::string &key) const;
+  virtual double real_classify(const std::vector<float> &real_x) const;
   virtual double classify(const std::vector<int> &x) const;
-  virtual void add(double alpha, const std::vector<int> &x) const {
-    alpha_.push_back(alpha);
-    x_.push_back(x);
-  }
-
+  virtual void add(double alpha, const std::vector<int> &x) const;
+  virtual void add(double alpha, const std::vector<int> &x,
+                   const std::vector<float> &real_x) const;
   virtual bool save(const char *filename) const;
   virtual bool compress();
   virtual bool compress(size_t freq);
@@ -80,7 +88,9 @@ class SVMModel : public SVMModelInterface {
 
  protected:
   mutable std::vector<double> alpha_;
+  mutable std::vector<float> real_weight_;
   mutable std::vector<std::vector<int> > x_;
+  mutable std::vector<std::vector<float> > real_x_;
   mutable std::map<std::string, int> dic_;
 };
 
@@ -97,8 +107,13 @@ class FastSVMModel : public SVMModelInterface {
   virtual void close();
   virtual int id(const std::string &key) const;
   virtual double classify(const std::vector<int> &x) const;
+  virtual double real_classify(const std::vector<float> &real_x) const;
 
   virtual void add(double alpha, const std::vector<int> &x) const {
+    return;
+  }
+  virtual void add(double alpha, const std::vector<int> &x,
+                   const std::vector<float> &real_x) const {
     return;
   }
   virtual bool save(const char *filename) const { return false; }
@@ -125,9 +140,6 @@ class FastSVMModel : public SVMModelInterface {
   int *weight2_;
   Darts::DoubleArray dic_da_;   // str -> id double array
   Darts::DoubleArray feature_da_;   // trie -> cost double array
-
-  std::vector<std::string> keys_;
-  std::vector<size_t> keys_len_;
 };
 }
 #endif

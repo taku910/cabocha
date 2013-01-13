@@ -36,7 +36,7 @@
 #endif
 
 #define COPYRIGHT "CaboCha (Yet Another Japanese Dependency Structure Analyzer)\n\
-Copyright(C) 2001-2012 Taku Kudo, All rights reserved.\n"
+Copyright(C) 2001-2013 Taku Kudo, All rights reserved.\n"
 
 #define BUF_SIZE 8192
 #define CABOCHA_MAX_LINE_SIZE 8192
