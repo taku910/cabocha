@@ -91,6 +91,7 @@ class DependencyParser: public Analyzer {
 
   scoped_ptr<SVMModelInterface> svm_;
   int parsing_algorithm_;
+  const char *feature_extractor_name_;
 };
 }
 #endif

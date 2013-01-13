@@ -66,6 +66,7 @@ bool runDependencyTraining(const char *train_file,
     selector->set_charset(charset);
     selector->set_posset(posset);
     selector->set_action_mode(TRAINING_MODE);
+    analyzer->setFeatureExtractor(feature_extractor);
     selector->open(param);
 
     size_t line = 0;
@@ -107,6 +108,12 @@ bool runDependencyTraining(const char *train_file,
   model->set_param("charset", encode_charset(charset));
   model->set_param("posset",  encode_posset(posset));
   model->set_param("type", "dep");
+
+  if (feature_extractor) {
+    CHECK_DIE(feature_extractor->name()) <<
+        "FeatureExtractorInterface::name() is not implemnted";
+    model->set_param("feature_extractor", feature_extractor->name());
+  }
 
   model->sortInstances();
 

@@ -140,7 +140,8 @@ class ParserImpl: public Parser {
   const char *parseToString(const char*, size_t);
   const char *parseToString(const char*, size_t,
                             char*, size_t);
-  void        setFeatureExtractor(const FeatureExtractorInterface *feature_extractor) {
+  void        setFeatureExtractor(
+      const FeatureExtractorInterface *feature_extractor) {
     feature_extractor_ = feature_extractor;
   }
   const char *what() { return what_.str(); }
@@ -196,12 +197,12 @@ bool ParserImpl::open(const char *arg) {
     CHECK_FALSE(analyzer) << "allocation failed";       \
     analyzer->set_charset(charset_);                    \
     analyzer->set_posset(posset_);                      \
-    analyzer->setFeatureExtractor(feature_extractor_);  \
     if (!analyzer->open(*param)) {                      \
       WHAT << analyzer->what();                         \
       delete analyzer;                                  \
       return false;                                     \
     }                                                   \
+    analyzer->setFeatureExtractor(feature_extractor_);  \
     analyzer_.push_back(analyzer);                      \
   } while (0)
 
@@ -433,8 +434,8 @@ const char *ParserImpl::parseToString(const char* str) {
   return parseToString(str, std::strlen(str));
 }
 
-FeatureEvent::FeatureEvent() :
-    feature_event_manager_(new FeatureEventManager) {}
+FeatureEvent::FeatureEvent()
+    : feature_event_manager_(new FeatureEventManager) {}
 
 FeatureEvent::~FeatureEvent() {
   delete feature_event_manager_;

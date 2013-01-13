@@ -79,15 +79,16 @@ const char ne_crfpp_template[] =
 
 namespace CaboCha {
 namespace {
-bool runChunkingTrainingWithCRFPP(ParserType type,
-                                  const char *train_file,
-                                  const char *model_file,
-                                  const char *prev_model_file,
-                                  CharsetType charset,
-                                  PossetType posset,
-                                  double cost,
-                                  int freq,
-                                  FeatureExtractorInterface *feature_extractor) {
+bool runChunkingTrainingWithCRFPP(
+    ParserType type,
+    const char *train_file,
+    const char *model_file,
+    const char *prev_model_file,
+    CharsetType charset,
+    PossetType posset,
+    double cost,
+    int freq,
+    FeatureExtractorInterface *feature_extractor) {
   CHECK_DIE(freq >= 1);
   CHECK_DIE(cost > 0.0);
   const char *template_str = type == TRAIN_CHUNK ?
