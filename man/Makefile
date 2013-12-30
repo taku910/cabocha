@@ -92,14 +92,14 @@ CABOCHA_LIBS = -lcrfpp -lmecab  -L/usr/local/lib -lmecab -lstdc++
 CABOCHA_MODEL_LIST = chunk.ipa.model chunk.juman.model chunk.unidic.model dep-tournament.ipa.model dep-tournament.juman.model dep-tournament.unidic.model dep.ipa.model dep.juman.model dep.unidic.model ne.ipa.model ne.juman.model ne.unidic.model
 CABOCHA_TXTMODEL_LIST = chunk.ipa.txt chunk.juman.txt chunk.unidic.txt dep-tournament.ipa.txt dep-tournament.juman.txt dep-tournament.unidic.txt dep.ipa.txt dep.juman.txt dep.unidic.txt ne.ipa.txt ne.juman.txt ne.unidic.txt
 CABOCHA_USE_UTF8_ONLY = 
-CC = gcc
+CC = clang
 CCDEPMODE = depmode=none
 CFLAGS = -O3  -Wno-deprecated -Wall
-CHARSET = EUC-JP
-CPP = gcc -E
+CHARSET = utf8
+CPP = clang -E
 CPPFLAGS = 
-CXX = g++
-CXXCPP = g++ -E
+CXX = clang++
+CXXCPP = clang++ -E
 CXXDEPMODE = depmode=none
 CXXFLAGS = -O3 -Wno-deprecated -Wall
 CYGPATH_W = echo
@@ -131,7 +131,7 @@ LN_S = ln -s
 LTLIBICONV = 
 LTLIBOBJS = 
 LTVERSION = 4:0:0
-MAINT = 
+MAINT = #
 MAKEINFO = ${SHELL} /home/taku/proj/cabocha/missing --run makeinfo
 MANIFEST_TOOL = :
 MECAB_CFLAGS = 
@@ -165,8 +165,8 @@ abs_srcdir = /home/taku/proj/cabocha/man
 abs_top_builddir = /home/taku/proj/cabocha
 abs_top_srcdir = /home/taku/proj/cabocha
 ac_ct_AR = ar
-ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CC = clang
+ac_ct_CXX = 
 ac_ct_DUMPBIN = 
 am__include = include
 am__leading_dot = .
@@ -218,7 +218,7 @@ EXTRA_DIST = $(man_MANS)
 all: all-am
 
 .SUFFIXES:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -243,9 +243,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 
