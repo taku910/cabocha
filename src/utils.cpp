@@ -3,6 +3,10 @@
 //  $Id: utils.cpp 50 2009-05-03 08:25:36Z taku-ku $;
 //
 //  Copyright(C) 2001-2008 Taku Kudo <taku@chasen.org>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -14,10 +18,6 @@
 #include "common.h"
 #include "scoped_ptr.h"
 #include "utils.h"
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 namespace CaboCha {
 
