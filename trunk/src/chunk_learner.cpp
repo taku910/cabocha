@@ -87,8 +87,7 @@ bool runChunkingTrainingWithCRFPP(
     CharsetType charset,
     PossetType posset,
     double cost,
-    int freq,
-    FeatureExtractorInterface *feature_extractor) {
+    int freq) {
   CHECK_DIE(freq >= 1);
   CHECK_DIE(cost > 0.0);
   const char *template_str = type == TRAIN_CHUNK ?
@@ -187,8 +186,7 @@ bool runChunkingTraining(const char *train_file,
                          CharsetType charset,
                          PossetType posset,
                          double cost,
-                         int freq,
-                         FeatureExtractorInterface *feature_extractor) {
+                         int freq) {
   return runChunkingTrainingWithCRFPP(TRAIN_CHUNK,
                                       train_file,
                                       model_file,
@@ -196,8 +194,7 @@ bool runChunkingTraining(const char *train_file,
                                       charset,
                                       posset,
                                       cost,
-                                      freq,
-                                      feature_extractor);
+                                      freq);
 }
 
 bool runNETraining(const char *train_file,
@@ -206,8 +203,7 @@ bool runNETraining(const char *train_file,
                    CharsetType charset,
                    PossetType posset,
                    double cost,
-                   int freq,
-                   FeatureExtractorInterface *feature_extractor) {
+                   int freq) {
   return runChunkingTrainingWithCRFPP(TRAIN_NE,
                                       train_file,
                                       model_file,
@@ -215,7 +211,6 @@ bool runNETraining(const char *train_file,
                                       charset,
                                       posset,
                                       cost,
-                                      freq,
-                                      feature_extractor);
+                                      freq);
 }
 }

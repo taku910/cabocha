@@ -205,7 +205,7 @@ int cabocha_learn(int argc, char **argv) {
                   charset,
                   posset,
                   parsing_algorithm,
-                  cost, freq, 0));
+                  cost, freq));
     CaboCha::Iconv iconv;
     iconv.open(charset, charset);
     CHECK_DIE(CaboCha::FastSVMModel::compile(text_model_file.c_str(),
@@ -223,7 +223,7 @@ int cabocha_learn(int argc, char **argv) {
                     old_model_file.empty() ? 0 : old_model_file.c_str(),
                     charset,
                     posset,
-                    cost, freq, 0));
+                    cost, freq));
     } else if (type == TRAIN_NE) {
       CHECK_DIE(CaboCha::runNETraining(
                     rest[0].c_str(),
@@ -231,7 +231,7 @@ int cabocha_learn(int argc, char **argv) {
                     old_model_file.empty() ? 0 : old_model_file.c_str(),
                     charset,
                     posset,
-                    cost, freq, 0));
+                    cost, freq));
     }
   }
 

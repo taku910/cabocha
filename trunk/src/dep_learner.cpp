@@ -32,8 +32,7 @@ bool runDependencyTraining(const char *train_file,
                            PossetType posset,
                            int parsing_algorithm,
                            double cost,
-                           int freq,
-                           FeatureExtractorInterface *feature_extractor) {
+                           int freq) {
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
   CHECK_DIE(parsing_algorithm == CABOCHA_TOURNAMENT ||
             parsing_algorithm == CABOCHA_SHIFT_REDUCE);
@@ -61,12 +60,10 @@ bool runDependencyTraining(const char *train_file,
     analyzer->set_posset(posset);
     analyzer->set_action_mode(TRAINING_MODE);
     analyzer->open(param);
-    analyzer->setFeatureExtractor(feature_extractor);
 
     selector->set_charset(charset);
     selector->set_posset(posset);
     selector->set_action_mode(TRAINING_MODE);
-    analyzer->setFeatureExtractor(feature_extractor);
     selector->open(param);
 
     size_t line = 0;
@@ -108,13 +105,6 @@ bool runDependencyTraining(const char *train_file,
   model->set_param("charset", encode_charset(charset));
   model->set_param("posset",  encode_posset(posset));
   model->set_param("type", "dep");
-
-  if (feature_extractor) {
-    CHECK_DIE(feature_extractor->name()) <<
-        "FeatureExtractorInterface::name() is not implemnted";
-    model->set_param("feature_extractor", feature_extractor->name());
-  }
-
   model->sortInstances();
 
   return model->save(model_file);

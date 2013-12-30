@@ -1,10 +1,10 @@
 AC_INIT(src/cabocha.cpp)
 AH_TEMPLATE([HAVE_TLS_KEYWORD], [])
-AM_INIT_AUTOMAKE(cabocha, 0.66)
+AM_INIT_AUTOMAKE(cabocha, 0.67)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY
-MODEL_VERSION="101"
+MODEL_VERSION="102"
 
 # Before making a release, the LTVERSION string should be modified.
 # The string is of the form C:R:A.

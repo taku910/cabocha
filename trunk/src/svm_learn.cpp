@@ -29,16 +29,6 @@ inline uint64 hash(int index1, int index2) {
   return static_cast<uint64>(result << 32 | index2);
 }
 
-double classify(const std::vector<float> &real_x,
-                const std::vector<float> &real_w) {
-  CHECK_DIE(real_x.size() == real_w.size());
-  double result = 0.0;
-  for (size_t i = 0; i < real_w.size(); ++i) {
-    result += real_w[i] * real_x[i];
-  }
-  return result;
-}
-
 double classify(const std::vector<int> &x,
                 const std::vector<float> &w,
                 const hash_map<uint64, int> &dic) {
@@ -65,15 +55,6 @@ double classify(const std::vector<int> &x,
   }
 
   return result;
-}
-
-void update(const std::vector<float> &real_x,
-            double d,
-            std::vector<float> *real_w) {
-  CHECK_DIE(real_x.size() == real_w->size());
-  for (size_t i = 0; i < real_w->size(); ++i) {
-    (*real_w)[i] += d * real_x[i];
-  }
 }
 
 void update(const std::vector<int> &x,
@@ -115,14 +96,12 @@ void update(const std::vector<int> &x,
 
 bool solveParameters(const std::vector<double> &y,
                      const std::vector<std::vector<int> > &x,
-                     const std::vector<std::vector<float> > &real_x,
                      double C,
                      std::vector<double> *alpha_) {
   std::vector<double> alpha(*alpha_);
 
   CHECK_DIE(alpha.size() == x.size());
   CHECK_DIE(y.size() == x.size());
-  CHECK_DIE(y.size() == real_x.size());
 
   const size_t l = y.size();
   size_t active_size = l;
@@ -136,9 +115,6 @@ bool solveParameters(const std::vector<double> &y,
   std::vector<float> w(1, 0.0);
   hash_map<uint64, int> dic;
 
-  // primal parameters for real weight
-  std::vector<float> real_w(real_x.front().size(), 0.0);
-
   // index for the bias.
   dic[0] = 0;
 
@@ -148,18 +124,13 @@ bool solveParameters(const std::vector<double> &y,
     for (size_t j = 0; j < x[i].size(); ++j) {
       ++binary_s;  // x[i].value * x[i].value == 1 (always)
     }
-    double real_s = 0.0;
-    for (size_t j = 0; j < real_x[i].size(); ++j) {
-      real_s += real_x[i][j] * real_x[i][j];
-    }
-    QD[i] = real_s + (1 + binary_s) * (1 + binary_s);   // 2nd polynomial kernel
+    QD[i] = (1 + binary_s) * (1 + binary_s);   // 2nd polynomial kernel
   }
 
   // initialize primal parameters
   for (size_t i = 0; i < l; ++i) {
     if (alpha[i] > 0) {
       update(x[i], y[i] * alpha[i], &w, &dic);
-      update(real_x[i], y[i] * alpha[i], &real_w);
     }
   }
 
@@ -167,12 +138,13 @@ bool solveParameters(const std::vector<double> &y,
   for (size_t iter = 1; iter < kMaxIteration; ++iter) {
     double PGmax_new = -kINF;
     double PGmin_new = kINF;
+    int error = 0;
     std::random_shuffle(index.begin(), index.begin() + active_size);
 
     for (size_t s = 0; s < active_size; ++s) {
       const size_t i = index[s];
-      const double margin =
-          classify(x[i], w, dic) + classify(real_x[i], real_w);
+      const double margin = classify(x[i], w, dic);
+      if (margin * y[i] < 0) { ++error; }
       GA[i] = margin * y[i] - 1;
       const double G = GA[i];
       double PG = 0.0;
@@ -207,12 +179,12 @@ bool solveParameters(const std::vector<double> &y,
         alpha[i] = std::min(std::max(alpha[i] - G / QD[i], 0.0), C);
         const double d = (alpha[i] - alpha_old) * y[i];
         update(x[i], d, &w, &dic);
-        update(real_x[i], d, &real_w);
       }
     }
 
     std::cout << "iter=" << iter
               << " kkt=" << PGmax_new - PGmin_new
+              << " error=" << 1.0 * error / x.size()
               << " feature_size=" << w.size()
               << " active_size=" << active_size << std::endl;
 
@@ -283,7 +255,6 @@ SVMModel *SVMSolver::learn(const SVMModel &example,
   CHECK_DIE(example.size() > 0) << "example size is 0";
 
   std::vector<std::vector<int> > x;
-  std::vector<std::vector<float> > real_x;
   std::vector<double> y;
   std::vector<double> alpha;
 
@@ -298,10 +269,6 @@ SVMModel *SVMSolver::learn(const SVMModel &example,
     x.push_back(example.x(i));
     y.push_back(example.alpha(i) > 0 ? +1 : -1);
     alpha.push_back(0.0);
-  }
-
-  for (size_t i = 0; i < example.real_size(); ++i) {
-    real_x.push_back(example.real_x(i));
   }
 
   if (prev_model.size() > 0) {
@@ -327,29 +294,16 @@ SVMModel *SVMSolver::learn(const SVMModel &example,
       y.push_back(prev_model.alpha(i) > 0 ? +1 : -1);
       alpha.push_back(std::fabs(prev_model.alpha(i)));
     }
-
-    for (size_t i = 0; i < prev_model.real_size(); ++i) {
-      real_x.push_back(prev_model.real_x(i));
-    }
   }
 
   CHECK_DIE(x.size() >= 2) << "training data is too small";
   CHECK_DIE(x.size() == y.size());
   CHECK_DIE(alpha.size() == y.size());
-
-  if (real_x.empty()) {
-    real_x.resize(alpha.size());
-  }
-
-  CHECK_DIE(solveParameters(y, x, real_x, cost, &alpha));
+  CHECK_DIE(solveParameters(y, x, cost, &alpha));
 
   for (size_t i = 0; i < alpha.size(); ++i) {
     if (alpha[i] > 0.0) {
-      if (real_x[i].empty()) {
-        model->add(y[i] * alpha[i], x[i]);
-      } else {
-        model->add(y[i] * alpha[i], x[i], real_x[i]);
-      }
+      model->add(y[i] * alpha[i], x[i]);
     }
   }
 

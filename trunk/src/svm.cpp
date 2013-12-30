@@ -205,11 +205,6 @@ int FastSVMModel::id(const std::string &key) const {
   return dic_da_.exactMatchSearch<Darts::DoubleArray::result_type>(key.c_str());
 }
 
-double FastSVMModel::real_classify(const std::vector<float> &real_x) const {
-  CHECK_DIE(false) << "not implemented";
-  return 0.0;
-}
-
 double FastSVMModel::classify(const std::vector<int> &x) const {
   const size_t size = x.size();
   int score = -bias_;
@@ -587,8 +582,6 @@ SVMModel::~SVMModel() {}
 void SVMModel::close() {
   alpha_.clear();
   x_.clear();
-  real_x_.clear();
-  real_weight_.clear();
   dic_.clear();
   param_.clear();
 }
@@ -598,15 +591,6 @@ double SVMModel::classify(const std::vector<int> &x) const {
   for (size_t i = 0; i < x_.size(); ++i) {
     const int s = dot(x, x_[i]);
     result += alpha_[i] * (s + 1) * (s + 1);
-  }
-  return result;
-}
-
-double SVMModel::real_classify(const std::vector<float> &real_x) const {
-  CHECK_DIE(real_weight_.size() == real_x.size());
-  double result = 0.0;
-  for (size_t i = 0; i < real_x.size(); ++i) {
-    result += real_weight_[i] * real_x[i];
   }
   return result;
 }
@@ -740,13 +724,6 @@ bool SVMModel::save(const char *filename) const {
 
   for (size_t i = 0; i < size(); ++i) {
     ofs << alpha_[i];
-    if (!real_x_.empty()) {
-      CHECK_DIE(real_x_.size() == size());
-      for (size_t j = 0; j < real_x_[i].size(); ++j) {
-        ofs << ' ' << real_x_[i][j];
-      }
-      ofs << " |||";
-    }
     for (size_t j = 0; j < x_[i].size(); ++j) {
       ofs << ' ' << x_[i][j];
     }
@@ -790,35 +767,16 @@ bool SVMModel::open(const char *filename) {
   while (ifs.getline(buf.get(), buf.size())) {
     const size_t size = tokenize(buf.get(), " ",
                                  column.get(), column.size());
-    int real_weight_feature_size = -1;
-    for (size_t i = 1; i < size; ++i) {
-      if (std::strcmp(column[i], "|||") == 0) {
-        real_weight_feature_size = i;
-        break;
-      }
-    }
-
     const double alpha = std::atof(column[0]);
-    std::vector<float> real_x;
     std::vector<int> x;
 
-    if (real_weight_feature_size == -1) {
-      for (size_t i = 1; i < size; ++i) {
-        x.push_back(std::atoi(column[i]));
-      }
-    } else {
-      for (int i = 1; i < real_weight_feature_size; ++i) {
-        real_x.push_back(std::atof(column[i]));
-      }
-      for (int i = real_weight_feature_size + 1;
-           i < static_cast<int>(size); ++i) {
-        x.push_back(std::atoi(column[i]));
-      }
+    for (size_t i = 1; i < size; ++i) {
+      x.push_back(std::atoi(column[i]));
     }
 
     std::sort(x.begin(), x.end());
     CHECK_DIE(!x.empty());
-    add(alpha, x, real_x);
+    add(alpha, x);
   }
 
   CHECK_FALSE(!param_.empty());
@@ -826,42 +784,13 @@ bool SVMModel::open(const char *filename) {
   CHECK_FALSE(alpha_.size() == x_.size());
   CHECK_FALSE(!alpha_.empty());
 
-  if (!real_x_.empty()) {
-    CHECK_FALSE(real_x_.size() == x_.size());
-    real_weight_.resize(real_x_.front().size(), 0.0);
-    for (size_t i = 0; i < size(); ++i) {
-      CHECK_DIE(real_weight_.size() == real_x_[i].size());
-      for (size_t j = 0; j < real_weight_.size(); ++j) {
-        real_weight_[j] += alpha(i) * real_x_[i][j];
-      }
-    }
-  }
-
   return true;
 }
 
 void SVMModel::add(double alpha, const std::vector<int> &x) const {
-  CHECK_DIE(real_x_.empty());
   alpha_.push_back(alpha);
   x_.push_back(x);
 }
-
-void SVMModel::add(double alpha, const std::vector<int> &x,
-                   const std::vector<float> &real_x) const {
-  if (real_x.empty()) {
-    add(alpha, x);
-    return;
-  }
-  CHECK_DIE(x_.size() == real_x_.size()) << x_.size() << " " << real_x_.size();
-  alpha_.push_back(alpha);
-  x_.push_back(x);
-  // When using this method, keep to use this method.
-  if (real_x_.size() > 0) {
-    CHECK_DIE(real_x_.back().size() == real_x.size())
-        << real_x_.back().size() << " " << real_x.size();
-  }
-  real_x_.push_back(real_x);
-};
 
 int SVMModel::id(const std::string &key) const {
   std::map<std::string, int>::const_iterator it = dic_.find(key);
