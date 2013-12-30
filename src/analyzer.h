@@ -17,11 +17,6 @@ namespace CaboCha {
 
 class Param;
 
-struct FeatureEventManager {
-  std::vector<float> real_feature;
-  std::vector<std::string> general_feature;
-};
-
 class Analyzer {
  public:
   const char *what() { return what_.str(); }
@@ -41,19 +36,9 @@ class Analyzer {
   PossetType posset() const { return posset_; }
   void set_posset(PossetType posset) { posset_ = posset; }
 
-  void setFeatureExtractor(
-      const FeatureExtractorInterface *feature_extractor) {
-    feature_extractor_ = feature_extractor;
-  }
-
-  const FeatureExtractorInterface *feature_extractor() const {
-    return feature_extractor_;
-  }
-
   explicit Analyzer() : action_mode_(PARSING_MODE),
                         charset_(EUC_JP),
-                        posset_(IPA),
-                        feature_extractor_(0) {}
+                        posset_(IPA) {}
   virtual ~Analyzer() {}
 
  protected:
@@ -63,7 +48,6 @@ class Analyzer {
   int action_mode_;
   CharsetType charset_;
   PossetType posset_;
-  const FeatureExtractorInterface *feature_extractor_;
 };
 }
 #endif

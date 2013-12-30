@@ -3040,7 +3040,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=cabocha
- VERSION=0.66
+ VERSION=0.67
 
 
 cat >>confdefs.h <<_ACEOF
@@ -3105,7 +3105,7 @@ fi
 
 
 # MODEL_VERSION XXYY
-MODEL_VERSION="101"
+MODEL_VERSION="102"
 
 # Before making a release, the LTVERSION string should be modified.
 # The string is of the form C:R:A.
