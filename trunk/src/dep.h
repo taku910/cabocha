@@ -78,12 +78,8 @@ class DependencyParser: public Analyzer {
   bool estimate(const Tree *tree,
                 int src, int dst,
                 double *score) const;
-  bool estimate(const Tree *tree,
-                int src, int dst1, int dst2,
-                double *score) const;
 
   scoped_ptr<SVMModelInterface> svm_;
-  //  const char *feature_extractor_name_;
 };
 }
 #endif
