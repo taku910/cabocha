@@ -35,8 +35,6 @@ public class CaboChaJNI {
   public final static native int CABOCHA_TRAIN_NE_get();
   public final static native int CABOCHA_TRAIN_CHUNK_get();
   public final static native int CABOCHA_TRAIN_DEP_get();
-  public final static native int CABOCHA_SHIFT_REDUCE_get();
-  public final static native int CABOCHA_TOURNAMENT_get();
   public final static native int Chunk_link_get(long jarg1, Chunk jarg1_);
   public final static native int Chunk_head_pos_get(long jarg1, Chunk jarg1_);
   public final static native int Chunk_func_pos_get(long jarg1, Chunk jarg1_);
@@ -80,8 +78,6 @@ public class CaboChaJNI {
   public final static native int TRAIN_NE_get();
   public final static native int TRAIN_CHUNK_get();
   public final static native int TRAIN_DEP_get();
-  public final static native int SHIFT_REDUCE_get();
-  public final static native int TOURNAMENT_get();
   public final static native void Tree_set_sentence(long jarg1, Tree jarg1_, String jarg2);
   public final static native String Tree_sentence(long jarg1, Tree jarg1_);
   public final static native long Tree_sentence_size(long jarg1, Tree jarg1_);
@@ -113,5 +109,8 @@ public class CaboChaJNI {
   public final static native long new_Parser__SWIG_0(String jarg1);
   public final static native long new_Parser__SWIG_1();
   public final static native String getLastError();
+  public final static native boolean runDependencyTraining(String jarg1, String jarg2, String jarg3, int jarg4, int jarg5, double jarg6, int jarg7);
+  public final static native boolean runChunkingTraining(String jarg1, String jarg2, String jarg3, int jarg4, int jarg5, double jarg6, int jarg7);
+  public final static native boolean runNETraining(String jarg1, String jarg2, String jarg3, int jarg4, int jarg5, double jarg6, int jarg7);
   public final static native String VERSION_get();
 }

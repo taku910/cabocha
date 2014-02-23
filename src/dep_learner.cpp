@@ -30,15 +30,11 @@ bool runDependencyTraining(const char *train_file,
                            const char *prev_model_file,
                            CharsetType charset,
                            PossetType posset,
-                           int parsing_algorithm,
                            double cost,
                            int freq) {
   CHECK_DIE(cost > 0.0) << "cost must be positive value";
-  CHECK_DIE(parsing_algorithm == CABOCHA_TOURNAMENT ||
-            parsing_algorithm == CABOCHA_SHIFT_REDUCE);
   CHECK_DIE(freq == 1) << "freq > 1 is not supported";
   DependencyParser *dependency_parser = new DependencyParser;
-  dependency_parser->set_parsing_algorithm(parsing_algorithm);
 
   scoped_ptr<Analyzer> analyzer(dependency_parser);
   scoped_ptr<Analyzer> selector(new Selector);
@@ -101,7 +97,6 @@ bool runDependencyTraining(const char *train_file,
                                               *prev_model.get(), cost));
   CHECK_DIE(model.get());
 
-  model->set_param("parsing_algorithm", parsing_algorithm);
   model->set_param("charset", encode_charset(charset));
   model->set_param("posset",  encode_posset(posset));
   model->set_param("type", "dep");

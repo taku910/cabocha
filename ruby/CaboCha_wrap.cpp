@@ -2109,6 +2109,35 @@ SWIG_From_bool  (bool value)
   return value ? Qtrue : Qfalse;
 }
 
+
+/*@SWIG:/usr/share/swig2.0/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+SWIGINTERN VALUE SWIG_AUX_NUM2DBL(VALUE *args)
+{
+  VALUE obj = args[0];
+  VALUE type = TYPE(obj);
+  double *res = (double *)(args[1]);
+  *res = NUM2DBL(obj);
+  return obj;
+}
+/*@SWIG@*/
+
+SWIGINTERN int
+SWIG_AsVal_double (VALUE obj, double *val)
+{
+  VALUE type = TYPE(obj);
+  if ((type == T_FLOAT) || (type == T_FIXNUM) || (type == T_BIGNUM)) {
+    double v;
+    VALUE a[2];
+    a[0] = obj;
+    a[1] = (VALUE)(&v);
+    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2DBL), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
+      if (val) *val = v;
+      return SWIG_OK;
+    }
+  }
+  return SWIG_TypeError;
+}
+
 swig_class SwigClassChunk;
 
 SWIGINTERN VALUE
@@ -3746,6 +3775,279 @@ fail:
 }
 
 
+SWIGINTERN VALUE
+_wrap_runDependencyTraining(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 7) || (argc > 7)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","CaboCha::runDependencyTraining", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","CaboCha::runDependencyTraining", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","CaboCha::runDependencyTraining", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  ecode4 = SWIG_AsVal_int(argv[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "CaboCha::CharsetType","CaboCha::runDependencyTraining", 4, argv[3] ));
+  } 
+  arg4 = static_cast< CaboCha::CharsetType >(val4);
+  ecode5 = SWIG_AsVal_int(argv[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "CaboCha::PossetType","CaboCha::runDependencyTraining", 5, argv[4] ));
+  } 
+  arg5 = static_cast< CaboCha::PossetType >(val5);
+  ecode6 = SWIG_AsVal_double(argv[5], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), Ruby_Format_TypeError( "", "double","CaboCha::runDependencyTraining", 6, argv[5] ));
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_int(argv[6], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), Ruby_Format_TypeError( "", "int","CaboCha::runDependencyTraining", 7, argv[6] ));
+  } 
+  arg7 = static_cast< int >(val7);
+  {
+    try {
+      result = (bool)CaboCha::runDependencyTraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_runChunkingTraining(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 7) || (argc > 7)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","CaboCha::runChunkingTraining", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","CaboCha::runChunkingTraining", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","CaboCha::runChunkingTraining", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  ecode4 = SWIG_AsVal_int(argv[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "CaboCha::CharsetType","CaboCha::runChunkingTraining", 4, argv[3] ));
+  } 
+  arg4 = static_cast< CaboCha::CharsetType >(val4);
+  ecode5 = SWIG_AsVal_int(argv[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "CaboCha::PossetType","CaboCha::runChunkingTraining", 5, argv[4] ));
+  } 
+  arg5 = static_cast< CaboCha::PossetType >(val5);
+  ecode6 = SWIG_AsVal_double(argv[5], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), Ruby_Format_TypeError( "", "double","CaboCha::runChunkingTraining", 6, argv[5] ));
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_int(argv[6], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), Ruby_Format_TypeError( "", "int","CaboCha::runChunkingTraining", 7, argv[6] ));
+  } 
+  arg7 = static_cast< int >(val7);
+  {
+    try {
+      result = (bool)CaboCha::runChunkingTraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_runNETraining(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  double val6 ;
+  int ecode6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 7) || (argc > 7)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","CaboCha::runNETraining", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","CaboCha::runNETraining", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","CaboCha::runNETraining", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  ecode4 = SWIG_AsVal_int(argv[3], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "CaboCha::CharsetType","CaboCha::runNETraining", 4, argv[3] ));
+  } 
+  arg4 = static_cast< CaboCha::CharsetType >(val4);
+  ecode5 = SWIG_AsVal_int(argv[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "CaboCha::PossetType","CaboCha::runNETraining", 5, argv[4] ));
+  } 
+  arg5 = static_cast< CaboCha::PossetType >(val5);
+  ecode6 = SWIG_AsVal_double(argv[5], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), Ruby_Format_TypeError( "", "double","CaboCha::runNETraining", 6, argv[5] ));
+  } 
+  arg6 = static_cast< double >(val6);
+  ecode7 = SWIG_AsVal_int(argv[6], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), Ruby_Format_TypeError( "", "int","CaboCha::runNETraining", 7, argv[6] ));
+  } 
+  arg7 = static_cast< int >(val7);
+  {
+    try {
+      result = (bool)CaboCha::runNETraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      SWIG_exception (SWIG_RuntimeError, e); 
+    }
+    catch (const char *e) {
+      SWIG_exception (SWIG_RuntimeError, (char*)e); 
+    }
+  }
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+}
+
+
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
@@ -4073,8 +4375,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_NE", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_NE)));
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_CHUNK", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_CHUNK)));
   rb_define_const(mCaboCha, "CABOCHA_TRAIN_DEP", SWIG_From_int(static_cast< int >(CABOCHA_TRAIN_DEP)));
-  rb_define_const(mCaboCha, "CABOCHA_SHIFT_REDUCE", SWIG_From_int(static_cast< int >(CABOCHA_SHIFT_REDUCE)));
-  rb_define_const(mCaboCha, "CABOCHA_TOURNAMENT", SWIG_From_int(static_cast< int >(CABOCHA_TOURNAMENT)));
   
   SwigClassChunk.klass = rb_define_class_under(mCaboCha, "Chunk", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_cabocha_chunk_t, (void *) &SwigClassChunk);
@@ -4130,8 +4430,6 @@ SWIGEXPORT void Init_CaboCha(void) {
   rb_define_const(mCaboCha, "TRAIN_NE", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_NE)));
   rb_define_const(mCaboCha, "TRAIN_CHUNK", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_CHUNK)));
   rb_define_const(mCaboCha, "TRAIN_DEP", SWIG_From_int(static_cast< int >(CaboCha::TRAIN_DEP)));
-  rb_define_const(mCaboCha, "SHIFT_REDUCE", SWIG_From_int(static_cast< int >(CaboCha::SHIFT_REDUCE)));
-  rb_define_const(mCaboCha, "TOURNAMENT", SWIG_From_int(static_cast< int >(CaboCha::TOURNAMENT)));
   
   SwigClassTree.klass = rb_define_class_under(mCaboCha, "Tree", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_CaboCha__Tree, (void *) &SwigClassTree);
@@ -4173,6 +4471,9 @@ SWIGEXPORT void Init_CaboCha(void) {
   SwigClassParser.destroy = (void (*)(void *)) free_CaboCha_Parser;
   SwigClassParser.trackObjects = 0;
   rb_define_module_function(mCaboCha, "getLastError", VALUEFUNC(_wrap_getLastError), -1);
-  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.66"));
+  rb_define_module_function(mCaboCha, "runDependencyTraining", VALUEFUNC(_wrap_runDependencyTraining), -1);
+  rb_define_module_function(mCaboCha, "runChunkingTraining", VALUEFUNC(_wrap_runChunkingTraining), -1);
+  rb_define_module_function(mCaboCha, "runNETraining", VALUEFUNC(_wrap_runNETraining), -1);
+  rb_define_const(mCaboCha, "VERSION", SWIG_FromCharPtr("0.68"));
 }
 

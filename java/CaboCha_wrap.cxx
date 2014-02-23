@@ -977,58 +977,6 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TRAIN_1DEP_1
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1SHIFT_1REDUCE_1get(JNIEnv *jenv, jclass jcls) {
-  jint jresult = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (int)CABOCHA_SHIFT_REDUCE; 
-    }
-    catch (char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
-      }; 
-    }
-    catch (const char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
-      }; 
-    }
-  }
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_CABOCHA_1TOURNAMENT_1get(JNIEnv *jenv, jclass jcls) {
-  jint jresult = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (int)CABOCHA_TOURNAMENT; 
-    }
-    catch (char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
-      }; 
-    }
-    catch (const char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
-      }; 
-    }
-  }
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_Chunk_1link_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   cabocha_chunk_t *arg1 = (cabocha_chunk_t *) 0 ;
@@ -1992,58 +1940,6 @@ SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_TRAIN_1DEP_1get(JNIEn
 }
 
 
-SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_SHIFT_1REDUCE_1get(JNIEnv *jenv, jclass jcls) {
-  jint jresult = 0 ;
-  CaboCha::ParsingAlgorithm result;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (CaboCha::ParsingAlgorithm)CaboCha::SHIFT_REDUCE; 
-    }
-    catch (char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
-      }; 
-    }
-    catch (const char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
-      }; 
-    }
-  }
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_org_chasen_cabocha_CaboChaJNI_TOURNAMENT_1get(JNIEnv *jenv, jclass jcls) {
-  jint jresult = 0 ;
-  CaboCha::ParsingAlgorithm result;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (CaboCha::ParsingAlgorithm)CaboCha::TOURNAMENT; 
-    }
-    catch (char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
-      }; 
-    }
-    catch (const char *e) {
-      {
-        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
-      }; 
-    }
-  }
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT void JNICALL Java_org_chasen_cabocha_CaboChaJNI_Tree_1set_1sentence(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
   CaboCha::Tree *arg1 = (CaboCha::Tree *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -2946,13 +2842,178 @@ SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_getLastError(JNIEn
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_org_chasen_cabocha_CaboChaJNI_runDependencyTraining(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jint jarg4, jint jarg5, jdouble jarg6, jint jarg7) {
+  jboolean jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return 0;
+  }
+  arg4 = (CaboCha::CharsetType)jarg4; 
+  arg5 = (CaboCha::PossetType)jarg5; 
+  arg6 = (double)jarg6; 
+  arg7 = (int)jarg7; 
+  {
+    try {
+      result = (bool)CaboCha::runDependencyTraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jboolean)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_chasen_cabocha_CaboChaJNI_runChunkingTraining(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jint jarg4, jint jarg5, jdouble jarg6, jint jarg7) {
+  jboolean jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return 0;
+  }
+  arg4 = (CaboCha::CharsetType)jarg4; 
+  arg5 = (CaboCha::PossetType)jarg5; 
+  arg6 = (double)jarg6; 
+  arg7 = (int)jarg7; 
+  {
+    try {
+      result = (bool)CaboCha::runChunkingTraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jboolean)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_chasen_cabocha_CaboChaJNI_runNETraining(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jint jarg4, jint jarg5, jdouble jarg6, jint jarg7) {
+  jboolean jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  CaboCha::CharsetType arg4 ;
+  CaboCha::PossetType arg5 ;
+  double arg6 ;
+  int arg7 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return 0;
+  }
+  arg4 = (CaboCha::CharsetType)jarg4; 
+  arg5 = (CaboCha::PossetType)jarg5; 
+  arg6 = (double)jarg6; 
+  arg7 = (int)jarg7; 
+  {
+    try {
+      result = (bool)CaboCha::runNETraining((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,arg5,arg6,arg7); 
+    }
+    catch (char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, e); return 0; 
+      }; 
+    }
+    catch (const char *e) {
+      {
+        SWIG_JavaException(jenv, SWIG_RuntimeError, (char*)e); return 0; 
+      }; 
+    }
+  }
+  jresult = (jboolean)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_org_chasen_cabocha_CaboChaJNI_VERSION_1get(JNIEnv *jenv, jclass jcls) {
   jstring jresult = 0 ;
   char *result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  result = (char *)("0.66");
+  result = (char *)("0.68");
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
