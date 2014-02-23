@@ -13,4 +13,16 @@ public class CaboCha implements CaboChaConstants {
     return CaboChaJNI.getLastError();
   }
 
+  public static boolean runDependencyTraining(String train_file, String model_file, String prev_model_file, CharsetType charset, PossetType posset, double cost, int freq) {
+    return CaboChaJNI.runDependencyTraining(train_file, model_file, prev_model_file, charset.swigValue(), posset.swigValue(), cost, freq);
+  }
+
+  public static boolean runChunkingTraining(String train_file, String model_file, String prev_model_file, CharsetType charset, PossetType posset, double cost, int freq) {
+    return CaboChaJNI.runChunkingTraining(train_file, model_file, prev_model_file, charset.swigValue(), posset.swigValue(), cost, freq);
+  }
+
+  public static boolean runNETraining(String train_file, String model_file, String prev_model_file, CharsetType charset, PossetType posset, double cost, int freq) {
+    return CaboChaJNI.runNETraining(train_file, model_file, prev_model_file, charset.swigValue(), posset.swigValue(), cost, freq);
+  }
+
 }

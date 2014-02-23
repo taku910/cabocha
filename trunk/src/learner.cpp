@@ -153,8 +153,6 @@ int cabocha_learn(int argc, char **argv) {
      "size of frequent features (default 3000)" },
     {"old-model", 'M', 0, "FILE",
      "set FILE as old SVM model file" },
-    {"parsing-algorithm", 'a', "0", "INT",
-     "set dependency parsing algorithm (0:shift-reduce, 1:tournament)"},
     { "charset",   't',  CABOCHA_DEFAULT_CHARSET, "ENC",
       "set parser charset to ENC (default "
       CABOCHA_DEFAULT_CHARSET ")" },
@@ -196,7 +194,6 @@ int cabocha_learn(int argc, char **argv) {
   const size_t minsup = param.get<size_t>("minsup");
 
   if (type == TRAIN_DEP) {
-    const int    parsing_algorithm = param.get<int>("parsing-algorithm");
     const std::string text_model_file = rest[1] + ".txt";
     CHECK_DIE(CaboCha::runDependencyTraining(
                   rest[0].c_str(),
@@ -204,7 +201,6 @@ int cabocha_learn(int argc, char **argv) {
                   old_model_file.empty() ? 0 : old_model_file.c_str(),
                   charset,
                   posset,
-                  parsing_algorithm,
                   cost, freq));
     CaboCha::Iconv iconv;
     iconv.open(charset, charset);

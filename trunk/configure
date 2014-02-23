@@ -3040,7 +3040,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=cabocha
- VERSION=0.67
+ VERSION=0.68
 
 
 cat >>confdefs.h <<_ACEOF

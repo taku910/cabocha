@@ -50,6 +50,9 @@ sub this {
 package CaboCha;
 
 *getLastError = *CaboChac::getLastError;
+*runDependencyTraining = *CaboChac::runDependencyTraining;
+*runChunkingTraining = *CaboChac::runChunkingTraining;
+*runNETraining = *CaboChac::runNETraining;
 
 ############# Class : CaboCha::Chunk ##############
 
@@ -251,8 +254,6 @@ package CaboCha;
 *CABOCHA_TRAIN_NE = *CaboChac::CABOCHA_TRAIN_NE;
 *CABOCHA_TRAIN_CHUNK = *CaboChac::CABOCHA_TRAIN_CHUNK;
 *CABOCHA_TRAIN_DEP = *CaboChac::CABOCHA_TRAIN_DEP;
-*CABOCHA_SHIFT_REDUCE = *CaboChac::CABOCHA_SHIFT_REDUCE;
-*CABOCHA_TOURNAMENT = *CaboChac::CABOCHA_TOURNAMENT;
 *EUC_JP = *CaboChac::EUC_JP;
 *CP932 = *CaboChac::CP932;
 *UTF8 = *CaboChac::UTF8;
@@ -279,7 +280,5 @@ package CaboCha;
 *TRAIN_NE = *CaboChac::TRAIN_NE;
 *TRAIN_CHUNK = *CaboChac::TRAIN_CHUNK;
 *TRAIN_DEP = *CaboChac::TRAIN_DEP;
-*SHIFT_REDUCE = *CaboChac::SHIFT_REDUCE;
-*TOURNAMENT = *CaboChac::TOURNAMENT;
 *VERSION = *CaboChac::VERSION;
 1;

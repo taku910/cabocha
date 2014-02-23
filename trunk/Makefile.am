@@ -7,6 +7,7 @@ AUTOMAKE_OPTIONS = 1.4 no-dependencies  dist-bzip2 no-dist-gzip
 SUBDIRS = src model man
 confdir = $(sysconfdir)
 conf_DATA = cabocharc
+EXTRA_DIST = LGPL BSD
 EXTRA_DIR = perl ruby python java swig tools example doc
 bin_SCRIPTS = cabocha-config
 
@@ -30,6 +31,7 @@ win-dist:
 	rm -fr @PACKAGE@-@VERSION@.exe wintmp
 	mkdir wintmp
 	cp -f example/*.c example/*.cpp src/cabocha.h wintmp
+	cp -f BSD LGPL COPYING wintmp
 	mkdir wintmp/model
 	for txt in model/dep.ipa.txt model/chunk.ipa.txt model/ne.ipa.txt; do \
 	  nkf -s $$txt > wintmp/$$txt; \

@@ -53,7 +53,7 @@ struct DependencyParserData {
   Hypothesis *hypothesis();
 
   Hypothesis *hypothesis_;                   // current hypothesis
-  scoped_ptr<Hypothesis> hypothesis_data_;  // used in greedy parsing
+  scoped_ptr<Hypothesis> hypothesis_data_;   // used in greedy parsing
 
   DependencyParserData();
   ~DependencyParserData();
@@ -64,12 +64,6 @@ class DependencyParser: public Analyzer {
   bool open(const Param &param);
   void close();
   bool parse(Tree *tree) const;
-  void set_parsing_algorithm(int parsing_algorithm) {
-    parsing_algorithm_ = parsing_algorithm;
-  }
-  int parsing_algorithm() const {
-    return parsing_algorithm_;
-  }
 
   SVMModelInterface *mutable_svm_model() {
     return svm_.get();
@@ -80,7 +74,6 @@ class DependencyParser: public Analyzer {
 
  private:
   bool parseShiftReduce(Tree *tree) const;
-  bool parseTournament(Tree *tree) const;
   void build(Tree *tree) const;
   bool estimate(const Tree *tree,
                 int src, int dst,
@@ -90,8 +83,7 @@ class DependencyParser: public Analyzer {
                 double *score) const;
 
   scoped_ptr<SVMModelInterface> svm_;
-  int parsing_algorithm_;
-  const char *feature_extractor_name_;
+  //  const char *feature_extractor_name_;
 };
 }
 #endif

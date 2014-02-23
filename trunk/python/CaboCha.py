@@ -93,8 +93,6 @@ CABOCHA_OUTPUT_DEP = _CaboCha.CABOCHA_OUTPUT_DEP
 CABOCHA_TRAIN_NE = _CaboCha.CABOCHA_TRAIN_NE
 CABOCHA_TRAIN_CHUNK = _CaboCha.CABOCHA_TRAIN_CHUNK
 CABOCHA_TRAIN_DEP = _CaboCha.CABOCHA_TRAIN_DEP
-CABOCHA_SHIFT_REDUCE = _CaboCha.CABOCHA_SHIFT_REDUCE
-CABOCHA_TOURNAMENT = _CaboCha.CABOCHA_TOURNAMENT
 class Chunk(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, Chunk, name, value)
@@ -173,8 +171,6 @@ OUTPUT_DEP = _CaboCha.OUTPUT_DEP
 TRAIN_NE = _CaboCha.TRAIN_NE
 TRAIN_CHUNK = _CaboCha.TRAIN_CHUNK
 TRAIN_DEP = _CaboCha.TRAIN_DEP
-SHIFT_REDUCE = _CaboCha.SHIFT_REDUCE
-TOURNAMENT = _CaboCha.TOURNAMENT
 class Tree(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, Tree, name, value)
@@ -238,6 +234,18 @@ Parser_version = _CaboCha.Parser_version
 def getLastError():
   return _CaboCha.getLastError()
 getLastError = _CaboCha.getLastError
+
+def runDependencyTraining(*args):
+  return _CaboCha.runDependencyTraining(*args)
+runDependencyTraining = _CaboCha.runDependencyTraining
+
+def runChunkingTraining(*args):
+  return _CaboCha.runChunkingTraining(*args)
+runChunkingTraining = _CaboCha.runChunkingTraining
+
+def runNETraining(*args):
+  return _CaboCha.runNETraining(*args)
+runNETraining = _CaboCha.runNETraining
 VERSION = _CaboCha.VERSION
 # This file is compatible with both classic and new-style classes.
 

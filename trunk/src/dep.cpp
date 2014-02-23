@@ -57,8 +57,7 @@ Hypothesis *DependencyParserData::hypothesis() {
 DependencyParserData::DependencyParserData() : hypothesis_(0) {}
 DependencyParserData::~DependencyParserData() {}
 
-DependencyParser::DependencyParser()
-    : svm_(0), parsing_algorithm_(SHIFT_REDUCE) {}
+DependencyParser::DependencyParser() : svm_(0) {}
 
 DependencyParser::~DependencyParser() {}
 
@@ -79,12 +78,6 @@ bool DependencyParser::open(const Param &param) {
     }
     CHECK_FALSE(!failed) << "no such file or directory: "
                          << filename;
-
-    const char *v = svm_->get_param("parsing_algorithm");
-    CHECK_FALSE(v) << "parsing_algorithm is not defined";
-    parsing_algorithm_ = std::atoi(v);
-    CHECK_FALSE(parsing_algorithm_ == CABOCHA_TOURNAMENT ||
-                parsing_algorithm_ == CABOCHA_SHIFT_REDUCE);
 
     const char *c = svm_->get_param("charset");
     CHECK_FALSE(c) << "charset is not defined";
@@ -612,65 +605,6 @@ bool DependencyParser::parseShiftReduce(Tree *tree) const {
 }
 #undef MYPOP
 
-bool DependencyParser::parseTournament(Tree *tree) const {
-  DependencyParserData *data
-      = tree->allocator()->dependency_parser_data;
-  CHECK_DIE(data);
-
-  const int size = static_cast<int>(tree->chunk_size());
-  CHECK_DIE(size >= 2);
-
-  double score = 0.0;
-  Hypothesis *hypo = data->hypothesis();
-  CHECK_DIE(hypo);
-  hypo->init(size);
-
-  if (action_mode() == TRAINING_MODE) {
-    for (int src = size - 2; src >= 0; --src) {
-      const int head = tree->chunk(src)->link;
-      if (head == -1) {   // dependency is unknown.
-        continue;
-      }
-      for (int dst = src + 1; dst <= head - 1; ++dst) {
-        estimate(tree, src, dst, head, &score);
-      }
-      for (int dst = head + 1; dst <= size - 1; ++dst) {
-        estimate(tree, src, head, dst, &score);
-      }
-      hypo->children[head].push_back(src);
-    }
-  } else {
-    for (int i = 0; i < size; ++i) {
-      hypo->head[i] = i + 1;
-    }
-    CHECK_DIE(hypo->head[size - 1] == size);
-    const std::vector<int> &head = hypo->head;
-    for (int src = size - 2; src >= 0; --src) {
-      int h = src + 1;
-      int dst = head[h];
-      while (dst != size) {
-        if (estimate(tree, src, h, dst, &score)) {
-          h = dst;
-        }
-        dst = head[dst];
-      }
-      hypo->head[src] = h;
-      hypo->score[src] = std::fabs(score);
-      hypo->children[h].push_back(src);
-    }
-
-    // propagete hypothesis.
-    for (int src = 0; src < size - 1; ++src) {
-      Chunk *chunk = tree->mutable_chunk(src);
-      CHECK_DIE(chunk != 0);
-      chunk->link = hypo->head[src];
-      chunk->score = hypo->score[src];
-    }
-  }
-
-  return true;
-}
-
 bool DependencyParser::parse(Tree *tree) const {
   if (!tree->allocator()->dependency_parser_data) {
     tree->allocator()->dependency_parser_data
@@ -695,15 +629,6 @@ bool DependencyParser::parse(Tree *tree) const {
   // make features
   build(tree);
 
-  switch (parsing_algorithm_) {
-    case SHIFT_REDUCE:
-      return parseShiftReduce(tree);
-    case TOURNAMENT:
-      return parseTournament(tree);
-    default:
-      CHECK_DIE(true) << "Unknown parsing model: " << parsing_algorithm_;
-      return false;
-  }
-  return false;
+  return parseShiftReduce(tree);
 }
 }  // namespace CaboCha
