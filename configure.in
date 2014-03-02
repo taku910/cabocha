@@ -1,5 +1,7 @@
 AC_INIT(src/cabocha.cpp)
 AH_TEMPLATE([HAVE_TLS_KEYWORD], [])
+AH_TEMPLATE([HAVE_ICONV_EUC_JP_MS], [])
+AH_TEMPLATE([HAVE_ICONV_CP932], [])
 AM_INIT_AUTOMAKE(cabocha, 0.68)
 AM_MAINTAINER_MODE
 
@@ -107,6 +109,16 @@ if test $MECAB_CONFIG != "no";
 then
   MECAB_LIBS=`$MECAB_CONFIG --libs`
   LIBS="$LIBS $MECAB_LIBS"
+fi
+
+
+AC_MSG_CHECKING(whether iconv supports EUC-JP-MS and CP932)
+if iconv -l | grep -i 'euc-jp-ms' > /dev/null; then
+AC_DEFINE([HAVE_ICONV_EUC_JP_MS])
+fi
+
+if iconv -l | grep -i 'cp932' > /dev/null; then
+AC_DEFINE([HAVE_ICONV_CP932])
 fi
 
 AC_CHECK_LIB(stdc++, main, STDCPP_LIBS="-lstdc++")

@@ -61,6 +61,7 @@ const CaboCha::Option long_options[] = {
   { "rcfile",          'r', 0, "FILE", "use FILE as resource file" },
   { "mecabrc",         'b', 0, "FILE", "use FILE as mecabrc"},
   { "mecab-dicdir",    'd', 0, "DIR",  "use DIR as mecab dictionary directory"},
+  { "mecab-userdic",    'u', 0, "FILE", "use FILE as mecab user directory"},
   { "output",          'o', 0, "FILE", "use FILE as output file"},
   { "version",         'v', 0, 0, "show the version and exit"},
   { "help",            'h', 0, 0, "show this help and exit"},

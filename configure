@@ -2573,6 +2573,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
+
 am__api_version='1.11'
 
 ac_aux_dir=
@@ -17719,6 +17721,19 @@ if test $MECAB_CONFIG != "no";
 then
   MECAB_LIBS=`$MECAB_CONFIG --libs`
   LIBS="$LIBS $MECAB_LIBS"
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether iconv supports EUC-JP-MS and CP932" >&5
+$as_echo_n "checking whether iconv supports EUC-JP-MS and CP932... " >&6; }
+if iconv -l | grep -i 'euc-jp-ms' > /dev/null; then
+$as_echo "#define HAVE_ICONV_EUC_JP_MS 1" >>confdefs.h
+
+fi
+
+if iconv -l | grep -i 'cp932' > /dev/null; then
+$as_echo "#define HAVE_ICONV_CP932 1" >>confdefs.h
+
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lstdc++" >&5
