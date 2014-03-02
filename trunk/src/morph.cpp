@@ -153,9 +153,10 @@ bool MorphAnalyzer::open(const Param &param) {
   CHECK_FALSE(action_mode() == PARSING_MODE)
       << "MorphAnalyzer supports PARSING_MODE only";
 
-  const std::string mecabrc = param.get<std::string>("mecabrc");
   std::vector<const char *> argv;
   argv.push_back(param.program_name());
+
+  const std::string mecabrc = param.get<std::string>("mecabrc");
   if (!mecabrc.empty()) {
     argv.push_back("-r");
     argv.push_back(mecabrc.c_str());
@@ -166,6 +167,13 @@ bool MorphAnalyzer::open(const Param &param) {
   if (!mecabdic.empty()) {
     argv.push_back("-d");
     argv.push_back(mecabdic.c_str());
+  }
+
+  const std::string mecabuserdic =
+      param.get<std::string>("mecab-userdic");
+  if (!mecabuserdic.empty()) {
+    argv.push_back("-u");
+    argv.push_back(mecabuserdic.c_str());
   }
 
   mecab_ = mecab_new_f(argv.size(),

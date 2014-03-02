@@ -24,6 +24,12 @@
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
+/* */
+#undef HAVE_ICONV_CP932
+
+/* */
+#undef HAVE_ICONV_EUC_JP_MS
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

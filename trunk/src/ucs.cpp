@@ -162,9 +162,17 @@ const char *encode_charset(CharsetType charset) {
     case UTF8:
       return "UTF8";
     case EUC_JP:
+#ifdef HAVE_ICONV_EUC_JP_MS
+      return "EUC-JP-MS";
+#else
       return "EUC-JP";
+#endif
     case  CP932:
+#ifdef HAVE_ICONV_CP932
       return "CP932";
+#else
+      return "SHIFT_JIS";
+#endif
     default:
       std::cerr << "charset " << charset
                 << " is not defined, use "  CABOCHA_DEFAULT_CHARSET;
