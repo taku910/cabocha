@@ -3,7 +3,7 @@ JAVAC=javac
 JAVA=java
 JAR=jar
 CXX=c++
-INCLUDE=/usr/lib/jvm/java-6-openjdk/include
+INCLUDE=/usr/lib/jvm/default-java/include
 
 PACKAGE=org/chasen/cabocha
 
@@ -13,8 +13,8 @@ INC=`cabocha-config --cflags` -I$(INCLUDE) -I$(INCLUDE)/linux
 all:
 	$(CXX) -O3 -c -fpic $(TARGET)_wrap.cxx  $(INC)
 	$(CXX) -shared  $(TARGET)_wrap.o -o lib$(TARGET).so $(LIBS)
-	$(JAVAC) $(PACKAGE)/*.java
-	$(JAVAC) test.java
+	$(JAVAC) -encoding utf8 $(PACKAGE)/*.java
+	$(JAVAC) -encoding utf8 test.java
 	$(JAR) cfv $(TARGET).jar $(PACKAGE)/*.class
 
 test:
