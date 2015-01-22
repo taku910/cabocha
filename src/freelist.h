@@ -12,33 +12,47 @@
 
 namespace CaboCha {
 
-template <class T>
-class FreeList {
+template <class T> class FreeList {
  private:
-  std::vector <T *> freelist_;
-  size_t pi_;
-  size_t li_;
-  size_t size_;
+  std::vector<std::pair<size_t, T *> > block_;
+  size_t current_index_;
+  size_t block_index_;
+  size_t default_size_;
 
  public:
-  void free() { li_ = pi_ = 0; }
-
-  T* alloc(size_t len = 1) {
-    if ((pi_ + len) >= size_) { li_++; pi_ = 0; }
-    if (li_ == freelist_.size()) {
-      freelist_.push_back(new T [size_]);
-    }
-    T* r = freelist_[li_] + pi_;
-    pi_ += len;
-    return r;
+  void free() {
+    current_index_ = 0;
+    block_index_ = 0;
   }
 
-  void set_size(size_t n) { size_ = n; }
-  explicit FreeList(size_t size): pi_(0), li_(0), size_(size) {}
-  FreeList(): pi_(0), li_(0), size_(0) {}
-  ~FreeList() {
-    for (size_t i = 0; i < freelist_.size(); ++i)
-      delete [] freelist_[i];
+  T* alloc(size_t requested_size = 1) {
+    while (block_index_ < block_.size()) {
+      if ((current_index_ + requested_size) < block_[block_index_].first) {
+        T *result = block_[block_index_].second + current_index_;
+        current_index_ += requested_size;
+        return result;
+      }
+      ++block_index_;
+      current_index_ = 0;
+    }
+
+    const size_t alloc_size = std::max(requested_size, default_size_);
+    block_.push_back(std::make_pair(alloc_size, new T[alloc_size]));
+
+    block_index_ = block_.size() - 1;
+    current_index_ += requested_size;
+
+    return block_[block_index_].second;
+  }
+
+  explicit FreeList(size_t size) : current_index_(0),
+                                   block_index_(0),
+                                   default_size_(size) {}
+
+  virtual ~FreeList() {
+    for (size_t i = 0; i < block_.size(); ++i) {
+      delete [] block_[i].second;
+    }
   }
 };
 }

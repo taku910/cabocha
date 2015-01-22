@@ -2,7 +2,7 @@ AC_INIT(src/cabocha.cpp)
 AH_TEMPLATE([HAVE_TLS_KEYWORD], [])
 AH_TEMPLATE([HAVE_ICONV_EUC_JP_MS], [])
 AH_TEMPLATE([HAVE_ICONV_CP932], [])
-AM_INIT_AUTOMAKE(cabocha, 0.68)
+AM_INIT_AUTOMAKE(cabocha, 0.69)
 AM_MAINTAINER_MODE
 
 # MODEL_VERSION XXYY
@@ -15,7 +15,7 @@ MODEL_VERSION="102"
 # - If binary compatibility has been broken (eg removed or changed interfaces)
 #   change to C+1:0:0
 # - If the interface is the same as the previous version, change to C:R+1:A
-LTVERSION="4:0:0"
+LTVERSION="5:0:0"
 AC_SUBST(LTVERSION)
 
 AC_PROG_CC

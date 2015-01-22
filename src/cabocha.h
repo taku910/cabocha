@@ -79,15 +79,15 @@ extern "C" {
   struct mecab_node_t;
 
   struct cabocha_chunk_t {
-    int                    link;
-    unsigned short int     head_pos;
-    unsigned short int     func_pos;
-    unsigned short int     token_size;
-    size_t                 token_pos;
-    float                  score;
-    const char             **feature_list;
-    const char             *additional_info;
-    unsigned short int     feature_list_size;
+    int                  link;
+    size_t               head_pos;
+    size_t               func_pos;
+    size_t               token_size;
+    size_t               token_pos;
+    float                score;
+    const char         **feature_list;
+    const char          *additional_info;
+    unsigned short int   feature_list_size;
   };
 
   struct cabocha_token_t {
