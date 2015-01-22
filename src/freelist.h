@@ -6,6 +6,7 @@
 #ifndef CABOCHA_FREELIST_H_
 #define CABOCHA_FREELIST_H_
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -36,7 +37,7 @@ template <class T> class FreeList {
       current_index_ = 0;
     }
 
-    const size_t alloc_size = std::max(requested_size, default_size_);
+    const size_t alloc_size = std::max<size_t>(requested_size, default_size_);
     block_.push_back(std::make_pair(alloc_size, new T[alloc_size]));
 
     block_index_ = block_.size() - 1;
