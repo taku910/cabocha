@@ -115,7 +115,6 @@ void setGlobalError(const char *str) {
 cabocha_t* cabocha_new(int argc, char **argv) {
   CaboCha::Parser *ptr = CaboCha::createParser(argc, argv);
   if (!ptr) {
-    CaboCha::setGlobalError(CaboCha::getParserError());
     return 0;
   }
   return reinterpret_cast<cabocha_t *>(ptr);
@@ -124,7 +123,6 @@ cabocha_t* cabocha_new(int argc, char **argv) {
 cabocha_t* cabocha_new2(const char *arg) {
   CaboCha::Parser *ptr = CaboCha::createParser(arg);
   if (!ptr) {
-    CaboCha::setGlobalError(CaboCha::getParserError());
     return 0;
   }
   return reinterpret_cast<cabocha_t *>(ptr);
