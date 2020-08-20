@@ -56,7 +56,7 @@ char *getline(char **begin, int *length) {
   if (n != end) {
     *n = '\0';
   }
-  *length -= static_cast<int>(n - *begin);
+  *length -= static_cast<int>(n - *begin + 1);
   char *result = *begin;
   *begin = n + 1;
   return result;
@@ -518,6 +518,7 @@ bool Tree::read(const char *input, size_t length,
 
       char *buf = this->alloc(length + 1);
       std::strncpy(buf, input, length);
+      buf[length] = '\0';
       int len = static_cast<int>(length);
 
       while (true) {
